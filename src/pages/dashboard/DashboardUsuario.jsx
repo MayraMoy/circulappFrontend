@@ -20,7 +20,7 @@ import {
     IconLeaf
 } from "../../components/Icons";
 import StateBadge from "../../components/StateBadge";
-import "./DashboardUsuario.css"; // Importamos los nuevos estilos CSS
+import "./Dashboard.css"; 
 
 /* ── categoryNames ─────────────────────────────────────────── */
 const categoryNames = {
@@ -28,10 +28,7 @@ const categoryNames = {
     metal: "Metal", textil: "Textil", electronico: "Electrónico", otro: "Otro",
 };
 
-/* ══════════════════════════════════════════════════════════════
-   Componente principal
-══════════════════════════════════════════════════════════════ */
-export default function Dashboard() {
+const DashboardUsuario = () => {
     const { user }   = useContext(AuthContext);
     const navigate   = useNavigate();
     const { error, isLoading, handleAsync, clearError } = useErrorHandler();
@@ -254,3 +251,4 @@ export default function Dashboard() {
         </Layout>
     );
 }
+export default DashboardUsuario;

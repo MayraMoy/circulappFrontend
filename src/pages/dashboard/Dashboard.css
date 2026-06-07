@@ -351,3 +351,139 @@
         grid-template-columns: 1fr;
     }
 }
+
+/* DASHBOARD ADMIN */
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.admin-table th {
+    text-align: left;
+    padding-bottom: 12px;
+    color: var(--text-secondary);
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.admin-table td {
+    padding: 12px 0;
+    border-top: 1px solid #F1F3F5;
+}
+
+.admin-user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.admin-user-email {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.role-badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.role-admin {
+    background: #8E44AD;
+    color: white;
+}
+
+.role-gestor {
+    background: var(--secondary);
+    color: white;
+}
+
+.role-user {
+    background: #E9ECEF;
+    color: var(--text-primary);
+}
+
+.action-btn {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 12px;
+    font-weight: 600;
+    margin-right: 10px;
+}
+
+.action-btn.promote {
+    color: var(--primary);
+}
+
+.action-btn.disable {
+    color: #E74C3C;
+}
+
+.action-btn.enable {
+    color: #27AE60;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    cursor: default;
+}
+
+.status-active {
+    background: rgba(39,174,96,0.12);
+    color: #27AE60;
+}
+
+.status-inactive {
+    background: rgba(231,76,60,0.12);
+    color: #E74C3C;
+}
+
+.report-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.report-card {
+    background: var(--background-paper);
+    border: 1px solid #EAECEF;
+    border-radius: 14px;
+    padding: 1rem;
+    cursor: pointer;
+    transition: all .2s ease;
+}
+
+.report-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+}
+
+.report-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.report-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 4px;
+}
+
+@media (max-width: 768px) {
+    .report-grid {
+        grid-template-columns: 1fr;
+    }
+}

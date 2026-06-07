@@ -4,7 +4,8 @@ import { useNavigate } from "react-router-dom";
 
 // Dashboards por rol
 import DashboardUsuario from "./DashboardUsuario";
-
+import DashboardAdmin from "./DashboardAdmin";
+import DashboardGestor from "./DashboardGestor";
 
 export default function Dashboard() {
   const { user } = useContext(AuthContext);
@@ -23,6 +24,10 @@ export default function Dashboard() {
   switch (user.role) {
     case "user":
       return <DashboardUsuario />;
+    case "admin":
+      return <DashboardAdmin />;
+    case "gestor":
+      return <DashboardGestor />;
 
     default:
       return (
