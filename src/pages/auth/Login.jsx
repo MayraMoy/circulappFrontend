@@ -1,11 +1,11 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
-import MailIcon from "./components/icons/MailIcon";
-import LockIcon from "./components/icons/LockIcon";
-import EyeIcon from "./components/icons/EyeIcon";
-import ArrowRightIcon from "./components/icons/ArrowRightIcon";
-import styles from "./components/ui/formStyles";
+import MailIcon from "../icons/MailIcon";
+import LockIcon from "../icons/LockIcon";
+import EyeIcon from "../icons/EyeIcon";
+import ArrowRightIcon from "../icons/ArrowRightIcon";
+import styles from "../ui/formStyles";
 import AuthLayout from "./components/AuthLayout";
 
 /* ── Componente principal ─────────────────────────────────── */

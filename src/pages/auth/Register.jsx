@@ -2,13 +2,13 @@ import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { AuthContext } from "../../contexts/AuthContext";
 import AuthLayout from "./components/AuthLayout";
-import UserIcon from "./components/icons/UserIcon";
-import MailIcon from "./components/icons/MailIcon";
-import LockIcon from "./components/icons/LockIcon";
-import ShieldIcon from "./components/icons/ShieldIcon";
-import EyeIcon from "./components/icons/EyeIcon";
+import UserIcon from "../icons/UserIcon";
+import MailIcon from "../icons/MailIcon";
+import LockIcon from "../icons/LockIcon";
+import ShieldIcon from "../icons/ShieldIcon";
+import EyeIcon from "../icons/EyeIcon";
 import PasswordStrength from "./components/PasswordStrength";
-import styles from "./components/ui/formStyles";
+import styles from "../ui/formStyles";
 
 /* ── Componente principal ────────────────────────────────── */
 const Register = () => {
