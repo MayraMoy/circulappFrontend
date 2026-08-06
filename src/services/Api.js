@@ -1,3 +1,5 @@
+// Este archivo configura una instancia de Axios para realizar solicitudes HTTP a la API de la aplicación.
+
 import axios from 'axios';
 
 const API = axios.create({

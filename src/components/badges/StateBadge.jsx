@@ -1,3 +1,7 @@
+// Es una etiqueta que muestra el estado de validación de un usuario. Si el estado es "validado", se muestra un fondo 
+// verde claro con texto verde oscuro y un icono de verificación. Si el estado es diferente, se muestra un fondo amarillo
+// claro con texto amarillo oscuro y un icono de reloj indicando que está en revisión.
+
 const StateBadge = ({ state }) => {
     const isValid = state === "validado";
     return (

@@ -1,7 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
+@theme {
+  --font-sans: 'Poppins', sans-serif;
 
+  /* Clases utilitarias de Tailwind v4 (bg-primary, text-text-primary, etc.) */
+  --color-primary: #16A085;
+  --color-primary-light: #48C9B0;
+  --color-primary-dark: #117A65;
+
+  --color-secondary: #F39C12;
+  --color-secondary-light: #F8C471;
+  --color-secondary-dark: #D68910;
+
+  --color-accent: #8E44AD;
+  --color-accent-light: #BB8FCE;
+  --color-accent-dark: #6C3483;
+
+  --color-success: #27AE60;
+  --color-warning: #D68910;
+  --color-error: #E74C3C;
+
+  --color-text-primary: #2C3E50;
+  --color-text-secondary: #4A5568;
+
+  --color-background-default: #F8F9FA;
+  --color-background-paper: #FFFFFF;
+  --color-background-subtle: #E9ECEF;
+
+  --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+/* Variables nativas CSS para compatibilidad con estilos inline o librerías */
 :root {
   --primary: #16A085;
   --primary-light: #48C9B0;
@@ -16,17 +47,22 @@
   --accent-dark: #6C3483;
 
   --success: #27AE60;
-  --warning: #F1C40F;
+  --warning: #D68910;
   --error: #E74C3C;
 
   --text-primary: #2C3E50;
-  --text-secondary: #5D6D7E;
+  --text-secondary: #4A5568;
 
   --background: #F8F9FA;
   --background-paper: #FFFFFF;
+  --background-subtle: #E9ECEF;
 }
 
 body {
-  font-family: 'Poppins', sans-serif;
-  color: var(--text-primary);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+  background-color: var(--color-background-default);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }

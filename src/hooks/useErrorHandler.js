@@ -1,3 +1,5 @@
+// Este hook personalizado proporciona una forma de manejar errores y estados de carga en componentes funcionales de React.
+
 import { useState, useCallback } from "react";
 
 export const useErrorHandler = () => {

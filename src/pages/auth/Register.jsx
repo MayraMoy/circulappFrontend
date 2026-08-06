@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../../contexts/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import AuthLayout from "./components/AuthLayout";
 import UserIcon from "../icons/UserIcon";
 import MailIcon from "../icons/MailIcon";

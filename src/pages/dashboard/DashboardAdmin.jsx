@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../contexts/AuthContext";
-import Layout from "../../components/Layout";
+import AuthContext from "../../contexts/AuthContext";
+import Layout from "../../components/Layout/Layout";
 import { useErrorHandler } from "../../hooks/useErrorHandler";
-import ErrorToast from "../../components/ErrorToast";
+import ErrorToast from "../../components/feedback/ErrorToast";
 import API from "../../services/Api";
 import { useNavigate } from "react-router-dom";
 

@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
-import Layout from '../../components/Layout';
+import AuthContext from '../../contexts/AuthContext';
+import Layout from '../../components/Layout/Layout';
 import API from '../../services/Api'; 
 import { useNavigate } from 'react-router-dom';
 

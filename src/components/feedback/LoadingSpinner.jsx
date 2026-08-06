@@ -1,3 +1,6 @@
+// Muestra un spinner de carga con un mensaje opcional. El tamaño del spinner se puede ajustar mediante la prop 
+// "size" (sm, md, lg). El mensaje se muestra debajo del spinner.
+
 import React from "react";
 
 const LoadingSpinner = ({ size = "md", message = "Cargando..." }) => {

@@ -1,9 +1,9 @@
 // frontend/src/pages/ItemDetail.jsx
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Layout from '../../components/Layout';
+import Layout from '../../components/Layout/Layout';
 import API from '../../services/Api';
-import { AuthContext } from '../../contexts/AuthContext';
+import AuthContext from '../../contexts/AuthContext';
 import RateUserModal from '../funcionalidades/RateUserModal';
 import {
   ArrowLeftIcon,

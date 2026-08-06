@@ -1,9 +1,9 @@
 import { useContext, useEffect, useState } from "react";
-import { AuthContext } from "../../contexts/AuthContext";
-import Layout from "../../components/Layout";
-import LoadingSpinner from "../../components/LoadingSpinner";
+import AuthContext from "../../contexts/AuthContext";
+import Layout from "../../components/Layout/Layout";
+import LoadingSpinner from "../../components/feedback/LoadingSpinner";
 import { useErrorHandler } from "../../hooks/useErrorHandler";
-import ErrorToast from "../../components/ErrorToast";
+import ErrorToast from "../../components/feedback/ErrorToast";
 import API from "../../services/Api";
 import { useNavigate } from "react-router-dom";
 
@@ -19,7 +19,7 @@ import {
     IconImagePlaceholder,
     IconLeaf
 } from "../../components/Icons";
-import StateBadge from "../../components/StateBadge";
+import StateBadge from "../../components/badges/StateBadge";
 import "./Dashboard.css"; 
 
 /* ── categoryNames ─────────────────────────────────────────── */

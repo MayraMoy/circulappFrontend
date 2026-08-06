@@ -1,3 +1,5 @@
+// Este hook personalizado maneja el estado y la lógica de inicio de sesión en componentes funcionales de React.
+
 import { useState, useContext } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";

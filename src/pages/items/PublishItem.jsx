@@ -7,8 +7,8 @@ import {
 } from 'react';
 
 import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../../contexts/AuthContext';
-import Layout from '../../components/Layout';
+import AuthContext from '../../contexts/AuthContext';
+import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
 
 const categories = [

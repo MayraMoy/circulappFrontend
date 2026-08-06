@@ -1,3 +1,5 @@
+// Muestra una notificación de error en la esquina superior derecha de la pantalla. Se puede cerrar haciendo clic en el botón de cierre.
+
 const ErrorToast = ({ error, onClose }) => {
   if (!error) return null;
 

@@ -5,8 +5,8 @@ import {
   useCallback
 } from "react";
 
-import { AuthContext } from "../../contexts/AuthContext";
-import Layout from "../../components/Layout";
+import AuthContext from "../../contexts/AuthContext";
+import Layout from "../../components/layout/Layout";
 import API from "../../services/Api";
 import { useNavigate } from "react-router-dom";
 

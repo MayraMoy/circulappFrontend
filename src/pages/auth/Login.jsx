@@ -1,6 +1,6 @@
 import { useState, useContext } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { AuthContext } from "../../contexts/AuthContext";
+import AuthContext from "../../contexts/AuthContext";
 import MailIcon from "../icons/MailIcon";
 import LockIcon from "../icons/LockIcon";
 import EyeIcon from "../icons/EyeIcon";
@@ -28,7 +28,7 @@ const Login = () => {
             await login(email, password);
             navigate("/dashboard");
         } catch (err) {
-            setError(err.response?.data?.msg || "Error al iniciar sesión. Verifica tus credenciales.");
+            setError(err.message);
         } finally {
             setIsLoading(false);
         }
