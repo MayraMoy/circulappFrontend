@@ -1,68 +1,135 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 @import "tailwindcss";
+@config "../tailwind.config.js";
+
+/* =========================================================
+   TEMA DE TAILWIND
+   ========================================================= */
 
 @theme {
-  --font-sans: 'Poppins', sans-serif;
+    /* Tipografía */
+    --font-sans: "Poppins", sans-serif;
 
-  /* Clases utilitarias de Tailwind v4 (bg-primary, text-text-primary, etc.) */
-  --color-primary: #16A085;
-  --color-primary-light: #48C9B0;
-  --color-primary-dark: #117A65;
+    /* Colores principales */
+    --color-primary: #16A085;
+    --color-primary-light: #48C9B0;
+    --color-primary-dark: #117A65;
 
-  --color-secondary: #F39C12;
-  --color-secondary-light: #F8C471;
-  --color-secondary-dark: #D68910;
+    /* Colores secundarios */
+    --color-secondary: #F39C12;
+    --color-secondary-light: #F8C471;
+    --color-secondary-dark: #D68910;
 
-  --color-accent: #8E44AD;
-  --color-accent-light: #BB8FCE;
-  --color-accent-dark: #6C3483;
+    /* Colores de acento */
+    --color-accent: #8E44AD;
+    --color-accent-light: #BB8FCE;
+    --color-accent-dark: #6C3483;
 
-  --color-success: #27AE60;
-  --color-warning: #D68910;
-  --color-error: #E74C3C;
+    /* Estados */
+    --color-success: #27AE60;
+    --color-warning: #D68910;
+    --color-error: #E74C3C;
 
-  --color-text-primary: #2C3E50;
-  --color-text-secondary: #4A5568;
+    /* Texto */
+    --color-text-primary: #2C3E50;
+    --color-text-secondary: #4A5568;
 
-  --color-background-default: #F8F9FA;
-  --color-background-paper: #FFFFFF;
-  --color-background-subtle: #E9ECEF;
+    /* Fondos */
+    --color-background: #F8F9FA;
+    --color-background-paper: #FFFFFF;
+    --color-background-subtle: #E9ECEF;
 
-  --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.05);
-  --shadow-medium: 0 10px 30px rgba(0, 0, 0, 0.1);
+    /* Sombras */
+    --shadow-soft: 0 10px 25px rgba(0, 0, 0, 0.05);
+    --shadow-medium: 0 10px 30px rgba(0, 0, 0, 0.1);
+
+    /* Animaciones */
+    --animate-slide-up: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(24px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
 }
 
-/* Variables nativas CSS para compatibilidad con estilos inline o librerías */
+@utility bg-gradient-hero {
+    background-image: linear-gradient(135deg, #2C3E50 0%, #16A085 100%);
+}
+
+@utility bg-gradient-accent {
+    background-image: linear-gradient(135deg, #8E44AD, #BB8FCE);
+}
+
+@utility animate-slide-up {
+    animation: var(--animate-slide-up);
+}
+
+/* =========================================================
+   VARIABLES CSS NATIVAS
+   Compatibilidad con componentes que todavía utilizan
+   var(--primary), var(--text-primary), etc.
+   ========================================================= */
+
 :root {
-  --primary: #16A085;
-  --primary-light: #48C9B0;
-  --primary-dark: #117A65;
+    --primary: #16A085;
+    --primary-light: #48C9B0;
+    --primary-dark: #117A65;
 
-  --secondary: #F39C12;
-  --secondary-light: #F8C471;
-  --secondary-dark: #D68910;
+    --secondary: #F39C12;
+    --secondary-light: #F8C471;
+    --secondary-dark: #D68910;
 
-  --accent: #8E44AD;
-  --accent-light: #BB8FCE;
-  --accent-dark: #6C3483;
+    --accent: #8E44AD;
+    --accent-light: #BB8FCE;
+    --accent-dark: #6C3483;
 
-  --success: #27AE60;
-  --warning: #D68910;
-  --error: #E74C3C;
+    --success: #27AE60;
+    --warning: #D68910;
+    --error: #E74C3C;
 
-  --text-primary: #2C3E50;
-  --text-secondary: #4A5568;
+    --text-primary: #2C3E50;
+    --text-secondary: #4A5568;
 
-  --background: #F8F9FA;
-  --background-paper: #FFFFFF;
-  --background-subtle: #E9ECEF;
+    --background: #F8F9FA;
+    --background-paper: #FFFFFF;
+    --background-subtle: #E9ECEF;
+}
+
+
+/* =========================================================
+   ESTILOS GLOBALES
+   ========================================================= */
+
+html {
+    font-family: var(--font-sans);
 }
 
 body {
-  font-family: var(--font-sans);
-  color: var(--color-text-primary);
-  background-color: var(--color-background-default);
-  line-height: 1.6;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+    margin: 0;
+    font-family: var(--font-sans);
+    color: var(--text-primary);
+    background-color: var(--background);
+    line-height: 1.6;
+
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
+
+/* =========================================================
+   FORMULARIOS
+   ========================================================= */
+
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
 }

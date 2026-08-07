@@ -12,19 +12,19 @@ export const NAVBAR_LINKS = [
     name: "Dashboard",
     path: "/dashboard",
     icon: IconDashboard,
-    roles: ["usuario", "gestor", "coordinador", "admin"],
+    roles: ["user", "gestor", "coordinador", "admin"],
   },
   {
     name: "Explorar",
     path: "/search",
     icon: IconSearch,
-    roles: ["usuario", "gestor", "coordinador", "admin"],
+    roles: ["user", "gestor", "coordinador", "admin"],
   },
   {
     name: "Publicar",
     path: "/publish",
     icon: IconPublish,
-    roles: ["usuario", "gestor", "coordinador", "admin"],
+    roles: ["user", "gestor", "coordinador", "admin"],
   },
   {
     name: "Validar",

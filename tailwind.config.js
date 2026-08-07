@@ -72,6 +72,21 @@ export default {
         soft: '0 10px 25px rgba(0,0,0,0.05)',
         medium: '0 10px 30px rgba(0,0,0,0.1)',
       },
+      keyframes: {
+        slideUp: {
+          from: {
+            opacity: '0',
+            transform: 'translateY(24px)',
+          },
+          to: {
+            opacity: '1',
+            transform: 'translateY(0)',
+          },
+        },
+      },
+      animation: {
+        slideUp: 'slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1)',
+      },
     },
   },
   plugins: [],
