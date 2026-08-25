@@ -8,8 +8,8 @@ const DevRoleSwitcher = () => {
   const navigate = useNavigate();
   const [switching, setSwitching] = useState(false);
 
-  // Solo visible para la cuenta súper usuario de desarrollo ricky20062@gmail.com
-  if (!user || user.email !== 'ricky20062@gmail.com') return null;
+  // Solo visible para usuarios con rol DEV o atributo isDev configurado en base de datos
+  if (!user || (!user.isDev && user.role !== 'dev')) return null;
 
   const roles = [
     { id: 'user', label: '👤 Usuario' },

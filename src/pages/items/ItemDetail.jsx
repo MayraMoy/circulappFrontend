@@ -176,8 +176,8 @@ const ItemDetail = () => {
   }
 
   const isOwner = user && item.ownerId?._id === user.id;
-  const isGestorOrAdmin = user && (user.role === 'gestor' || user.role === 'admin' || user.email === 'ricky20062@gmail.com');
-  const isAdminOrDev = user && (user.role === 'admin' || user.email === 'ricky20062@gmail.com');
+  const isGestorOrAdmin = user && (user.role === 'gestor' || user.role === 'admin' || user.role === 'dev' || user.isDev);
+  const isAdminOrDev = user && (user.role === 'admin' || user.role === 'dev' || user.isDev);
   const state = processingStates[item.processingState] || { label: item.processingState, color: 'bg-gray-100 text-gray-600' };
 
   return (

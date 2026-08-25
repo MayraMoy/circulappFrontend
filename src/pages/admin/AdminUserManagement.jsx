@@ -48,7 +48,7 @@ const AdminUserManagement = () => {
   };
 
   useEffect(() => {
-    if (!user || (user.role !== 'admin' && user.email !== 'ricky20062@gmail.com')) {
+    if (!user || (user.role !== 'admin' && user.role !== 'dev' && !user.isDev)) {
       navigate('/dashboard');
       return;
     }
@@ -171,7 +171,7 @@ const AdminUserManagement = () => {
     u.role?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  if (!user || (user.role !== 'admin' && user.email !== 'ricky20062@gmail.com')) return null;
+  if (!user || (user.role !== 'admin' && user.role !== 'dev' && !user.isDev)) return null;
 
   return (
     <Layout>
