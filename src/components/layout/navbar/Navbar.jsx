@@ -1,4 +1,4 @@
-﻿// Este componente representa la barra de navegación de la aplicación. Utiliza el contexto de autenticación para obtener información 
+// Este componente representa la barra de navegación de la aplicación. Utiliza el contexto de autenticación para obtener información 
 // sobre el usuario actual y su rol, y renderiza los elementos de navegación correspondientes según los permisos del usuario. 
 // También maneja la navegación entre rutas y la funcionalidad de cierre de sesión.
 
@@ -14,6 +14,8 @@ import ProfileButton from "./components/ProfileButton";
 import ProfileDropdown from "./components/ProfileDropdown";
 
 import { NAVBAR_LINKS } from "./data/NavbarLinks";
+
+import DevRoleSwitcher from "../../dev/DevRoleSwitcher";
 
 const Navbar = () => {
   const { user, logout } = useContext(AuthContext);
@@ -45,21 +47,25 @@ const Navbar = () => {
           navigate={navigate}
         />
 
-        <div className="relative">
-          <ProfileButton
-            user={user}
-            showProfileMenu={showProfileMenu}
-            setShowProfileMenu={setShowProfileMenu}
-          />
+        <div className="flex items-center gap-3">
+          <DevRoleSwitcher />
 
-          {showProfileMenu && (
-            <ProfileDropdown
+          <div className="relative">
+            <ProfileButton
               user={user}
-              navigate={navigate}
-              handleLogout={handleLogout}
-              closeMenu={() => setShowProfileMenu(false)}
+              showProfileMenu={showProfileMenu}
+              setShowProfileMenu={setShowProfileMenu}
             />
-          )}
+
+            {showProfileMenu && (
+              <ProfileDropdown
+                user={user}
+                navigate={navigate}
+                handleLogout={handleLogout}
+                closeMenu={() => setShowProfileMenu(false)}
+              />
+            )}
+          </div>
         </div>
       </div>
 

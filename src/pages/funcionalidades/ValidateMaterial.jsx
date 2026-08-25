@@ -1,7 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Layout from "../../components/Layout/Layout";
+import Layout from "../../components/layout/Layout";
 import API from "../../services/Api";
+import ConfirmModal from '../../components/feedback/ConfirmModal';
+import '../dashboard/Dashboard.css';
 import {
   SparklesIcon,
   Square3Stack3DIcon,
@@ -15,21 +17,40 @@ const checklistItems = [
   { id: 'compactado',   label: 'Bien compactado y atado',          Icon: ArchiveBoxIcon },
   { id: 'etiquetado',   label: 'Etiqueta con tipo y peso visible', Icon: TagIcon },
 ];
+
 const ValidateMaterial = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [itemId, setItemId]           = useState('');
-  const [checklist, setChecklist]     = useState([]);
+  const [itemId, setItemId] = useState('');
+  const [availableFardos, setAvailableFardos] = useState([]);
+  const [checklist, setChecklist] = useState([]);
   const [observations, setObservations] = useState('');
-  const [loading, setLoading]         = useState(false);
-  const [error, setError]             = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const id = params.get('itemId');
-    if (id) setItemId(id);
-    else setError('No se proporcionó un ID de fardo válido.');
+    if (id) {
+      setItemId(id);
+    } else {
+      // Cargar fardos disponibles para seleccionar si no vino un ID en la URL
+      fetchFardos();
+    }
   }, [location]);
+
+  const fetchFardos = async () => {
+    try {
+      const res = await API.get('/items?processingState=fardado');
+      setAvailableFardos(res.data);
+      if (res.data.length > 0) {
+        setItemId(res.data[0]._id);
+      }
+    } catch (err) {
+      console.error('Error al cargar fardos:', err);
+    }
+  };
 
   const toggleCheck = (id) => {
     setChecklist(prev =>
@@ -39,195 +60,247 @@ const ValidateMaterial = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!itemId) {
+      setError('Debes seleccionar o proporcionar un ID de fardo válido.');
+      return;
+    }
     if (checklist.length !== checklistItems.length) {
-      setError('Debes completar todos los ítems del checklist.');
+      setError('Debes completar todos los puntos del checklist de validación.');
       return;
     }
     setLoading(true);
     setError('');
     try {
       await API.post('/validation/validate', { itemId, checklist, observations });
-      alert('Material validado exitosamente.');
-      navigate('/dashboard');
+      setShowSuccessModal(true);
     } catch (err) {
-      setError('Error: ' + (err.response?.data?.msg || 'Inténtalo más tarde.'));
+      setError(err.response?.data?.msg || 'Error al validar el fardo. Inténtalo más tarde.');
     } finally {
       setLoading(false);
     }
   };
 
-  const progress = checklist.length / checklistItems.length;
+  const progress = (checklist.length / checklistItems.length) * 100;
   const allChecked = checklist.length === checklistItems.length;
 
   return (
     <Layout>
-      <div className="max-w-2xl mx-auto px-4 py-8">
+      <div className="dashboard-wrapper">
+        <div className="dashboard-inner" style={{ maxWidth: '720px' }}>
 
-        {/* Header */}
-        <div className="flex items-start gap-4 mb-8">
-          <div className="w-11 h-11 rounded-xl bg-green-100 flex items-center justify-center flex-shrink-0">
-            <svg className="w-5 h-5 text-green-700" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900 leading-snug">
-              Validar material fardado
-            </h1>
-            <p className="text-sm text-gray-500 mt-0.5">
-              Verifica que el material cumpla con la metodología estandarizada de la Comuna.
-            </p>
-          </div>
-        </div>
+          {/* Banner de Validación */}
+          <div className="hero-banner">
+            <div className="hero-banner-deco" />
+            <div className="hero-banner-deco-2" />
 
-        {/* Error banner */}
-        {error && (
-          <div className="flex items-center gap-2.5 bg-red-50 border border-red-200 text-red-800 text-sm rounded-lg px-4 py-3 mb-4">
-            <svg className="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126z" />
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 15.75h.007v.008H12v-.008z" />
-            </svg>
-            {error}
-          </div>
-        )}
-
-        {/* Card */}
-        <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm">
-
-          {/* ID del fardo */}
-          <div className="px-6 py-5 border-b border-gray-100">
-            <label className="block text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
-              ID del fardo o publicación
-            </label>
-            <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-xl px-4 py-2.5">
-              <svg className="w-4 h-4 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581c.699.699 1.78.872 2.607.33a18.095 18.095 0 005.223-5.223c.542-.827.369-1.908-.33-2.607L11.16 3.66A2.25 2.25 0 009.568 3z" />
-                <path strokeLinecap="round" strokeLinejoin="round" d="M6 6h.008v.008H6V6z" />
-              </svg>
-              <TagIcon className="w-4 h-4 flex-shrink-0 text-gray-400" />
-              <span className="text-xs font-medium bg-gray-100 text-gray-700 px-2.5 py-0.5 rounded-full">
-                {itemId || 'sin ID'}
-              </span>
+            <div style={{ position: "relative", zIndex: 1 }}>
+              <h1 className="hero-title">Validar Material Fardado</h1>
+              <p className="hero-sub">
+                Verifica la calidad y certifique el fardo bajo los estándares ambientales de la Comuna.
+              </p>
             </div>
           </div>
 
-          {/* Checklist */}
-          <div className="px-6 py-5 border-b border-gray-100">
-            <div className="flex items-center justify-between mb-3">
-              <label className="block text-xs font-semibold uppercase tracking-widest text-gray-400">
-                Checklist de validación <span className="text-red-400 normal-case tracking-normal">*</span>
+          {/* Alerta de Error */}
+          {error && (
+            <div
+              style={{
+                padding: '12px 16px',
+                borderRadius: '12px',
+                marginBottom: '16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                background: 'rgba(231,76,60,0.12)',
+                color: '#E74C3C',
+                border: '1px solid rgba(231,76,60,0.25)'
+              }}
+            >
+              ⚠️ {error}
+            </div>
+          )}
+
+          {/* Formulario de Validación */}
+          <form onSubmit={handleSubmit} className="section-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            
+            {/* Selección o despliegue del ID de Fardo */}
+            <div>
+              <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
+                Fardo a Validar
               </label>
-              <span className="text-xs text-gray-400 font-medium">
-                {checklist.length} / {checklistItems.length}
-              </span>
+
+              {availableFardos.length > 0 && !new URLSearchParams(location.search).get('itemId') ? (
+                <select
+                  value={itemId}
+                  onChange={(e) => setItemId(e.target.value)}
+                  style={{
+                    width: '100%',
+                    padding: '12px 14px',
+                    borderRadius: '12px',
+                    border: '1px solid #DEE2E6',
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    outline: 'none'
+                  }}
+                >
+                  {availableFardos.map(fardo => (
+                    <option key={fardo._id} value={fardo._id}>
+                      {fardo.title} — Categoría: {fardo.category} (ID: {fardo._id.substring(0, 8)}...)
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <TagIcon style={{ width: '18px', height: '18px', color: 'var(--primary)' }} />
+                  <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                    ID: {itemId || 'Sin ID seleccionado'}
+                  </span>
+                </div>
+              )}
             </div>
 
-            {/* Progress bar */}
-            <div className="h-1 bg-gray-100 rounded-full mb-4 overflow-hidden">
-              <div
-                className="h-full bg-green-500 rounded-full transition-all duration-300 ease-out"
-                style={{ width: `${progress * 100}%` }}
+            {/* Checklist */}
+            <div style={{ paddingTop: '16px', borderTop: '1px solid #F1F3F5' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
+                  Checklist de Validación <span style={{ color: '#E74C3C' }}>*</span>
+                </label>
+                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary)' }}>
+                  {checklist.length} / {checklistItems.length} completados
+                </span>
+              </div>
+
+              {/* Barra de progreso */}
+              <div style={{ height: '6px', background: '#EAECEF', borderRadius: '999px', overflow: 'hidden', marginBottom: '16px' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${progress}%`,
+                    background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                    transition: 'width 0.3s ease'
+                  }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                {checklistItems.map(item => {
+                  const isChecked = checklist.includes(item.id);
+                  return (
+                    <button
+                      type="button"
+                      key={item.id}
+                      onClick={() => toggleCheck(item.id)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '12px',
+                        padding: '14px 16px',
+                        borderRadius: '12px',
+                        border: isChecked ? '1.5px solid #16A085' : '1px solid #EAECEF',
+                        background: isChecked ? 'rgba(22,160,133,0.06)' : '#FFFFFF',
+                        cursor: 'pointer',
+                        textAlign: 'left',
+                        transition: 'all 0.15s ease'
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: '20px',
+                          height: '20px',
+                          borderRadius: '6px',
+                          border: isChecked ? 'none' : '2px solid #CBD5E1',
+                          background: isChecked ? '#16A085' : 'transparent',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          color: '#FFFFFF',
+                          fontSize: '12px',
+                          fontWeight: '700',
+                          flexShrink: 0
+                        }}
+                      >
+                        {isChecked && '✓'}
+                      </div>
+
+                      <span style={{ fontSize: '13px', fontWeight: isChecked ? '600' : '500', color: isChecked ? '#0f4c38' : 'var(--text-primary)', flex: 1 }}>
+                        {item.label}
+                      </span>
+
+                      <item.Icon style={{ width: '20px', height: '20px', color: isChecked ? '#16A085' : '#94A3B8' }} />
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Observaciones */}
+            <div style={{ paddingTop: '16px', borderTop: '1px solid #F1F3F5' }}>
+              <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
+                Observaciones <span style={{ textTransform: 'none', fontWeight: 'normal', color: 'var(--text-secondary)' }}>(opcional)</span>
+              </label>
+              <textarea
+                rows="3"
+                placeholder="Ej: Material verificado en planta de transferencia, cumple normas de empaque..."
+                style={{
+                  width: '100%',
+                  padding: '12px',
+                  borderRadius: '12px',
+                  border: '1px solid #DEE2E6',
+                  fontSize: '13px',
+                  outline: 'none'
+                }}
+                value={observations}
+                onChange={e => setObservations(e.target.value)}
               />
             </div>
 
-            <div className="flex flex-col gap-2">
-              {checklistItems.map((item) => {
-                const isChecked = checklist.includes(item.id);
-                return (
-                  <button
-                    type="button"
-                    key={item.id}
-                    onClick={() => toggleCheck(item.id)}
-                    className={`flex items-center gap-3 px-4 py-3 rounded-xl border text-left transition-all duration-150 w-full
-                      ${isChecked
-                        ? 'bg-green-50 border-green-300'
-                        : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300'
-                      }`}
-                  >
-                    {/* Custom checkbox */}
-                    <span className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 transition-all duration-150
-                      ${isChecked ? 'bg-green-600 border-green-600' : 'border-gray-300'}`}
-                    >
-                      {isChecked && (
-                        <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
-                        </svg>
-                      )}
-                    </span>
+            {/* Acciones */}
+            <div style={{ display: 'flex', gap: '12px', paddingTop: '16px', borderTop: '1px solid #F1F3F5' }}>
+              <button
+                type="button"
+                className="footer-btn secondary"
+                style={{ width: 'auto', padding: '12px 24px' }}
+                onClick={() => navigate('/dashboard')}
+              >
+                Volver
+              </button>
 
-                    <span className={`text-sm flex-1 ${isChecked ? 'text-green-900 font-medium' : 'text-gray-700'}`}>
-                      {item.label}
-                    </span>
-
-                    <span className="text-base opacity-60">
-                      <item.Icon className="w-5 h-5 text-gray-400 flex-shrink-0" />
-                    </span>
-                  </button>
-                );
-              })}
+              <button
+                type="submit"
+                disabled={loading || !allChecked}
+                className="publish-cta"
+                style={{
+                  flex: 1,
+                  padding: '12px',
+                  opacity: (!allChecked || loading) ? 0.5 : 1,
+                  cursor: (!allChecked || loading) ? 'not-allowed' : 'pointer'
+                }}
+              >
+                {loading ? 'Certificando...' : 'Certificar y Validar Material'}
+              </button>
             </div>
-          </div>
 
-          {/* Observaciones */}
-          <div className="px-6 py-5 border-b border-gray-100">
-            <label className="flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-gray-400 mb-2">
-              Observaciones
-              <span className="normal-case tracking-normal font-normal text-gray-400">(opcional)</span>
-            </label>
-            <textarea
-              value={observations}
-              onChange={(e) => setObservations(e.target.value)}
-              rows={3}
-              placeholder="Ej: Falta etiqueta de peso..."
-              className="w-full text-sm text-gray-800 bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 resize-none
-                placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-green-300 focus:border-transparent
-                transition-all duration-150"
-            />
-          </div>
+          </form>
 
-          {/* Footer actions */}
-          <div className="px-6 py-4 flex items-center gap-3">
-            <button
-              type="button"
-              onClick={() => navigate(-1)}
-              className="flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-700 border border-gray-200
-                hover:border-gray-300 px-4 py-2.5 rounded-xl transition-all duration-150"
-            >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" />
-              </svg>
-              Volver
-            </button>
-
-            <button
-              type="submit"
-              disabled={loading || !allChecked}
-              className={`flex-1 flex items-center justify-center gap-2 text-sm font-medium py-2.5 rounded-xl transition-all duration-150
-                ${allChecked && !loading
-                  ? 'bg-green-600 hover:bg-green-700 text-white shadow-sm active:scale-[0.98]'
-                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                }`}
-            >
-              {loading ? (
-                <>
-                  <svg className="w-4 h-4 animate-spin" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
-                  </svg>
-                  Validando...
-                </>
-              ) : (
-                <>
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z" />
-                  </svg>
-                  Certificar material
-                </>
-              )}
-            </button>
-          </div>
-
-        </form>
+        </div>
       </div>
+
+      {/* MODAL DE ÉXITO DE VALIDACIÓN */}
+      <ConfirmModal
+        isOpen={showSuccessModal}
+        title="¡Material Validado!"
+        message="El fardo ha sido certificado exitosamente bajo la metodología estandarizada."
+        confirmText="Ir al Dashboard"
+        cancelText=""
+        type="success"
+        onConfirm={() => {
+          setShowSuccessModal(false);
+          navigate('/dashboard');
+        }}
+        onCancel={() => {
+          setShowSuccessModal(false);
+          navigate('/dashboard');
+        }}
+      />
     </Layout>
   );
 };

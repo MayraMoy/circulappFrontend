@@ -10,6 +10,7 @@ import SearchItems from "./pages/items/SearchItems";
 import ValidateMaterial from "./pages/funcionalidades/ValidateMaterial";
 import ItemDetail from "./pages/items/ItemDetail";
 import Educational from "./pages/educacion/Educational";
+import AdminUserManagement from "./pages/admin/AdminUserManagement";
 
 function App() {
     return (
@@ -29,6 +30,7 @@ function App() {
                 <Route path="/validate" element={<ValidateMaterial />} />
                 <Route path="/items/:id" element={<ItemDetail />} />
                 <Route path="/educational" element={<Educational />} />
+                <Route path="/admin/users" element={<AdminUserManagement />} />
             </Route>
         </Routes>
     );

@@ -145,7 +145,7 @@ const DashboardUsuario = () => {
                                     <div className="section-icon-wrap"><IconPackage /></div>
                                     <h2 className="section-title">Mis productos recientes</h2>
                                 </div>
-                                <button className="link-btn" onClick={() => navigate("/profile")}>
+                                <button className="link-btn" onClick={() => navigate("/profile?tab=products")}>
                                     Ver todos <IconChevron />
                                 </button>
                             </div>

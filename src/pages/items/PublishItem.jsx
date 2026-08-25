@@ -70,22 +70,30 @@ const PublishItem = () => {
     } catch { return null; }
   }, []);
 
-  const handleAddressChange = async (e) => {
+  const handleAddressChange = (e) => {
     const address = e.target.value;
     setFormData(prev => ({ ...prev, address }));
-    if (address.trim().length > 5) {
-      setIsGeocoding(true); setError('');
-      const result = await geocodeAddress(address);
-      if (result) {
-        setFormData(prev => ({ ...prev, lat: result.lat, lng: result.lng, address: result.formattedAddress }));
-      } else {
-        setError('No se encontró la dirección.');
-        setFormData(prev => ({ ...prev, lat: null, lng: null }));
-      }
-      setIsGeocoding(false);
-    } else {
-      setFormData(prev => ({ ...prev, lat: null, lng: null }));
+    if (error && error.includes('dirección')) setError('');
+  };
+
+  const handleSearchAddress = async () => {
+    if (!formData.address || formData.address.trim().length < 3) {
+      return setError('Por favor ingresa una dirección completa para buscar en el mapa.');
     }
+    setIsGeocoding(true);
+    setError('');
+    const result = await geocodeAddress(formData.address);
+    if (result) {
+      setFormData(prev => ({ 
+        ...prev, 
+        lat: result.lat, 
+        lng: result.lng, 
+        address: result.formattedAddress 
+      }));
+    } else {
+      setError('No se pudo encontrar las coordenadas para esta dirección. Intenta agregar ciudad o provincia.');
+    }
+    setIsGeocoding(false);
   };
 
   const getLocation = async () => {
@@ -409,12 +417,17 @@ const PublishItem = () => {
                   type="text"
                   className="pi-input"
                   placeholder="Ej: Av. Rivadavia 1234, Buenos Aires"
-                  value={formData.address}
+                  value={formData.address || ''}
                   onChange={handleAddressChange}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearchAddress(); } }}
                 />
+                <button type="button" className="pi-gps-btn" onClick={handleSearchAddress}>
+                  <i className="ti ti-search" style={{ fontSize: 16 }} aria-hidden="true" />
+                  Buscar Mapa
+                </button>
                 <button type="button" className="pi-gps-btn" onClick={getLocation}>
                   <i className="ti ti-current-location" style={{ fontSize: 16 }} aria-hidden="true" />
-                  Mi ubicación
+                  GPS
                 </button>
               </div>
 

@@ -53,6 +53,13 @@ export default function AuthProvider({ children }) {
         setUser(updatedUser);
     };
 
+    const switchRole = (newRole) => {
+        if (!user) return;
+        const updated = { ...user, role: newRole };
+        updateStoredUser(updated);
+        setUser(updated);
+    };
+
     return (
         <AuthContext.Provider
             value={{
@@ -62,6 +69,7 @@ export default function AuthProvider({ children }) {
                 register,
                 logout,
                 updateUser,
+                switchRole,
             }}
         >
             {children}
