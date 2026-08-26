@@ -22,7 +22,7 @@ const categories = [
 ];
 
 const PublishItem = () => {
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -36,12 +36,41 @@ const PublishItem = () => {
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Estados para modal amigable de teléfono requerido
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [savingPhone, setSavingPhone] = useState(false);
+  const [phoneModalError, setPhoneModalError] = useState('');
+
   useEffect(() => {
     if (user && !user.phone) {
-      alert('Debes completar tu número de teléfono en el perfil para publicar.');
-      navigate('/profile');
+      setShowPhoneModal(true);
     }
-  }, [user, navigate]);
+  }, [user]);
+
+  const handleSavePhone = async (e) => {
+    e.preventDefault();
+    if (!phoneInput.trim()) {
+      return setPhoneModalError('Por favor ingresa tu número de contacto.');
+    }
+    setSavingPhone(true);
+    setPhoneModalError('');
+    try {
+      const res = await API.put('/users/profile', {
+        name: user.name,
+        email: user.email,
+        phone: phoneInput.trim(),
+        location: user.location || '',
+        bio: user.bio || ''
+      });
+      updateUser(res.data);
+      setShowPhoneModal(false);
+    } catch (err) {
+      setPhoneModalError(err.response?.data?.msg || 'Error al guardar el teléfono. Intenta nuevamente.');
+    } finally {
+      setSavingPhone(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -542,6 +571,75 @@ const PublishItem = () => {
           </button>
         </form>
       </div>
+
+      {/* Modal Amigable para Completar Teléfono */}
+      {showPhoneModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 shadow-2xl animate-scale-up border border-gray-100 text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 mx-auto">
+              <i className="ti ti-phone-call text-2xl" />
+            </div>
+
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Número de contacto requerido
+            </h3>
+            
+            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+              Para que los recicladores y cooperativas puedan coordinar el retiro de tus materiales, ingresa tu teléfono o WhatsApp de contacto:
+            </p>
+
+            {phoneModalError && (
+              <div className="mb-4 rounded-xl bg-red-50 p-3 text-xs text-red-600 border border-red-200 text-left">
+                {phoneModalError}
+              </div>
+            )}
+
+            <form onSubmit={handleSavePhone} className="flex flex-col gap-4 text-left">
+              <div>
+                <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500">
+                  Teléfono / WhatsApp
+                </label>
+                <div className="flex items-center gap-2.5 rounded-xl border border-gray-300 bg-gray-50 px-3.5 py-2.5 transition-all focus-within:border-emerald-700 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-700/10">
+                  <i className="ti ti-phone text-gray-400 text-base" />
+                  <input
+                    type="tel"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value)}
+                    placeholder="Ej: +54 9 351 1234567"
+                    required
+                    autoFocus
+                    className="min-w-0 flex-1 border-none bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col-reverse sm:flex-row gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => navigate('/dashboard')}
+                  className="w-full sm:w-1/2 rounded-xl border border-gray-200 py-2.5 px-4 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Ir al Dashboard
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingPhone}
+                  className="w-full sm:w-1/2 rounded-xl bg-primary py-2.5 px-4 text-sm font-semibold text-white hover:bg-primary-dark shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                >
+                  {savingPhone ? (
+                    <>
+                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Guardando...
+                    </>
+                  ) : (
+                    'Guardar y Continuar'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };

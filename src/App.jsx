@@ -3,6 +3,8 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 import Login from "./pages/auth/Login/Login";
 import Register from "./pages/auth/Register/Register";
+import ForgotPassword from "./pages/auth/ForgotPassword/ForgotPassword";
+import ResetPassword from "./pages/auth/ResetPassword/ResetPassword";
 import Dashboard from "./pages/dashboard/Dashboard";
 import PublishItem from "./pages/items/PublishItem";
 import Profile from "./pages/usuario/Profile";
@@ -21,6 +23,8 @@ function App() {
             {/* Rutas públicas */}
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:token" element={<ResetPassword />} />
             <Route path="/search" element={<SearchItems />} />
             <Route path="/items/:id" element={<ItemDetail />} />
             <Route path="/educational" element={<Educational />} />
