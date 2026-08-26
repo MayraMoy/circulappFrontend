@@ -72,13 +72,14 @@ const PublishItem = () => {
 
   const handleAddressChange = (e) => {
     const address = e.target.value;
-    setFormData(prev => ({ ...prev, address }));
+    // Si cambia el texto de la dirección, desvinculamos coordenadas anteriores para evitar desfasaje
+    setFormData(prev => ({ ...prev, address, lat: null, lng: null }));
     if (error && error.includes('dirección')) setError('');
   };
 
   const handleSearchAddress = async () => {
     if (!formData.address || formData.address.trim().length < 3) {
-      return setError('Por favor ingresa una dirección completa para buscar en el mapa.');
+      return setError('Por favor ingresa una dirección para buscar en el mapa.');
     }
     setIsGeocoding(true);
     setError('');
@@ -91,7 +92,7 @@ const PublishItem = () => {
         address: result.formattedAddress 
       }));
     } else {
-      setError('No se pudo encontrar las coordenadas para esta dirección. Intenta agregar ciudad o provincia.');
+      setError('No se pudieron obtener coordenadas válidas para esta dirección. Intenta agregar ciudad o provincia.');
     }
     setIsGeocoding(false);
   };
@@ -99,6 +100,7 @@ const PublishItem = () => {
   const getLocation = async () => {
     if (!navigator.geolocation) { setError('Tu navegador no soporta geolocalización.'); return; }
     setError('');
+    setIsGeocoding(true);
     try {
       const position = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 })
@@ -111,7 +113,9 @@ const PublishItem = () => {
         setFormData(prev => ({ ...prev, lat: latitude, lng: longitude, address: `Ubicación GPS: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}` }));
       }
     } catch (err) {
-      setError(err.code === 1 ? 'Permiso de ubicación denegado.' : 'No se pudo obtener tu ubicación.');
+      setError(err.code === 1 ? 'Permiso de ubicación GPS denegado.' : 'No se pudo obtener tu ubicación GPS.');
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -130,16 +134,39 @@ const PublishItem = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim()) return setError('El título es obligatorio.');
-    if (!formData.lat || !formData.lng) return setError('Debes ingresar una dirección válida.');
     if (!user.phone) { alert('Debes completar tu número de teléfono en el perfil para publicar.'); navigate('/profile'); return; }
+
+    let finalLat = formData.lat;
+    let finalLng = formData.lng;
+    let finalAddress = formData.address;
+
+    // Si el usuario escribió una dirección pero no apretó buscar, intentar geocodificarla automáticamente
+    if ((!finalLat || !finalLng) && formData.address?.trim()) {
+      setIsGeocoding(true);
+      const geocoded = await geocodeAddress(formData.address);
+      setIsGeocoding(false);
+      if (geocoded) {
+        finalLat = geocoded.lat;
+        finalLng = geocoded.lng;
+        finalAddress = geocoded.formattedAddress;
+        setFormData(prev => ({ ...prev, lat: finalLat, lng: finalLng, address: finalAddress }));
+      } else {
+        return setError('No se pudo validar la ubicación técnica de la dirección ingresada. Por favor utiliza el botón "Buscar Mapa" o "GPS".');
+      }
+    }
+
+    if (!finalLat || !finalLng) {
+      return setError('Debes validar la ubicación técnica mediante el botón "Buscar Mapa" o "GPS".');
+    }
 
     setSubmitting(true);
     const fd = new FormData();
     fd.append('title', formData.title);
     fd.append('description', formData.description);
     fd.append('category', formData.category);
-    fd.append('lat', formData.lat);
-    fd.append('lng', formData.lng);
+    fd.append('address', finalAddress);
+    fd.append('lat', finalLat);
+    fd.append('lng', finalLng);
     images.forEach(file => fd.append('images', file));
 
     try {

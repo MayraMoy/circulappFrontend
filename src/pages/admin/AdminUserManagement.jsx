@@ -18,6 +18,7 @@ const AdminUserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [feedbackMsg, setFeedbackMsg] = useState({ type: '', text: '' });
 
   // Modales de Usuario
   const [editingUser, setEditingUser] = useState(null);
@@ -34,6 +35,11 @@ const AdminUserManagement = () => {
   const [editItemData, setEditItemData] = useState({ title: '', description: '', category: '', address: '', keepImages: [], newFiles: [] });
   const [savingItem, setSavingItem] = useState(false);
   const [deletingItemId, setDeletingItemId] = useState(null);
+
+  const showToast = (type, text) => {
+    setFeedbackMsg({ type, text });
+    setTimeout(() => setFeedbackMsg({ type: '', text: '' }), 4000);
+  };
 
   const fetchUsers = async () => {
     setLoading(true);
@@ -60,8 +66,9 @@ const AdminUserManagement = () => {
     try {
       const res = await API.put(`/admin/users/${userId}`, { role: newRole });
       setUsers(prev => prev.map(u => u._id === userId ? res.data : u));
+      showToast('success', `Rol actualizado a "${newRole}" exitosamente.`);
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al cambiar rol');
+      showToast('danger', err.response?.data?.msg || 'Error al cambiar rol');
     }
   };
 
@@ -70,8 +77,9 @@ const AdminUserManagement = () => {
     try {
       const res = await API.put(`/admin/users/${userId}`, { active: !currentActive });
       setUsers(prev => prev.map(u => u._id === userId ? res.data : u));
+      showToast('success', `Usuario ${!currentActive ? 'activado' : 'desactivado'} correctamente.`);
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al cambiar estado');
+      showToast('danger', err.response?.data?.msg || 'Error al cambiar estado');
     }
   };
 
@@ -84,8 +92,9 @@ const AdminUserManagement = () => {
       const res = await API.put(`/admin/users/${editingUser._id}`, editUserData);
       setUsers(prev => prev.map(u => u._id === editingUser._id ? res.data : u));
       setEditingUser(null);
+      showToast('success', 'Usuario actualizado correctamente.');
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al guardar datos');
+      showToast('danger', err.response?.data?.msg || 'Error al guardar datos');
     } finally {
       setSavingUser(false);
     }
@@ -197,6 +206,24 @@ const AdminUserManagement = () => {
               </div>
             </div>
           </div>
+
+          {/* Mensajes de Feedback */}
+          {feedbackMsg.text && (
+            <div
+              style={{
+                padding: '12px 16px',
+                borderRadius: '12px',
+                marginBottom: '16px',
+                fontSize: '13px',
+                fontWeight: '600',
+                background: feedbackMsg.type === 'success' ? 'rgba(39,174,96,0.12)' : 'rgba(231,76,60,0.12)',
+                color: feedbackMsg.type === 'success' ? '#27AE60' : '#E74C3C',
+                border: `1px solid ${feedbackMsg.type === 'success' ? 'rgba(39,174,96,0.25)' : 'rgba(231,76,60,0.25)'}`
+              }}
+            >
+              {feedbackMsg.text}
+            </div>
+          )}
 
           {/* Tarjeta Principal de la Tabla */}
           <div className="section-card">

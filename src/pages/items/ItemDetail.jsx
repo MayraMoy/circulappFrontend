@@ -194,17 +194,19 @@ const ItemDetail = () => {
             Volver
           </button>
 
-          {/* Botones de Administrador / Dueño */}
-          {(isAdminOrDev || isOwner) && (
+          {/* Botones de Moderación (Dueño, Admin o Gestor Comunal) */}
+          {(isGestorOrAdmin || isOwner) && (
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={handleOpenEdit}
-                className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
-              >
-                <PencilSquareIcon className="w-4 h-4" />
-                Editar
-              </button>
+              {(isAdminOrDev || isOwner) && (
+                <button
+                  type="button"
+                  onClick={handleOpenEdit}
+                  className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                >
+                  <PencilSquareIcon className="w-4 h-4" />
+                  Editar
+                </button>
+              )}
 
               <button
                 type="button"
@@ -212,7 +214,7 @@ const ItemDetail = () => {
                 className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
               >
                 <TrashIcon className="w-4 h-4" />
-                Eliminar
+                {user?.role === 'gestor' && !isOwner ? 'Moderar / Eliminar' : 'Eliminar'}
               </button>
             </div>
           )}
