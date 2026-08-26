@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../contexts/AuthContext";
 import API from "../../../services/Api";
 
-export const useDashboardGestor = () => {
+const useDashboardGestor = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("pending");
@@ -11,9 +11,12 @@ export const useDashboardGestor = () => {
   const [toValidateItems, setToValidateItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [balingItemId, setBalingItemId] = useState(null);
 
   const fetchItems = useCallback(async () => {
     if (!user || user.role !== "gestor") return;
+
+    setLoading(true);
     setError("");
     try {
       const pendingRes = await API.get("/items?processingState=sin_procesar");
@@ -31,34 +34,12 @@ export const useDashboardGestor = () => {
   }, [user]);
 
   useEffect(() => {
-    let ignore = false;
+    const timeoutId = setTimeout(() => {
+      fetchItems();
+    }, 0);
 
-    const loadData = async () => {
-      if (!user || user.role !== "gestor") return;
-      setError("");
-      try {
-        const pendingRes = await API.get("/items?processingState=sin_procesar");
-        const inProgressRes = await API.get("/items?processingState=en_proceso");
-        const toValidateRes = await API.get("/items?processingState=fardado");
-
-        if (!ignore) {
-          setPendingItems([...pendingRes.data, ...inProgressRes.data]);
-          setToValidateItems(toValidateRes.data);
-        }
-      } catch (err) {
-        console.error("Error al cargar ítems:", err);
-        if (!ignore) setError("No se pudieron cargar los ítems. Inténtalo más tarde.");
-      } finally {
-        if (!ignore) setLoading(false);
-      }
-    };
-
-    loadData();
-
-    return () => {
-      ignore = true;
-    };
-  }, [user]);
+    return () => clearTimeout(timeoutId);
+  }, [fetchItems]);
 
   useEffect(() => {
     if (user && user.role !== "gestor") {
@@ -66,18 +47,40 @@ export const useDashboardGestor = () => {
     }
   }, [user, navigate]);
 
-  const handleMarkAsBaled = async (itemId) => {
-    if (window.confirm("¿Marcar este material como fardado?")) {
-      try {
-        await API.patch(`/items/${itemId}/bale`);
-        fetchItems();
-      } catch (err) {
-        alert("Error al marcar como fardado: " + (err.response?.data?.msg || "Inténtalo más tarde."));
-      }
+  const confirmMarkAsBaled = async () => {
+    if (!balingItemId) return;
+    try {
+      await API.patch(`/items/${balingItemId}/bale`);
+      fetchItems();
+    } catch (err) {
+      alert("Error al marcar como fardado: " + (err.response?.data?.msg || "Inténtalo más tarde."));
+    } finally {
+      setBalingItemId(null);
     }
   };
 
-  return { user, navigate, activeTab, setActiveTab, pendingItems, toValidateItems, loading, error, handleMarkAsBaled };
+  const getWhatsAppLink = (phone) => {
+    if (!phone) return null;
+    const clean = phone.replace(/\D/g, "");
+    if (!clean) return null;
+    const formatted = clean.startsWith("54") ? clean : `54${clean}`;
+    return `https://wa.me/${formatted}`;
+  };
+
+  return {
+    user,
+    navigate,
+    activeTab,
+    setActiveTab,
+    pendingItems,
+    toValidateItems,
+    loading,
+    error,
+    balingItemId,
+    setBalingItemId,
+    confirmMarkAsBaled,
+    getWhatsAppLink,
+  };
 };
 
 export default useDashboardGestor;

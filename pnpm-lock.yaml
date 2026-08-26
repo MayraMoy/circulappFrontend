@@ -14,6 +14,9 @@ importers:
       axios:
         specifier: ^1.15.0
         version: 1.18.1
+      bootstrap-icons:
+        specifier: ^1.13.1
+        version: 1.13.1
       framer-motion:
         specifier: ^12.38.0
         version: 12.42.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
@@ -512,6 +515,9 @@ packages:
     resolution: {integrity: sha512-AjYpR78kDWAY3Efj+cDTFH9t9SCoL7OoTp1BOb0mQV7S+6CiLwnWM3FyxhJtdPufDFKzmCSFoUncKjWgJEZTCQ==}
     engines: {node: '>=6.0.0'}
     hasBin: true
+
+  bootstrap-icons@1.13.1:
+    resolution: {integrity: sha512-ijombt4v6bv5CLeXvRWKy7CuM3TRTuPEuGaGKvTV5cz65rQSY8RQ2JcHt6b90cBBAC7s8fsf2EkQDldzCoXUjw==}
 
   brace-expansion@1.1.16:
     resolution: {integrity: sha512-IDw48K2/2kRkg9LdJxurvq3lV3aBgq0REY89duEqFRthjlPdXHKMj7EnQOXVckxzgisinf3nHfrcE2FufFLXMw==}
@@ -1611,6 +1617,8 @@ snapshots:
   balanced-match@1.0.2: {}
 
   baseline-browser-mapping@2.10.43: {}
+
+  bootstrap-icons@1.13.1: {}
 
   brace-expansion@1.1.16:
     dependencies:

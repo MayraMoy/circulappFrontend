@@ -1,146 +1,65 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Layout from "../../components/layout/Layout";
-import API from "../../services/Api";
+import Layout from '../../components/layout/Layout';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
-import '../dashboard/Dashboard.css';
-import {
-  SparklesIcon,
-  Square3Stack3DIcon,
-  ArchiveBoxIcon,
-  TagIcon,
-} from '@heroicons/react/24/outline';
-
-const checklistItems = [
-  { id: 'limpieza',     label: 'Material limpio y seco',           Icon: SparklesIcon },
-  { id: 'homogeneidad', label: '100% del mismo tipo de material',  Icon: Square3Stack3DIcon },
-  { id: 'compactado',   label: 'Bien compactado y atado',          Icon: ArchiveBoxIcon },
-  { id: 'etiquetado',   label: 'Etiqueta con tipo y peso visible', Icon: TagIcon },
-];
+import { TagIcon } from '@heroicons/react/24/outline';
+import useValidateMaterial, { CHECKLIST_ITEMS } from './hooks/useValidateMaterial';
 
 const ValidateMaterial = () => {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [itemId, setItemId] = useState('');
-  const [availableFardos, setAvailableFardos] = useState([]);
-  const [checklist, setChecklist] = useState([]);
-  const [observations, setObservations] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const id = params.get('itemId');
-    if (id) {
-      setItemId(id);
-    } else {
-      // Cargar fardos disponibles para seleccionar si no vino un ID en la URL
-      fetchFardos();
-    }
-  }, [location]);
-
-  const fetchFardos = async () => {
-    try {
-      const res = await API.get('/items?processingState=fardado');
-      setAvailableFardos(res.data);
-      if (res.data.length > 0) {
-        setItemId(res.data[0]._id);
-      }
-    } catch (err) {
-      console.error('Error al cargar fardos:', err);
-    }
-  };
-
-  const toggleCheck = (id) => {
-    setChecklist(prev =>
-      prev.includes(id) ? prev.filter(i => i !== id) : [...prev, id]
-    );
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!itemId) {
-      setError('Debes seleccionar o proporcionar un ID de fardo válido.');
-      return;
-    }
-    if (checklist.length !== checklistItems.length) {
-      setError('Debes completar todos los puntos del checklist de validación.');
-      return;
-    }
-    setLoading(true);
-    setError('');
-    try {
-      await API.post('/validation/validate', { itemId, checklist, observations });
-      setShowSuccessModal(true);
-    } catch (err) {
-      setError(err.response?.data?.msg || 'Error al validar el fardo. Inténtalo más tarde.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const progress = (checklist.length / checklistItems.length) * 100;
-  const allChecked = checklist.length === checklistItems.length;
+  const {
+    navigate,
+    itemId,
+    setItemId,
+    availableFardos,
+    checklist,
+    observations,
+    setObservations,
+    loading,
+    error,
+    showSuccessModal,
+    setShowSuccessModal,
+    isUrlItemId,
+    toggleCheck,
+    handleSubmit,
+    progress,
+    allChecked
+  } = useValidateMaterial();
 
   return (
     <Layout>
-      <div className="dashboard-wrapper">
-        <div className="dashboard-inner" style={{ maxWidth: '720px' }}>
+      <div className="min-h-screen bg-gray-50 pt-20 pb-10 px-4 sm:px-6">
+        <div className="max-w-[720px] mx-auto">
 
-          {/* Banner de Validación */}
-          <div className="hero-banner">
-            <div className="hero-banner-deco" />
-            <div className="hero-banner-deco-2" />
-
-            <div style={{ position: "relative", zIndex: 1 }}>
-              <h1 className="hero-title">Validar Material Fardado</h1>
-              <p className="hero-sub">
-                Verifica la calidad y certifique el fardo bajo los estándares ambientales de la Comuna.
+          {/* Hero Banner */}
+          <div className="relative bg-gradient-to-r from-[#0f4c38] to-[#16a085] rounded-2xl p-6 mb-6 text-white overflow-hidden shadow-sm">
+            <div className="relative z-10">
+              <h1 className="text-xl font-bold tracking-tight m-0">Validar Material Fardado</h1>
+              <p className="text-xs text-emerald-100 mt-1 m-0">
+                Verifica la calidad y certifica el fardo bajo los estándares ambientales de la Comuna.
               </p>
             </div>
           </div>
 
           {/* Alerta de Error */}
           {error && (
-            <div
-              style={{
-                padding: '12px 16px',
-                borderRadius: '12px',
-                marginBottom: '16px',
-                fontSize: '13px',
-                fontWeight: '600',
-                background: 'rgba(231,76,60,0.12)',
-                color: '#E74C3C',
-                border: '1px solid rgba(231,76,60,0.25)'
-              }}
-            >
-              ⚠️ {error}
+            <div className="p-3.5 rounded-xl mb-4 text-xs font-semibold bg-rose-50 text-rose-600 border border-rose-200 flex items-center gap-2">
+              <span>⚠️</span>
+              <span>{error}</span>
             </div>
           )}
 
-          {/* Formulario de Validación */}
-          <form onSubmit={handleSubmit} className="section-card" style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            
+          {/* Formulario Principal */}
+          <form onSubmit={handleSubmit} className="bg-white border border-gray-200 rounded-2xl p-6 shadow-sm flex flex-col gap-5">
+
             {/* Selección o despliegue del ID de Fardo */}
             <div>
-              <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
+              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
                 Fardo a Validar
               </label>
 
-              {availableFardos.length > 0 && !new URLSearchParams(location.search).get('itemId') ? (
+              {availableFardos.length > 0 && !isUrlItemId ? (
                 <select
                   value={itemId}
                   onChange={(e) => setItemId(e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px 14px',
-                    borderRadius: '12px',
-                    border: '1px solid #DEE2E6',
-                    fontSize: '13px',
-                    fontWeight: '600',
-                    outline: 'none'
-                  }}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-[#16a085]"
                 >
                   {availableFardos.map(fardo => (
                     <option key={fardo._id} value={fardo._id}>
@@ -149,9 +68,9 @@ const ValidateMaterial = () => {
                   ))}
                 </select>
               ) : (
-                <div style={{ padding: '12px 16px', background: '#F8FAFC', borderRadius: '12px', border: '1px solid #E2E8F0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <TagIcon style={{ width: '18px', height: '18px', color: 'var(--primary)' }} />
-                  <span style={{ fontSize: '13px', fontWeight: '600', color: 'var(--text-primary)' }}>
+                <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 flex items-center gap-2">
+                  <TagIcon className="w-4 h-4 text-[#16a085]" />
+                  <span className="text-xs font-semibold text-gray-800">
                     ID: {itemId || 'Sin ID seleccionado'}
                   </span>
                 </div>
@@ -159,73 +78,58 @@ const ValidateMaterial = () => {
             </div>
 
             {/* Checklist */}
-            <div style={{ paddingTop: '16px', borderTop: '1px solid #F1F3F5' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
-                <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', margin: 0 }}>
-                  Checklist de Validación <span style={{ color: '#E74C3C' }}>*</span>
+            <div className="pt-4 border-t border-gray-100">
+              <div className="flex justify-between items-center mb-2.5">
+                <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider m-0">
+                  Checklist de Validación <span className="text-rose-500">*</span>
                 </label>
-                <span style={{ fontSize: '12px', fontWeight: '600', color: 'var(--primary)' }}>
-                  {checklist.length} / {checklistItems.length} completados
+                <span className="text-xs font-semibold text-[#16a085]">
+                  {checklist.length} / {CHECKLIST_ITEMS.length} completados
                 </span>
               </div>
 
-              {/* Barra de progreso */}
-              <div style={{ height: '6px', background: '#EAECEF', borderRadius: '999px', overflow: 'hidden', marginBottom: '16px' }}>
+              {/* Barra de Progreso */}
+              <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden mb-4">
                 <div
-                  style={{
-                    height: '100%',
-                    width: `${progress}%`,
-                    background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
-                    transition: 'width 0.3s ease'
-                  }}
+                  className="h-full bg-gradient-to-r from-[#16a085] to-[#0f4c38] transition-all duration-300"
+                  style={{ width: `${progress}%` }}
                 />
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                {checklistItems.map(item => {
+              {/* Opciones del Checklist */}
+              <div className="flex flex-col gap-2.5">
+                {CHECKLIST_ITEMS.map(item => {
                   const isChecked = checklist.includes(item.id);
                   return (
                     <button
                       type="button"
                       key={item.id}
                       onClick={() => toggleCheck(item.id)}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '12px',
-                        padding: '14px 16px',
-                        borderRadius: '12px',
-                        border: isChecked ? '1.5px solid #16A085' : '1px solid #EAECEF',
-                        background: isChecked ? 'rgba(22,160,133,0.06)' : '#FFFFFF',
-                        cursor: 'pointer',
-                        textAlign: 'left',
-                        transition: 'all 0.15s ease'
-                      }}
+                      className={`flex items-center gap-3 p-3.5 rounded-xl border text-left transition-all duration-150 ${
+                        isChecked
+                          ? 'border-[#16a085] bg-[#16a085]/5'
+                          : 'border-slate-200 bg-white hover:bg-slate-50'
+                      }`}
                     >
                       <div
-                        style={{
-                          width: '20px',
-                          height: '20px',
-                          borderRadius: '6px',
-                          border: isChecked ? 'none' : '2px solid #CBD5E1',
-                          background: isChecked ? '#16A085' : 'transparent',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          color: '#FFFFFF',
-                          fontSize: '12px',
-                          fontWeight: '700',
-                          flexShrink: 0
-                        }}
+                        className={`w-5 h-5 rounded-md flex items-center justify-center text-xs font-bold shrink-0 transition-colors ${
+                          isChecked
+                            ? 'bg-[#16a085] text-white'
+                            : 'border-2 border-slate-300 bg-transparent'
+                        }`}
                       >
                         {isChecked && '✓'}
                       </div>
 
-                      <span style={{ fontSize: '13px', fontWeight: isChecked ? '600' : '500', color: isChecked ? '#0f4c38' : 'var(--text-primary)', flex: 1 }}>
+                      <span className={`text-xs flex-1 ${
+                        isChecked ? 'font-semibold text-[#0f4c38]' : 'font-medium text-gray-700'
+                      }`}>
                         {item.label}
                       </span>
 
-                      <item.Icon style={{ width: '20px', height: '20px', color: isChecked ? '#16A085' : '#94A3B8' }} />
+                      <item.Icon className={`w-5 h-5 ${
+                        isChecked ? 'text-[#16a085]' : 'text-slate-400'
+                      }`} />
                     </button>
                   );
                 })}
@@ -233,32 +137,24 @@ const ValidateMaterial = () => {
             </div>
 
             {/* Observaciones */}
-            <div style={{ paddingTop: '16px', borderTop: '1px solid #F1F3F5' }}>
-              <label style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '8px' }}>
-                Observaciones <span style={{ textTransform: 'none', fontWeight: 'normal', color: 'var(--text-secondary)' }}>(opcional)</span>
+            <div className="pt-4 border-t border-gray-100">
+              <label className="block text-[11px] font-bold text-gray-500 uppercase tracking-wider mb-2">
+                Observaciones <span className="normal-case font-normal text-gray-400">(opcional)</span>
               </label>
               <textarea
                 rows="3"
                 placeholder="Ej: Material verificado en planta de transferencia, cumple normas de empaque..."
-                style={{
-                  width: '100%',
-                  padding: '12px',
-                  borderRadius: '12px',
-                  border: '1px solid #DEE2E6',
-                  fontSize: '13px',
-                  outline: 'none'
-                }}
+                className="w-full p-3 rounded-xl border border-gray-300 text-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-[#16a085]"
                 value={observations}
                 onChange={e => setObservations(e.target.value)}
               />
             </div>
 
-            {/* Acciones */}
-            <div style={{ display: 'flex', gap: '12px', paddingTop: '16px', borderTop: '1px solid #F1F3F5' }}>
+            {/* Botones de Acción */}
+            <div className="flex gap-3 pt-4 border-t border-gray-100">
               <button
                 type="button"
-                className="footer-btn secondary"
-                style={{ width: 'auto', padding: '12px 24px' }}
+                className="px-5 py-2.5 rounded-xl border border-gray-300 text-gray-600 text-xs font-semibold hover:bg-gray-50 transition-colors"
                 onClick={() => navigate('/dashboard')}
               >
                 Volver
@@ -267,13 +163,7 @@ const ValidateMaterial = () => {
               <button
                 type="submit"
                 disabled={loading || !allChecked}
-                className="publish-cta"
-                style={{
-                  flex: 1,
-                  padding: '12px',
-                  opacity: (!allChecked || loading) ? 0.5 : 1,
-                  cursor: (!allChecked || loading) ? 'not-allowed' : 'pointer'
-                }}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-gradient-to-r from-[#16a085] to-[#0f4c38] text-white text-xs font-semibold shadow hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {loading ? 'Certificando...' : 'Certificar y Validar Material'}
               </button>
@@ -284,7 +174,7 @@ const ValidateMaterial = () => {
         </div>
       </div>
 
-      {/* MODAL DE ÉXITO DE VALIDACIÓN */}
+      {/* Modal de Éxito */}
       <ConfirmModal
         isOpen={showSuccessModal}
         title="¡Material Validado!"
