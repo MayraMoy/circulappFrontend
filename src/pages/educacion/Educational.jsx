@@ -1,222 +1,102 @@
-import React from 'react';
 import Layout from '../../components/layout/Layout';
-import '../dashboard/Dashboard.css';
-
-const systems = [
-  {
-    id: 'cajon',
-    tag: 'Sistema Modular Apilable',
-    title: 'Compostera Cajón',
-    icon: 'bi-box-seam',
-    ideal: 'Ideal: Patios, balcones y terrazas',
-    estructura: 'Módulos o cajones apilables fabricados en madera tratada o plástico reciclado.',
-    funcionamiento: 'Se colocan residuos orgánicos por niveles mezclando restos húmedos y material seco aeróbico.',
-    producto: 'Compost sólido maduro, de aroma a tierra húmeda y alto poder fertilizante.',
-    ventajas: 'Diseño compacto, muy ordenado e ideal para espacios urbanos reducidos.'
-  },
-  {
-    id: 'pozo',
-    tag: 'Directo en la Tierra',
-    title: 'Compostera de Pozo',
-    icon: 'bi-grid-1x2',
-    ideal: 'Ideal: Jardines amplios y terrenos',
-    estructura: 'Fosa excavada en el suelo de 30 a 60 cm de profundidad con cubierta natural.',
-    funcionamiento: 'Los restos se depositan directamente sobre la tierra cubriéndose con mantillo u hojas secas.',
-    producto: 'Humus natural bio-integrado directamente en el sustrato del terreno.',
-    ventajas: 'Cero costo de estructura, descomposición 100% natural e imperceptible.'
-  },
-  {
-    id: 'lumbricario',
-    tag: 'Lumbricario Biológico',
-    title: 'Vermicompostera',
-    icon: 'bi-bug',
-    ideal: 'Ideal: Espacios de alta eficiencia',
-    estructura: 'Contenedor multinivel con ventilación lateral y colector inferior de lixiviados.',
-    funcionamiento: 'Lombrices rojas californianas digieren la materia orgánica acelerando la biotransformación.',
-    producto: 'Humus sólido de alta concentración y fertilizante líquido (\'Té de lombriz\').',
-    ventajas: 'Proceso súper rápido, sin malos olores y rico en microorganismos benéficos.'
-  },
-  {
-    id: 'biodigestor',
-    tag: 'Energía & Biogás',
-    title: 'Biodigestor Urbano',
-    icon: 'bi-lightning-charge-fill',
-    ideal: 'Ideal: Hogares sostenibles y granjas',
-    estructura: 'Tanque hermético con cámara de fermentación anaeróbica y válvulas de escape.',
-    funcionamiento: 'Microorganismos metanogénicos descomponen los desechos orgánicos en ausencia de oxígeno.',
-    producto: 'Biogás limpio para cocción/energía y biofertilizante líquido concentrado.',
-    ventajas: 'Genera energía renovable limpia y elimina por completo las emisiones.'
-  }
-];
+import { SYSTEMS_DATA } from './data/educationalData';
 
 const Educational = () => {
   return (
     <Layout>
-      <div className="dashboard-wrapper" style={{ paddingLeft: '1.5rem', paddingRight: '1.5rem' }}>
-        <div style={{ maxWidth: '1360px', margin: '0 auto' }}>
+      <div className="min-h-screen bg-gray-50 pt-20 pb-10 px-4 sm:px-6">
+        <div className="max-w-[1360px] mx-auto">
+          
+          {/* Banner Superior Principal */}
+          <div className="relative bg-gradient-to-r from-[#0f4c38] via-[#117a65] to-[#16a085] rounded-3xl p-8 mb-8 text-white overflow-hidden shadow-sm">
+            
+            {/* Decoraciones de fondo */}
+            <div className="absolute -right-10 -bottom-10 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute right-20 -top-10 w-48 h-48 bg-white/5 rounded-full blur-xl pointer-events-none" />
 
-          {/* Banner Superior Principal (Idéntico a imagen original) */}
-          <div
-            className="hero-banner"
-            style={{
-              padding: '2rem 2.5rem',
-              borderRadius: '24px',
-              marginBottom: '2rem'
-            }}
-          >
-            <div className="hero-banner-deco" />
-            <div className="hero-banner-deco-2" />
-
-            <div style={{ position: 'relative', zIndex: 1 }}>
-              <span
-                style={{
-                  display: 'inline-block',
-                  background: 'rgba(255, 255, 255, 0.18)',
-                  border: '1px solid rgba(255, 255, 255, 0.3)',
-                  color: '#FFFFFF',
-                  padding: '4px 14px',
-                  borderRadius: '999px',
-                  fontSize: '11px',
-                  fontWeight: '600',
-                  marginBottom: '10px',
-                  letterSpacing: '0.04em'
-                }}
-              >
+            <div className="relative z-10">
+              <span className="inline-block bg-white/18 border border-white/30 text-white px-3.5 py-1 rounded-full text-[11px] font-semibold mb-2.5 tracking-wider">
                 Guía de Economía Circular
               </span>
 
-              <h1 className="hero-title" style={{ fontSize: '30px', fontWeight: '800', marginBottom: '6px' }}>
+              <h1 className="text-3xl font-extrabold text-white mb-1.5 tracking-tight">
                 Sistemas de Tratamiento Orgánico
               </h1>
 
-              <p className="hero-sub" style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.85)' }}>
+              <p className="text-sm text-emerald-100/90 max-w-2xl m-0">
                 Conoce las distintas alternativas para transformar residuos orgánicos en compost y recursos energéticos.
               </p>
             </div>
           </div>
 
-          {/* Grilla 4 Columnas Exactas */}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '18px',
-              alignItems: 'stretch'
-            }}
-          >
-            {systems.map((item) => (
+          {/* Grilla Responsiva de Tarjetas */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4.5 items-stretch">
+            {SYSTEMS_DATA.map((item) => (
               <div
                 key={item.id}
-                style={{
-                  background: '#FFFFFF',
-                  border: '1px solid #EAECEF',
-                  borderRadius: '20px',
-                  overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  boxShadow: '0 4px 16px rgba(0,0,0,0.04)',
-                  transition: 'transform 0.18s, box-shadow 0.18s'
-                }}
+                className="bg-white border border-gray-200 rounded-2xl overflow-hidden flex flex-col shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-200"
               >
                 {/* Cabecera Verde de la Tarjeta */}
-                <div
-                  style={{
-                    background: 'linear-gradient(135deg, #0f4c38 0%, #117A65 40%, #16A085 100%)',
-                    padding: '20px',
-                    color: '#FFFFFF',
-                    position: 'relative'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '12px' }}>
-                    <span
-                      style={{
-                        background: 'rgba(255, 255, 255, 0.18)',
-                        color: '#FFFFFF',
-                        padding: '3px 10px',
-                        borderRadius: '999px',
-                        fontSize: '10px',
-                        fontWeight: '600'
-                      }}
-                    >
+                <div className="bg-gradient-to-br from-[#0f4c38] via-[#117a65] to-[#16a085] p-5 text-white relative">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="bg-white/20 text-white px-2.5 py-0.5 rounded-full text-[10px] font-semibold">
                       {item.tag}
                     </span>
 
-                    <div
-                      style={{
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '8px',
-                        background: 'rgba(255, 255, 255, 0.18)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#FFFFFF',
-                        fontSize: '15px'
-                      }}
-                    >
-                      <i className={`bi ${item.icon}`}></i>
+                    <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center text-white shrink-0">
+                      <item.Icon className="w-4 h-4" />
                     </div>
                   </div>
 
-                  <h2 style={{ fontSize: '20px', fontWeight: '800', color: '#FFFFFF', margin: '0' }}>
+                  <h2 className="text-xl font-extrabold text-white m-0">
                     {item.title}
                   </h2>
                 </div>
 
                 {/* Cuerpo de la Tarjeta */}
-                <div style={{ padding: '20px', flex: 1, display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div className="p-5 flex-1 flex flex-col gap-3.5">
                   
-                  {/* Badge Mint "Ideal..." */}
-                  <div
-                    style={{
-                      background: '#E8F8F5',
-                      color: '#117A65',
-                      borderRadius: '10px',
-                      padding: '7px 12px',
-                      fontSize: '11px',
-                      fontWeight: '700',
-                      textAlign: 'center'
-                    }}
-                  >
+                  {/* Badge "Ideal..." */}
+                  <div className="bg-emerald-50 text-[#117a65] rounded-xl py-1.5 px-3 text-[11px] font-bold text-center">
                     {item.ideal}
                   </div>
 
                   {/* Estructura */}
                   <div>
-                    <strong style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '2px' }}>
+                    <strong className="block text-[11px] font-bold text-gray-800 mb-0.5 uppercase tracking-wider">
                       Estructura:
                     </strong>
-                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.45' }}>
+                    <p className="text-xs text-gray-600 m-0 leading-relaxed">
                       {item.estructura}
                     </p>
                   </div>
 
                   {/* Funcionamiento */}
                   <div>
-                    <strong style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '2px' }}>
+                    <strong className="block text-[11px] font-bold text-gray-800 mb-0.5 uppercase tracking-wider">
                       Funcionamiento:
                     </strong>
-                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.45' }}>
+                    <p className="text-xs text-gray-600 m-0 leading-relaxed">
                       {item.funcionamiento}
                     </p>
                   </div>
 
                   {/* Producto final */}
                   <div>
-                    <strong style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '2px' }}>
+                    <strong className="block text-[11px] font-bold text-gray-800 mb-0.5 uppercase tracking-wider">
                       Producto final:
                     </strong>
-                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.45' }}>
+                    <p className="text-xs text-gray-600 m-0 leading-relaxed">
                       {item.producto}
                     </p>
                   </div>
 
                   {/* Ventajas principales */}
                   <div>
-                    <strong style={{ fontSize: '11px', fontWeight: '700', color: 'var(--text-primary)', display: 'block', marginBottom: '2px' }}>
+                    <strong className="block text-[11px] font-bold text-gray-800 mb-0.5 uppercase tracking-wider">
                       Ventajas principales:
                     </strong>
-                    <p style={{ fontSize: '12px', color: 'var(--text-secondary)', margin: 0, lineHeight: '1.45' }}>
+                    <p className="text-xs text-gray-600 m-0 leading-relaxed">
                       {item.ventajas}
                     </p>
                   </div>
