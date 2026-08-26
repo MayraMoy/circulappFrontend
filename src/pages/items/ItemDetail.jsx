@@ -1,10 +1,11 @@
 // frontend/src/pages/ItemDetail.jsx
 import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Layout from '../../components/Layout/Layout';
+import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
 import AuthContext from '../../contexts/AuthContext';
 import RateUserModal from '../funcionalidades/RateUserModal';
+import ConfirmModal from '../../components/feedback/ConfirmModal';
 import {
   ArrowLeftIcon,
   MapPinIcon,
@@ -14,6 +15,8 @@ import {
   UserCircleIcon,
   CheckBadgeIcon,
   XMarkIcon,
+  PencilSquareIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 
 const cleanPhone = (phone) => phone.replace(/\D/g, '');
@@ -39,26 +42,110 @@ const ItemDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useContext(AuthContext);
-  const [item, setItem]               = useState(null);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState('');
+  const [item, setItem] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [showRateModal, setShowRateModal] = useState(false);
 
+  // Estados para procesar/fardar
+  const [processing, setProcessing] = useState(false);
+  const [confirmBaleModal, setConfirmBaleModal] = useState(false);
+
+  // Estados para editar ítem
+  const [isEditing, setIsEditing] = useState(false);
+  const [editData, setEditData] = useState({ title: '', description: '', category: '', address: '', keepImages: [], newFiles: [] });
+  const [savingEdit, setSavingEdit] = useState(false);
+
+  // Estado para eliminar ítem
+  const [confirmDelete, setConfirmDelete] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const fetchItem = async () => {
+    try {
+      const res = await API.get(`/items/${id}`);
+      setItem(res.data);
+    } catch (err) {
+      setError('No se pudo cargar el material.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchItem = async () => {
-      try {
-        const res = await API.get(`/items/${id}`);
-        setItem(res.data);
-      } catch (err) {
-        setError('No se pudo cargar el material.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
     if (id) fetchItem();
   }, [id]);
+
+  const handleBale = async () => {
+    setProcessing(true);
+    try {
+      await API.patch(`/items/${item._id}/bale`);
+      await fetchItem();
+    } catch (err) {
+      alert('Error al fardar material: ' + (err.response?.data?.msg || 'Error desconocido'));
+    } finally {
+      setProcessing(false);
+      setConfirmBaleModal(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      await API.delete(`/items/${item._id}`);
+      navigate('/dashboard');
+    } catch (err) {
+      alert('Error al eliminar: ' + (err.response?.data?.msg || 'Error desconocido'));
+    } finally {
+      setDeleting(false);
+      setConfirmDelete(false);
+    }
+  };
+
+  const handleOpenEdit = () => {
+    setEditData({
+      title: item.title || '',
+      description: item.description || '',
+      category: item.category || 'plastico',
+      address: item.address || '',
+      keepImages: item.images || [],
+      newFiles: []
+    });
+    setIsEditing(true);
+  };
+
+  const handleSaveEdit = async (e) => {
+    e.preventDefault();
+    setSavingEdit(true);
+    try {
+      const formData = new FormData();
+      formData.append('title', editData.title);
+      formData.append('description', editData.description);
+      formData.append('category', editData.category);
+      formData.append('address', editData.address);
+
+      if (editData.keepImages && editData.keepImages.length > 0) {
+        editData.keepImages.forEach(img => formData.append('keepImages', img));
+      } else {
+        formData.append('keepImages', '');
+      }
+
+      if (editData.newFiles && editData.newFiles.length > 0) {
+        editData.newFiles.forEach(file => formData.append('images', file));
+      }
+
+      const res = await API.put(`/items/${item._id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      setItem(res.data);
+      setIsEditing(false);
+    } catch (err) {
+      alert(err.response?.data?.msg || 'Error al guardar cambios.');
+    } finally {
+      setSavingEdit(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -89,42 +176,101 @@ const ItemDetail = () => {
   }
 
   const isOwner = user && item.ownerId?._id === user.id;
-  const state   = processingStates[item.processingState] || { label: item.processingState, color: 'bg-gray-100 text-gray-600' };
+  const isGestorOrAdmin = user && (user.role === 'gestor' || user.role === 'admin' || user.role === 'dev' || user.isDev);
+  const isAdminOrDev = user && (user.role === 'admin' || user.role === 'dev' || user.isDev);
+  const state = processingStates[item.processingState] || { label: item.processingState, color: 'bg-gray-100 text-gray-600' };
 
   return (
     <Layout>
       <div className="max-w-3xl mx-auto px-4 py-8">
 
-        {/* Back */}
-        <button
-          onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-700 mb-6 transition-colors"
-        >
-          <ArrowLeftIcon className="w-4 h-4" />
-          Volver
-        </button>
+        {/* Back + Action Toolbar */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            Volver
+          </button>
+
+          {/* Botones de Moderación (Dueño, Admin o Gestor Comunal) */}
+          {(isGestorOrAdmin || isOwner) && (
+            <div className="flex items-center gap-2">
+              {(isAdminOrDev || isOwner) && (
+                <button
+                  type="button"
+                  onClick={handleOpenEdit}
+                  className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                >
+                  <PencilSquareIcon className="w-4 h-4" />
+                  Editar
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+              >
+                <TrashIcon className="w-4 h-4" />
+                {user?.role === 'gestor' && !isOwner ? 'Moderar / Eliminar' : 'Eliminar'}
+              </button>
+            </div>
+          )}
+        </div>
 
         {/* Title row */}
         <div className="flex items-start justify-between gap-4 mb-6">
           <div>
-            <h1 className="text-2xl font-semibold text-gray-900 leading-snug mb-1">
+            <h1 className="text-2xl font-bold text-gray-900 leading-snug mb-1">
               {item.title}
             </h1>
             <p className="text-sm text-gray-500">
               {item.description || 'Sin descripción.'}
             </p>
           </div>
-          <span className={`flex-shrink-0 text-xs font-medium px-3 py-1 rounded-full ${state.color}`}>
-            {state.label}
-          </span>
+
+          <div className="flex flex-col items-end gap-2">
+            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${state.color}`}>
+              {state.label}
+            </span>
+
+            {/* BOTÓN DE APROBACIÓN / FARDADO PARA GESTOR O ADMIN */}
+            {isGestorOrAdmin && (
+              <>
+                {['sin_procesar', 'en_proceso'].includes(item.processingState) && (
+                  <button
+                    type="button"
+                    onClick={() => setConfirmBaleModal(true)}
+                    disabled={processing}
+                    className="bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                  >
+                    <i className="bi bi-box-seam"></i>
+                    Marcar Fardado
+                  </button>
+                )}
+
+                {item.processingState === 'fardado' && (
+                  <button
+                    type="button"
+                    onClick={() => navigate(`/validate?itemId=${item._id}`)}
+                    className="bg-primary hover:bg-primary-dark active:scale-[0.98] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-sm transition flex items-center gap-1.5"
+                  >
+                    <i className="bi bi-patch-check"></i>
+                    Validar Material
+                  </button>
+                )}
+              </>
+            )}
+          </div>
         </div>
 
         {/* Image gallery */}
         {item.images?.length > 0 && (
           <div className="mb-6">
-            {/* Main image */}
             <div
-              className="w-full aspect-video bg-gray-100 rounded-2xl overflow-hidden mb-2 cursor-zoom-in"
+              className="w-full aspect-video bg-gray-100 rounded-2xl overflow-hidden mb-2 cursor-zoom-in shadow-inner"
               onClick={() => setSelectedImage(item.images[0])}
             >
               <img
@@ -133,7 +279,6 @@ const ItemDetail = () => {
                 className="w-full h-full object-cover"
               />
             </div>
-            {/* Thumbnails */}
             {item.images.length > 1 && (
               <div className="grid grid-cols-4 gap-2">
                 {item.images.slice(1).map((url, idx) => (
@@ -152,8 +297,6 @@ const ItemDetail = () => {
 
         {/* Info card */}
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm mb-4">
-
-          {/* Categoría + Ofertante */}
           <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
             <div className="px-5 py-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Categoría</p>
@@ -175,25 +318,26 @@ const ItemDetail = () => {
             </div>
           </div>
 
-          {/* Ubicación */}
           <div className="px-5 py-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Ubicación</p>
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2">
                 <MapPinIcon className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-gray-700">
-                  {item.address || `${item.location.lat.toFixed(4)}, ${item.location.lng.toFixed(4)}`}
+                  {item.address || (item.location ? `${item.location.lat?.toFixed(4)}, ${item.location.lng?.toFixed(4)}` : 'Sin dirección')}
                 </span>
               </div>
-              <a
-                href={`https://www.google.com/maps?q=${item.location.lat},${item.location.lng}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-800 font-medium transition-colors"
-              >
-                Ver mapa
-                <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
-              </a>
+              {item.location?.lat && (
+                <a
+                  href={`https://www.google.com/maps?q=${item.location.lat},${item.location.lng}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-800 font-medium transition-colors"
+                >
+                  Ver mapa
+                  <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
+                </a>
+              )}
             </div>
           </div>
         </div>
@@ -201,8 +345,6 @@ const ItemDetail = () => {
         {/* Actions */}
         {!isOwner && (
           <div className="flex flex-col sm:flex-row gap-3">
-
-            {/* WhatsApp */}
             {item.ownerId?.phone && (
               <a
                 href={`https://wa.me/${cleanPhone(item.ownerId.phone)}?text=Hola%20${encodeURIComponent(item.ownerId.name)},%20vi%20tu%20publicación%20"${encodeURIComponent(item.title)}"%20en%20CirculApp%20y%20me%20interesa.`}
@@ -210,14 +352,11 @@ const ItemDetail = () => {
                 rel="noopener noreferrer"
                 className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:scale-[0.98] text-white text-sm font-medium px-5 py-3 rounded-xl transition-all duration-150"
               >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.48 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
-                </svg>
+                <i className="bi bi-whatsapp text-lg"></i>
                 Contactar por WhatsApp
               </a>
             )}
 
-            {/* Calificar */}
             {user && (
               <button
                 onClick={() => setShowRateModal(true)}
@@ -268,6 +407,140 @@ const ItemDetail = () => {
             ownerName={item.ownerId.name}
             onClose={() => setShowRateModal(false)}
           />
+        )}
+
+        {/* MODAL CONFIRMACIÓN DE FARDADO */}
+        <ConfirmModal
+          isOpen={confirmBaleModal}
+          title="Confirmar Fardado de Material"
+          message="¿Deseas marcar este material como fardado para pasarlo a la etapa de validación?"
+          confirmText="Marcar como Fardado"
+          cancelText="Cancelar"
+          type="success"
+          onConfirm={handleBale}
+          onCancel={() => setConfirmBaleModal(false)}
+        />
+
+        {/* MODAL CONFIRMACIÓN DE ELIMINAR */}
+        <ConfirmModal
+          isOpen={confirmDelete}
+          title="Eliminar Publicación"
+          message="¿Estás seguro de que deseas eliminar permanentemente esta publicación? Esta acción no se puede deshacer."
+          confirmText={deleting ? 'Eliminando...' : 'Sí, Eliminar'}
+          cancelText="Cancelar"
+          type="danger"
+          onConfirm={handleDelete}
+          onCancel={() => setConfirmDelete(false)}
+        />
+
+        {/* MODAL EDICIÓN DE PUBLICACIÓN */}
+        {isEditing && (
+          <div 
+            style={{
+              position: 'fixed', top: 0, left: 0, width: '100%', height: '100%',
+              background: 'rgba(0,0,0,0.5)', zIndex: 9999, display: 'flex',
+              alignItems: 'center', justifyContent: 'center', padding: '16px'
+            }}
+          >
+            <div style={{ background: '#FFF', borderRadius: '18px', width: '100%', maxWidth: '520px', maxHeight: '90vh', overflowY: 'auto', boxShadow: '0 10px 30px rgba(0,0,0,0.2)' }}>
+              <div style={{ background: 'linear-gradient(135deg, #0f4c38, #16A085)', padding: '16px 20px', color: '#FFF', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <h3 style={{ fontSize: '15px', fontWeight: '600', margin: 0 }}>Editar Publicación</h3>
+                <button type="button" onClick={() => setIsEditing(false)} style={{ background: 'none', border: 'none', color: '#FFF', fontSize: '18px', cursor: 'pointer' }}>✕</button>
+              </div>
+
+              <form onSubmit={handleSaveEdit} style={{ padding: '20px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Título</label>
+                  <input
+                    type="text"
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #DEE2E6', fontSize: '13px', outline: 'none' }}
+                    value={editData.title}
+                    onChange={e => setEditData({ ...editData, title: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Categoría</label>
+                  <select
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #DEE2E6', fontSize: '13px', outline: 'none' }}
+                    value={editData.category}
+                    onChange={e => setEditData({ ...editData, category: e.target.value })}
+                  >
+                    {Object.entries(categoryNames).map(([catId, catName]) => (
+                      <option key={catId} value={catId}>{catName}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Descripción</label>
+                  <textarea
+                    rows="3"
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #DEE2E6', fontSize: '13px', outline: 'none' }}
+                    value={editData.description}
+                    onChange={e => setEditData({ ...editData, description: e.target.value })}
+                  />
+                </div>
+
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Dirección</label>
+                  <input
+                    type="text"
+                    style={{ width: '100%', padding: '10px', borderRadius: '8px', border: '1px solid #DEE2E6', fontSize: '13px', outline: 'none' }}
+                    value={editData.address}
+                    onChange={e => setEditData({ ...editData, address: e.target.value })}
+                  />
+                </div>
+
+                {/* GESTIÓN DE FOTOS */}
+                <div>
+                  <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '6px' }}>Imágenes Actuales</label>
+                  {editData.keepImages?.length > 0 ? (
+                    <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', marginBottom: '10px' }}>
+                      {editData.keepImages.map((imgUrl, idx) => (
+                        <div key={idx} style={{ position: 'relative', width: '70px', height: '70px', borderRadius: '8px', overflow: 'hidden', border: '1px solid #CBD5E1' }}>
+                          <img src={imgUrl} alt="Foto" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                          <button
+                            type="button"
+                            onClick={() => setEditData({ ...editData, keepImages: editData.keepImages.filter((_, i) => i !== idx) })}
+                            style={{
+                              position: 'absolute', top: '2px', right: '2px', background: 'rgba(220,38,38,0.85)',
+                              color: '#FFF', border: 'none', borderRadius: '50%', width: '18px', height: '18px',
+                              fontSize: '11px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer'
+                            }}
+                            title="Quitar foto"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p style={{ fontSize: '12px', color: '#94A3B8', margin: '0 0 8px' }}>No hay imágenes conservadas.</p>
+                  )}
+
+                  <label style={{ fontSize: '12px', fontWeight: '600', color: 'var(--text-secondary)', display: 'block', marginBottom: '4px' }}>Agregar Nuevas Imágenes</label>
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    onChange={e => setEditData({ ...editData, newFiles: Array.from(e.target.files) })}
+                    style={{ fontSize: '12px' }}
+                  />
+                </div>
+
+                <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '10px' }}>
+                  <button type="button" className="footer-btn secondary" style={{ width: 'auto', padding: '8px 18px' }} onClick={() => setIsEditing(false)}>
+                    Cancelar
+                  </button>
+                  <button type="submit" className="publish-cta" disabled={savingEdit}>
+                    {savingEdit ? 'Guardando...' : 'Guardar Cambios'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         )}
 
       </div>

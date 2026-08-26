@@ -43,16 +43,43 @@ export default function PasswordFields({
     setShowPassword,
     setShowConfirmPassword,
 }) {
+    // Evaluación en tiempo real de seguridad de contraseña
+    const hasMinLength = password.length >= 8;
+    const hasUpper = /[A-Z]/.test(password);
+    const hasNumber = /[0-9]/.test(password);
+    const hasSymbol = /[!@#$%^&*(),.?":{}|<>\-_=+\\[\]~`]/.test(password);
+
+    const score = [hasMinLength, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+
+    const getStrengthConfig = () => {
+        if (!password) return null;
+        if (score <= 1) return { label: 'Débil', color: '#EF4444', percent: '25%', bg: 'bg-red-500', text: 'text-red-600' };
+        if (score === 2) return { label: 'Regular', color: '#F97316', percent: '50%', bg: 'bg-orange-500', text: 'text-orange-600' };
+        if (score === 3) return { label: 'Buena', color: '#F59E0B', percent: '75%', bg: 'bg-amber-500', text: 'text-amber-600' };
+        return { label: 'Muy Fuerte 🛡️', color: '#10B981', percent: '100%', bg: 'bg-emerald-500', text: 'text-emerald-600' };
+    };
+
+    const strength = getStrengthConfig();
+
     return (
         <>
             {/* Contraseña */}
             <div>
-                <label
-                    htmlFor="password"
-                    className={labelClasses}
-                >
-                    Contraseña
-                </label>
+                <div className="flex justify-between items-center mb-1.5">
+                    <label
+                        htmlFor="password"
+                        className={labelClasses}
+                        style={{ marginBottom: 0 }}
+                    >
+                        Contraseña
+                    </label>
+
+                    {strength && (
+                        <span className={`text-[11px] font-semibold ${strength.text}`}>
+                            Seguridad: {strength.label}
+                        </span>
+                    )}
+                </div>
 
                 <div className={fieldClasses}>
                     <span className="flex shrink-0 text-text-secondary">
@@ -97,6 +124,34 @@ export default function PasswordFields({
                         <EyeIcon open={showPassword} />
                     </button>
                 </div>
+
+                {/* Barra de progreso de seguridad */}
+                {password.length > 0 && (
+                    <div className="mt-2">
+                        <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                                className={`h-full transition-all duration-300 ${strength.bg}`}
+                                style={{ width: strength.percent }}
+                            />
+                        </div>
+
+                        {/* Recomendaciones en vivo */}
+                        <div className="mt-2 grid grid-cols-2 gap-1.5 text-[11px] text-text-secondary">
+                            <div className={`flex items-center gap-1.5 ${hasMinLength ? 'text-emerald-600 font-medium' : 'text-gray-400'}`}>
+                                <span>{hasMinLength ? '✓' : '○'}</span> 8+ caracteres
+                            </div>
+                            <div className={`flex items-center gap-1.5 ${hasUpper ? 'text-emerald-600 font-medium' : 'text-gray-400'}`}>
+                                <span>{hasUpper ? '✓' : '○'}</span> Una mayúscula (A-Z)
+                            </div>
+                            <div className={`flex items-center gap-1.5 ${hasNumber ? 'text-emerald-600 font-medium' : 'text-gray-400'}`}>
+                                <span>{hasNumber ? '✓' : '○'}</span> Un número (0-9)
+                            </div>
+                            <div className={`flex items-center gap-1.5 ${hasSymbol ? 'text-emerald-600 font-medium' : 'text-gray-400'}`}>
+                                <span>{hasSymbol ? '✓' : '○'}</span> Un símbolo (!@#$...)
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
 
             {/* Confirmar contraseña */}

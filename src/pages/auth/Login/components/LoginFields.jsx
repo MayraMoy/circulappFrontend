@@ -39,9 +39,11 @@ const labelClasses = `
 export default function LoginFields({
     email,
     password,
+    rememberMe,
     showPassword,
     setEmail,
     setPassword,
+    setRememberMe,
     setShowPassword,
 }) {
     return (
@@ -77,26 +79,12 @@ export default function LoginFields({
 
             {/* Contraseña */}
             <div>
-                <div className="mb-1.5 flex items-center justify-between">
-                    <label
-                        htmlFor="password"
-                        className={labelClasses}
-                    >
-                        Contraseña
-                    </label>
-
-                    <Link
-                        to="/forgot-password"
-                        className="
-                            text-xs
-                            text-primary
-                            transition-colors
-                            hover:text-primary-dark
-                        "
-                    >
-                        ¿Olvidaste tu contraseña?
-                    </Link>
-                </div>
+                <label
+                    htmlFor="password"
+                    className={labelClasses}
+                >
+                    Contraseña
+                </label>
 
                 <div className={fieldClasses}>
                     <span className="flex shrink-0 text-text-secondary">
@@ -139,6 +127,41 @@ export default function LoginFields({
                     >
                         <EyeIcon open={showPassword} />
                     </button>
+                </div>
+            </div>
+
+            {/* Opciones de inicio de sesión: Checkbox + Olvidaste tu contraseña */}
+            <div className="flex flex-col gap-2 pt-1">
+                <div className="flex items-center gap-2">
+                    <input
+                        id="rememberMe"
+                        type="checkbox"
+                        checked={rememberMe || false}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                    />
+                    <label
+                        htmlFor="rememberMe"
+                        className="text-xs text-text-secondary cursor-pointer select-none font-medium"
+                    >
+                        Recordar mi correo y datos de acceso
+                    </label>
+                </div>
+
+                <div className="text-right">
+                    <Link
+                        to="/forgot-password"
+                        className="
+                            text-xs
+                            text-primary
+                            font-medium
+                            transition-colors
+                            hover:text-primary-dark
+                            hover:underline
+                        "
+                    >
+                        ¿Olvidaste tu contraseña?
+                    </Link>
                 </div>
             </div>
         </>
