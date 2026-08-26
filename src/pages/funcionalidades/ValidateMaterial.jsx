@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import Layout from "../../components/Layout/Layout";
+import Layout from "../../components/layout/Layout";
 import API from "../../services/Api";
 import {
   SparklesIcon,

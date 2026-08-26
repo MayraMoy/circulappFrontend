@@ -1,420 +1,134 @@
-import {
-  useContext,
-  useState,
-  useEffect,
-  useCallback
-} from "react";
-
-import AuthContext from "../../contexts/AuthContext";
 import Layout from "../../components/layout/Layout";
-import API from "../../services/Api";
-import { useNavigate } from "react-router-dom";
+import HeroBanner from "../../components/dashboard/HeroBanner";
+import StatCard from "../../components/dashboard/StatCard";
+import SectionCard from "../../components/dashboard/SectionCard";
+import { IconPackage, IconChevron, IconLeaf, IconBox } from "../../components/Icons";
 
-import {
-  IconPackage,
-  IconChevron,
-  IconLeaf,
-  IconBox
-} from "../../components/Icons";
-
-import "./Dashboard.css";
+import useDashboardGestor from "./hooks/useDashboardGestor";
+import { GESTOR_TABS } from "./data/dashboardData";
 
 const DashboardGestor = () => {
-  const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('pending'); // 'pending' o 'toValidate'
-  const [pendingItems, setPendingItems] = useState([]);
-  const [toValidateItems, setToValidateItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const { user, navigate, activeTab, setActiveTab, pendingItems, toValidateItems, loading, error, handleMarkAsBaled } = useDashboardGestor();
 
-  const fetchItems = useCallback(async () => {
-    if (!user || user.role !== 'gestor') return;
-
-    setLoading(true);
-    setError('');
-    try {
-      // Ítems pendientes de procesar (sin_procesar, en_proceso)
-      const pendingRes = await API.get('/items?processingState=sin_procesar');
-      const inProgressRes = await API.get('/items?processingState=en_proceso');
-      setPendingItems([...pendingRes.data, ...inProgressRes.data]);
-
-      // Ítems listos para validar (fardado)
-      const toValidateRes = await API.get('/items?processingState=fardado');
-      setToValidateItems(toValidateRes.data);
-    } catch (err) {
-      console.error('Error al cargar ítems:', err);
-      setError('No se pudieron cargar los ítems. Inténtalo más tarde.');
-    } finally {
-      setLoading(false);
-    }
-  }, [user]);
-
-  useEffect(() => {
-    fetchItems();
-  }, [fetchItems]);
-
-  const handleMarkAsBaled = async (itemId) => {
-    if (window.confirm('¿Marcar este material como fardado?')) {
-      try {
-        await API.patch(`/items/${itemId}/bale`);
-        fetchItems(); // Recargar ambas listas
-      } catch (err) {
-        alert('Error al marcar como fardado: ' + (err.response?.data?.msg || 'Inténtalo más tarde.'));
-      }
-    }
-  };
-
-  useEffect(() => {
-    if (user && user.role !== "gestor") {
-        navigate("/dashboard");
-        }
-    }, [user, navigate]);
-
-if (!user) return null;
-
-  const tabs = [
-    { id: 'pending', name: 'Ítems Pendientes de Procesamiento' },
-    { id: 'toValidate', name: 'Fardos Pendientes de Validación' }
-  ];
+  if (!user) return null;
 
   return (
-  <Layout>
-    <div className="dashboard-wrapper">
-      <div className="dashboard-inner">
+    <Layout>
+      <div className="pt-20 pb-10 px-5 min-h-screen bg-gray-50">
+        <div className="max-w-[980px] mx-auto">
+          <HeroBanner 
+            title="Panel de Gestión de Materiales" 
+            subtitle="Gestiona el procesamiento y validación de materiales reciclables." 
+            impactLabel="Materiales pendientes" 
+            impactScore={pendingItems.length} 
+          />
 
-        {/* Hero */}
-        <div className="hero-banner">
-          <div className="hero-banner-deco" />
-          <div className="hero-banner-deco-2" />
-
-          <div style={{ position: "relative", zIndex: 1 }}>
-            <h1 className="hero-title">
-              Panel de Gestión de Materiales
-            </h1>
-
-            <p className="hero-sub">
-              Gestiona el procesamiento y validación de materiales reciclables.
-            </p>
+          {/* Mismas tarjetas StatCard alineadas con la estética principal */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-8">
+            <StatCard 
+              label="Pendientes" 
+              value={pendingItems.length} 
+              sub="Materiales por procesar" 
+              accentColor="border-[#f59e0b]" 
+              iconBg="bg-[#fef3c7]" 
+              iconColor="text-[#d97706]" 
+              icon={<IconPackage />} 
+            />
+            <StatCard 
+              label="Fardos" 
+              value={toValidateItems.length} 
+              sub="Pendientes de validación" 
+              accentColor="border-[#a855f7]" 
+              iconBg="bg-[#f3e8ff]" 
+              iconColor="text-[#9333ea]" 
+              icon={<IconBox />} 
+            />
+            <StatCard 
+              label="Total" 
+              value={pendingItems.length + toValidateItems.length} 
+              sub="Materiales gestionados" 
+              accentColor="border-[#10b981]" 
+              iconBg="bg-[#d1fae5]" 
+              iconColor="text-[#059669]" 
+              icon={<IconLeaf />} 
+            />
           </div>
 
-          <div
-            className="impact-pill"
-            style={{ position: "relative", zIndex: 1 }}
-          >
-            <div>
-              <p className="impact-label">
-                Materiales pendientes
-              </p>
+          {error && <SectionCard className="text-red-500 font-medium mb-4">{error}</SectionCard>}
 
-              <p className="impact-score">
-                {pendingItems.length}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Métricas */}
-        <div className="stat-grid">
-
-          <div className="stat-card">
-            <div
-              className="stat-icon-wrap"
-              style={{
-                background: "rgba(22,160,133,.12)"
-              }}
-            >
-              <IconPackage />
-            </div>
-
-            <p className="stat-value">
-              {pendingItems.length}
-            </p>
-
-            <p className="stat-label">
-              Pendientes
-            </p>
-
-            <p className="stat-sub">
-              Materiales por procesar
-            </p>
-          </div>
-
-          <div className="stat-card">
-            <div
-              className="stat-icon-wrap"
-              style={{
-                background: "rgba(243,156,18,.12)"
-              }}
-            >
-              <IconBox />
-            </div>
-
-            <p className="stat-value">
-              {toValidateItems.length}
-            </p>
-
-            <p className="stat-label">
-              Fardos
-            </p>
-
-            <p className="stat-sub">
-              Pendientes de validación
-            </p>
-          </div>
-
-          <div className="stat-card">
-            <div
-              className="stat-icon-wrap"
-              style={{
-                background: "rgba(39,174,96,.12)"
-              }}
-            >
-              <IconLeaf />
-            </div>
-
-            <p className="stat-value">
-              {pendingItems.length + toValidateItems.length}
-            </p>
-
-            <p className="stat-label">
-              Total
-            </p>
-
-            <p className="stat-sub">
-              Materiales gestionados
-            </p>
-          </div>
-
-        </div>
-
-        {error && (
-          <div className="section-card">
-            {error}
-          </div>
-        )}
-
-        {/* Tabs */}
-        <div className="section-card">
-          <div
-            style={{
-              display: "flex",
-              gap: "10px",
-              flexWrap: "wrap"
-            }}
-          >
-            {tabs.map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`footer-btn ${
-                  activeTab === tab.id
-                    ? "primary"
-                    : "secondary"
-                }`}
-              >
-                {tab.name}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div style={{ height: 16 }} />
-
-        {loading ? (
-          <div className="section-card">
-            <p>Cargando materiales...</p>
-          </div>
-        ) : activeTab === "pending" ? (
-
-          <div className="section-card">
-
-            <div className="section-header">
-              <h2 className="section-title">
-                Ítems Pendientes de Procesamiento
-              </h2>
-
-              <button
-                className="link-btn"
-                onClick={() =>
-                  navigate("/search?processingState=sin_procesar")
-                }
-              >
-                Ver todos
-                <IconChevron />
-              </button>
-            </div>
-
-            {pendingItems.length === 0 ? (
-              <div className="empty-box">
-                <div className="empty-icon">
-                  <IconPackage />
-                </div>
-
-                <p className="empty-text">
-                  No hay materiales pendientes.
-                </p>
-              </div>
-            ) : (
-              pendingItems.map(item => (
-                <div
-                  key={item._id}
-                  className="item-row"
+          {/* Filtros de pestañas */}
+          <SectionCard className="mb-4">
+            <div className="flex flex-wrap gap-2.5">
+              {GESTOR_TABS.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`px-4 py-2 rounded-xl font-semibold text-xs border transition-colors cursor-pointer ${
+                    activeTab === tab.id ? "border-emerald-600/30 text-emerald-600 bg-emerald-50" : "border-gray-200 text-gray-500 hover:bg-gray-100 bg-transparent"
+                  }`}
                 >
-                  <div className="img-thumb">
-                    <IconPackage />
-                  </div>
-
-                  <div
-                    style={{
-                      flex: 1,
-                      minWidth: 0
-                    }}
-                  >
-                    <p className="item-title">
-                      {item.title}
-                    </p>
-
-                    <p className="item-subtitle">
-                      Estado: {item.processingState}
-                    </p>
-
-                    <p className="item-subtitle">
-                      {item.address ||
-                        (
-                          item.location?.lat &&
-                          item.location?.lng
-                        )
-                          ? `${item.location?.lat?.toFixed(4)}, ${item.location?.lng?.toFixed(4)}`
-                          : ""}
-                    </p>
-                  </div>
-
-                  <button
-                    className="footer-btn primary"
-                    style={{ width: "auto" }}
-                    onClick={() =>
-                      handleMarkAsBaled(item._id)
-                    }
-                  >
-                    Marcar Fardado
-                  </button>
-                </div>
-              ))
-            )}
-
-          </div>
-
-        ) : (
-
-          <div className="section-card">
-
-            <div className="section-header">
-              <h2 className="section-title">
-                Fardos Pendientes de Validación
-              </h2>
-
-              <button
-                className="link-btn"
-                onClick={() =>
-                  navigate("/search?processingState=fardado")
-                }
-              >
-                Ver todos
-                <IconChevron />
-              </button>
+                  {tab.name}
+                </button>
+              ))}
             </div>
+          </SectionCard>
 
-            {toValidateItems.length === 0 ? (
-              <div className="empty-box">
-                <div className="empty-icon">
-                  <IconBox />
-                </div>
-
-                <p className="empty-text">
-                  No hay fardos pendientes.
-                </p>
-              </div>
-            ) : (
-              toValidateItems.map(item => (
-                <div
-                  key={item._id}
-                  className="item-row"
-                >
-                  <div className="img-thumb">
-                    <IconBox />
+          {/* Sección principal de listado */}
+          {loading ? (
+            <SectionCard><p className="text-sm text-gray-500 m-0">Cargando materiales...</p></SectionCard>
+          ) : (
+            <SectionCard
+              title={activeTab === "pending" ? "Ítems Pendientes de Procesamiento" : "Fardos Pendientes de Validación"}
+              actionLabel={<>Ver todos <IconChevron /></>}
+              onAction={() => navigate(`/search?processingState=${activeTab === "pending" ? "sin_procesar" : "fardado"}`)}
+            >
+              {(activeTab === "pending" ? pendingItems : toValidateItems).length === 0 ? (
+                <div className="text-center py-9 px-4 text-gray-500">
+                  <div className="w-14 h-14 rounded-2xl bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                    {activeTab === "pending" ? <IconPackage /> : <IconBox />}
                   </div>
-
-                  <div
-                    style={{
-                      flex: 1,
-                      minWidth: 0
-                    }}
-                  >
-                    <p className="item-title">
-                      {item.title}
-                    </p>
-
-                    <p className="item-subtitle">
-                      {item.category}
-                    </p>
-                  </div>
-
-                  <button
-                    className="footer-btn primary"
-                    style={{ width: "auto" }}
-                    onClick={() =>
-                      navigate(`/validate?itemId=${item._id}`)
-                    }
-                  >
-                    Validar
-                  </button>
+                  <p className="text-xs text-gray-500 m-0">No hay elementos pendientes.</p>
                 </div>
-              ))
-            )}
+              ) : (
+                (activeTab === "pending" ? pendingItems : toValidateItems).map((item) => (
+                  <div key={item._id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-100/70 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-gray-200 flex-shrink-0 flex items-center justify-center">
+                      {activeTab === "pending" ? <IconPackage /> : <IconBox />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-gray-800 truncate m-0">{item.title}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5 m-0">{activeTab === "pending" ? `Estado: ${item.processingState}` : item.category}</p>
+                    </div>
+                    <button
+                      className="px-3 py-1.5 rounded-xl border border-emerald-600/30 text-emerald-600 font-semibold text-xs hover:bg-emerald-50 transition-colors cursor-pointer bg-transparent"
+                      onClick={() => activeTab === "pending" ? handleMarkAsBaled(item._id) : navigate(`/validate?itemId=${item._id}`)}
+                    >
+                      {activeTab === "pending" ? "Marcar Fardado" : "Validar"}
+                    </button>
+                  </div>
+                ))
+              )}
+            </SectionCard>
+          )}
 
-          </div>
-
-        )}
-
-        {/* Accesos rápidos */}
-
-        <div
-          className="main-grid"
-          style={{ marginTop: "16px" }}
-        >
-          <div
-            className="section-card"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/agenda")}
-          >
-            <h3 className="section-title">
-              Agenda de Recolección
-            </h3>
-
-            <p className="item-subtitle">
-              Crear y gestionar rutas optimizadas.
-            </p>
-          </div>
-
-          <div
-            className="section-card"
-            style={{ cursor: "pointer" }}
-            onClick={() => navigate("/historial")}
-          >
-            <h3 className="section-title">
-              Archivo Histórico
-            </h3>
-
-            <p className="item-subtitle">
-              Historial de validaciones y movimientos.
-            </p>
+          {/* Accesos directos usando la misma estática de SectionCard */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+            <div className="cursor-pointer transition-transform hover:-translate-y-0.5" onClick={() => navigate("/agenda")}>
+              <SectionCard title="Agenda de Recolección">
+                <p className="text-xs text-gray-500 m-0">Crear y gestionar rutas optimizadas.</p>
+              </SectionCard>
+            </div>
+            
+            <div className="cursor-pointer transition-transform hover:-translate-y-0.5" onClick={() => navigate("/historial")}>
+              <SectionCard title="Archivo Histórico">
+                <p className="text-xs text-gray-500 m-0">Historial de validaciones y movimientos.</p>
+              </SectionCard>
+            </div>
           </div>
         </div>
-
       </div>
-    </div>
-  </Layout>
+    </Layout>
   );
-}
+};
+
 export default DashboardGestor;

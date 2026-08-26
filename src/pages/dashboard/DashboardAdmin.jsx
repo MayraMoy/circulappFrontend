@@ -1,511 +1,71 @@
-import { useContext, useEffect, useState } from "react";
-import AuthContext from "../../contexts/AuthContext";
-import Layout from "../../components/Layout/Layout";
-import { useErrorHandler } from "../../hooks/useErrorHandler";
+import Layout from "../../components/layout/Layout";
 import ErrorToast from "../../components/feedback/ErrorToast";
-import API from "../../services/Api";
-import { useNavigate } from "react-router-dom";
-
-import {
-    IconBox,
-    IconCheck,
-    IconClock,
-    IconPackage,
-    IconPin,
-    IconPlus,
-    IconSearch,
-    IconChevron,
-    IconImagePlaceholder,
-    IconLeaf
-} from "../../components/Icons";
+import HeroBanner from "../../components/dashboard/HeroBanner";
+import StatCard from "../../components/dashboard/StatCard";
+import SectionCard from "../../components/dashboard/SectionCard";
+import { IconBox, IconCheck, IconPackage, IconChevron } from "../../components/Icons";
 import IconReport from "../icons/IconReport";
 import IconUsers from "../icons/IconUsers";
 
-import "./Dashboard.css";
+import useDashboardAdmin from "./hooks/useDashboardAdmin";
+import AdminUsersTable from "./components/AdminUsersTable";
+import { ADMIN_REPORTS } from "./data/dashboardData";
 
 const DashboardAdmin = () => {
-  const { user } = useContext(AuthContext);
-  const navigate = useNavigate();
+  const { user, navigate, error, clearError, metrics, users, items, handlePromote, handleToggleActive, exportarItems } = useDashboardAdmin();
 
-  const { error, showError, clearError } = useErrorHandler();
-
-  const [metrics, setMetrics] = useState({
-    totalItems: 0,
-    validatedItems: 0,
-    co2Saved: 0,
-    recyclingRate: 0,
-    totalUsers: 0,
-    activeGestores: 0,
-  });
-
-  const [users, setUsers] = useState([]);
-  const [items, setItems] = useState([]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      if (!user || user.role !== "admin") {
-        navigate("/dashboard");
-        return;
-      }
-
-      try {
-        const [metricsRes, usersRes, itemsRes] = await Promise.all([
-          API.get("/admin/metrics"),
-          API.get("/admin/users"),
-          API.get("/admin/items"),
-        ]);
-
-        setMetrics(metricsRes.data);
-        setUsers(usersRes.data);
-        setItems(itemsRes.data);
-      } catch (err) {
-        console.error("Error al cargar datos del administrador:", err);
-        showError("Error al cargar el panel de administración.");
-      }
-    };
-
-    fetchData();
-  }, [user, navigate, showError]);
-
-  const refreshUsers = async () => {
-    try {
-      const response = await API.get("/admin/users");
-      setUsers(response.data);
-    } catch {
-      showError("Error al actualizar usuarios.");
-    }
-  };
-
-  const handlePromote = async (userId) => {
-    try {
-      await API.post(`/admin/users/${userId}/promote`);
-      await refreshUsers();
-    } catch (err) {
-      showError(
-        err.response?.data?.msg || "Error al promover usuario."
-      );
-    }
-  };
-
-  const handleToggleActive = async (userId, currentActive) => {
-    try {
-      await API.put(`/admin/users/${userId}`, {
-        active: !currentActive,
-      });
-
-      await refreshUsers();
-    } catch {
-      showError("Error al actualizar estado del usuario.");
-    }
-  };
-
-  if (!user || user.role !== "admin") {
-    return null;
-  }
-
-  const exportarItems = async () => {
-  try {
-    const response = await API.get('/items/exportar', {
-      responseType: 'blob'
-    });
-
-    const url = window.URL.createObjectURL(
-      new Blob([response.data])
-    );
-
-    const link = document.createElement('a');
-
-    link.href = url;
-    link.setAttribute('download', 'materiales.xlsx');
-
-    document.body.appendChild(link);
-    link.click();
-
-    link.remove();
-  } catch (error) {
-    console.error(error);
-  }
-};
-  const statCards = [
-    {
-      label: "Usuarios",
-      value: metrics.totalUsers,
-      sub: "registrados",
-      accent: "var(--primary)",
-      iconBg: "rgba(22,160,133,0.12)",
-      iconColor: "var(--primary)",
-      icon: <IconUsers />,
-    },
-    {
-      label: "Materiales",
-      value: metrics.totalItems,
-      sub: "publicados",
-      accent: "var(--secondary)",
-      iconBg: "rgba(243,156,18,0.12)",
-      iconColor: "var(--secondary-dark)",
-      icon: <IconBox />,
-    },
-    {
-      label: "Validados",
-      value: metrics.validatedItems,
-      sub: "certificados",
-      accent: "var(--success)",
-      iconBg: "rgba(39,174,96,0.12)",
-      iconColor: "var(--success)",
-      icon: <IconCheck />,
-    },
-  ];
+  if (!user || user.role !== "admin") return null;
 
   return (
     <Layout>
       <ErrorToast error={error} onClose={clearError} />
 
-      <div className="dashboard-wrapper">
-        <div className="dashboard-inner">
+      <div className="pt-20 pb-10 px-5 min-h-screen bg-gray-50">
+        <div className="max-w-[980px] mx-auto">
+          <HeroBanner title="Panel de Administración" subtitle="Gestión centralizada de usuarios, materiales y reportes." impactLabel="CO₂ Ahorrado" impactScore={`${metrics.co2Saved} kg`} />
 
-          {/* HERO */}
-          <div className="hero-banner">
-            <div className="hero-banner-deco" />
-            <div className="hero-banner-deco-2" />
-
-            <div style={{ position: "relative" }}>
-              <h1 className="hero-title">
-                Panel de Administración
-              </h1>
-
-              <p className="hero-sub">
-                Gestión centralizada de usuarios, materiales y reportes.
-              </p>
-            </div>
-
-            <div
-              className="impact-pill"
-              style={{ position: "relative" }}
-            >
-              <div style={{ color: "#A8F0C6" }}>
-                <IconLeaf />
-              </div>
-
-              <div>
-                <p className="impact-label">
-                  CO₂ Ahorrado
-                </p>
-
-                <p className="impact-score">
-                  {metrics.co2Saved} kg
-                </p>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-7">
+            <StatCard label="Usuarios" value={metrics.totalUsers} sub="registrados" accentColor="border-emerald-500" iconBg="bg-emerald-500/10" iconColor="text-emerald-600" icon={<IconUsers />} />
+            <StatCard label="Materiales" value={metrics.totalItems} sub="publicados" accentColor="border-amber-500" iconBg="bg-amber-500/10" iconColor="text-amber-600" icon={<IconBox />} />
+            <StatCard label="Validados" value={metrics.validatedItems} sub="certificados" accentColor="border-emerald-500" iconBg="bg-emerald-500/10" iconColor="text-emerald-600" icon={<IconCheck />} />
           </div>
 
-          {/* MÉTRICAS */}
-          <div className="stat-grid">
-            {statCards.map(
-              ({
-                label,
-                value,
-                sub,
-                accent,
-                iconBg,
-                iconColor,
-                icon,
-              }) => (
-                <div
-                  key={label}
-                  className="stat-card"
-                  style={{
-                    borderTop: `3px solid ${accent}`,
-                  }}
-                >
-                  <div
-                    className="stat-icon-wrap"
-                    style={{
-                      background: iconBg,
-                      color: iconColor,
-                    }}
-                  >
-                    {icon}
-                  </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SectionCard title="Gestión de Usuarios" icon={IconUsers} actionLabel={<>Ver todos <IconChevron /></>} onAction={() => navigate("/admin/users")}>
+              <AdminUsersTable users={users} onPromote={handlePromote} onToggleActive={handleToggleActive} />
+            </SectionCard>
 
-                  <p className="stat-value">
-                    {value}
-                  </p>
-
-                  <p className="stat-label">
-                    {label}
-                  </p>
-
-                  <p className="stat-sub">
-                    {sub}
-                  </p>
-                </div>
-              )
-            )}
-          </div>
-
-          {/* CONTENIDO */}
-          <div className="main-grid">
-
-            {/* USUARIOS */}
-            <div className="section-card">
-              <div className="section-header">
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 9,
-                  }}
-                >
-                  <div className="section-icon-wrap">
-                    <IconUsers />
-                  </div>
-
-                  <h2 className="section-title">
-                    Gestión de Usuarios
-                  </h2>
-                </div>
-
-                <button
-                  className="link-btn"
-                  onClick={() =>
-                    navigate("/admin/users")
-                  }
-                >
-                  Ver todos <IconChevron />
-                </button>
-              </div>
-
-              <table className="admin-table">
-                <thead>
-                  <tr>
-                    <th>Usuario</th>
-                    <th>Rol</th>
-                    <th>Acciones</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {users.slice(0, 5).map((u) => (
-                    <tr key={u._id}>
-                      <td>
-                        <div className="admin-user-name">
-                          {u.name}
-                        </div>
-
-                        <div className="admin-user-email">
-                          {u.email}
-                        </div>
-                      </td>
-
-                      <td>
-                        <span
-                          className={`role-badge ${
-                            u.role === "admin"
-                              ? "role-admin"
-                              : u.role === "gestor"
-                              ? "role-gestor"
-                              : "role-user"
-                          }`}
-                        >
-                          {u.role}
-                        </span>
-                      </td>
-
-                      <td>
-                        {u.role === "user" && (
-                          <button
-                            onClick={() =>
-                              handlePromote(u._id)
-                            }
-                            className="action-btn promote"
-                          >
-                            Promover
-                          </button>
-                        )}
-
-                        <button
-                          onClick={() =>
-                            handleToggleActive(
-                              u._id,
-                              u.active
-                            )
-                          }
-                          className={`action-btn ${
-                            u.active
-                              ? "disable"
-                              : "enable"
-                          }`}
-                        >
-                          {u.active
-                            ? "Desactivar"
-                            : "Activar"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-
-            {/* MATERIALES */}
-            <div className="section-card">
-              <div className="section-header">
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 9,
-                  }}
-                >
-                  <div className="section-icon-wrap">
-                    <IconPackage />
-                  </div>
-
-                  <h2 className="section-title">
-                    Trazabilidad de Materiales
-                  </h2>
-                </div>
-
-                <button
-                  type="button"
-                  className="link-btn"
-                  onClick={exportarItems}
-                >
-  Exportar <IconChevron />
-</button>
-              </div>
-
-              <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 2,
-                }}
-              >
+            <SectionCard title="Trazabilidad de Materiales" icon={IconPackage} actionLabel={<>Exportar <IconChevron /></>} onAction={exportarItems}>
+              <div className="flex flex-col gap-1">
                 {items.slice(0, 5).map((item) => (
-                  <div
-                    key={item._id}
-                    className="item-row"
-                  >
-                    <div
-                      className="img-thumb"
-                    >
-                      <IconPackage />
-                    </div>
-
-                    <div
-                      style={{
-                        flex: 1,
-                        minWidth: 0,
-                      }}
-                    >
-                      <p className="item-title">
-                        {item.title}
-                      </p>
-
-                      <p className="item-subtitle">
-                        {item.category}
-                      </p>
-
-                      <p className="item-subtitle">
-                        Estado:{" "}
-                        {item.processingState}
-                      </p>
+                  <div key={item._id} className="flex items-center gap-3 p-2 rounded-xl hover:bg-gray-100/70 transition-colors">
+                    <div className="w-12 h-12 rounded-xl bg-gray-200 flex-shrink-0 flex items-center justify-center"><IconPackage /></div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-xs font-semibold text-gray-800 truncate m-0">{item.title}</p>
+                      <p className="text-[11px] text-gray-500 mt-0.5 m-0">{item.category}</p>
+                      <p className="text-[11px] text-gray-400 m-0">Estado: {item.processingState}</p>
                     </div>
                   </div>
                 ))}
               </div>
-
-              <div className="section-divider">
-                <button
-                  className="footer-btn primary"
-                >
+              <div className="mt-4 pt-4 border-t border-gray-100">
+                <button className="w-full py-2.5 rounded-xl border border-emerald-600/30 text-emerald-600 font-semibold text-xs hover:bg-emerald-50 transition-colors cursor-pointer bg-transparent">
                   Total: {metrics.totalItems} materiales
                 </button>
               </div>
-            </div>
+            </SectionCard>
           </div>
 
-          {/* REPORTES */}
-          <div
-            className="section-card"
-            style={{ marginTop: "1rem" }}
-          >
-            <div className="section-header">
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 9,
-                }}
-              >
-                <div className="section-icon-wrap">
-                  <IconReport />
+          <SectionCard title="Reportes para la Comuna" icon={IconReport} className="mt-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
+              {ADMIN_REPORTS.map((report) => (
+                <div key={report.title} onClick={() => window.open(report.endpoint, "_blank")} className="bg-white border border-gray-100 rounded-xl p-4 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all">
+                  <div className="text-sm font-semibold text-gray-800">{report.title}</div>
+                  <div className="text-xs text-gray-500 mt-1">{report.sub}</div>
                 </div>
-
-                <h2 className="section-title">
-                  Reportes para la Comuna
-                </h2>
-              </div>
+              ))}
             </div>
-
-            <div className="report-grid">
-              <div
-                className="report-card"
-                onClick={() =>
-                  window.open(
-                    "/api/admin/reports/monthly",
-                    "_blank"
-                  )
-                }
-              >
-                <div className="report-title">
-                  Reporte Mensual
-                </div>
-
-                <div className="report-subtitle">
-                  Resumen general de actividad.
-                </div>
-              </div>
-
-              <div
-                className="report-card"
-                onClick={() =>
-                  window.open(
-                    "/api/admin/reports/environmental",
-                    "_blank"
-                  )
-                }
-              >
-                <div className="report-title">
-                  Reporte Ambiental
-                </div>
-
-                <div className="report-subtitle">
-                  CO₂ ahorrado y reciclaje.
-                </div>
-              </div>
-
-              <div
-                className="report-card"
-                onClick={() =>
-                  window.open(
-                    "/api/admin/reports/validations",
-                    "_blank"
-                  )
-                }
-              >
-                <div className="report-title">
-                  Reporte de Validaciones
-                </div>
-
-                <div className="report-subtitle">
-                  Materiales certificados.
-                </div>
-              </div>
-            </div>
-          </div>
-
+          </SectionCard>
         </div>
       </div>
     </Layout>
