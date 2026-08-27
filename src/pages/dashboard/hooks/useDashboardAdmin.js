@@ -73,12 +73,45 @@ export const useDashboardAdmin = () => {
       document.body.appendChild(link);
       link.click();
       link.remove();
+      window.URL.revokeObjectURL(url);
     } catch (error) {
       console.error(error);
+      showError("Error al exportar materiales.");
     }
   };
 
-  return { user, navigate, error, clearError, metrics, users, items, handlePromote, handleToggleActive, exportarItems };
+  const handleDownloadReport = async (report) => {
+    try {
+      const response = await API.get(report.endpoint, { responseType: "blob" });
+      const filename = `reporte_${report.title.toLowerCase().replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10)}.json`;
+      const blob = new Blob([response.data], { type: "application/json" });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", filename);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error("Error al descargar reporte administrativo:", err);
+      showError(err.response?.data?.msg || "Error al descargar el reporte administrativo.");
+    }
+  };
+
+  return { 
+    user, 
+    navigate, 
+    error, 
+    clearError, 
+    metrics, 
+    users, 
+    items, 
+    handlePromote, 
+    handleToggleActive, 
+    exportarItems,
+    handleDownloadReport
+  };
 };
 
 export default useDashboardAdmin;

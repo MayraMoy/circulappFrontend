@@ -12,7 +12,19 @@ import AdminUsersTable from "./components/AdminUsersTable";
 import { ADMIN_REPORTS } from "./data/dashboardData";
 
 const DashboardAdmin = () => {
-  const { user, navigate, error, clearError, metrics, users, items, handlePromote, handleToggleActive, exportarItems } = useDashboardAdmin();
+  const { 
+    user, 
+    navigate, 
+    error, 
+    clearError, 
+    metrics, 
+    users, 
+    items, 
+    handlePromote, 
+    handleToggleActive, 
+    exportarItems,
+    handleDownloadReport
+  } = useDashboardAdmin();
 
   if (!user || user.role !== "admin") return null;
 
@@ -59,7 +71,7 @@ const DashboardAdmin = () => {
           <SectionCard title="Reportes para la Comuna" icon={IconReport} className="mt-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               {ADMIN_REPORTS.map((report) => (
-                <div key={report.title} onClick={() => window.open(report.endpoint, "_blank")} className="bg-white border border-gray-100 rounded-xl p-4 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all">
+                <div key={report.title} onClick={() => handleDownloadReport(report)} className="bg-white border border-gray-100 rounded-xl p-4 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all">
                   <div className="text-sm font-semibold text-gray-800">{report.title}</div>
                   <div className="text-xs text-gray-500 mt-1">{report.sub}</div>
                 </div>
