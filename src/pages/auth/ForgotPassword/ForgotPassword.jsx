@@ -38,7 +38,9 @@ export default function ForgotPassword() {
         <div className="flex flex-col gap-5 text-center">
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-left text-sm text-emerald-800">
             <div className="flex items-center gap-2 font-semibold text-emerald-900 mb-1">
-              <i className="ti ti-mail-check text-lg text-emerald-600" />
+              <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
               ¡Correo enviado!
             </div>
             <p>{successMsg}</p>

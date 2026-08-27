@@ -51,7 +51,9 @@ export default function ResetPassword() {
         <div className="flex flex-col gap-5 text-center">
           <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-left text-sm text-emerald-800">
             <div className="flex items-center gap-2 font-semibold text-emerald-900 mb-1">
-              <i className="ti ti-circle-check text-lg text-emerald-600" />
+              <svg className="w-5 h-5 text-emerald-600 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
               ¡Contraseña restablecida!
             </div>
             <p>Tu contraseña ha sido actualizada con éxito. Ya puedes iniciar sesión con tu nueva clave.</p>
