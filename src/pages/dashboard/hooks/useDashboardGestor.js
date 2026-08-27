@@ -13,6 +13,25 @@ const useDashboardGestor = () => {
   const [error, setError] = useState("");
   const [balingItemId, setBalingItemId] = useState(null);
 
+  const [reports, setReports] = useState([]);
+  const [pendingReportsCount, setPendingReportsCount] = useState(0);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  const fetchReports = useCallback(async () => {
+    if (!user || (user.role !== "gestor" && user.role !== "admin")) return;
+    setLoadingReports(true);
+    try {
+      const res = await API.get("/reports");
+      setReports(res.data.reports || []);
+      setPendingReportsCount(res.data.pendingCount || 0);
+    } catch (err) {
+      console.error("Error al cargar denuncias:", err);
+    } finally {
+      setLoadingReports(false);
+    }
+  }, [user]);
+
   const fetchItems = useCallback(async () => {
     if (!user || user.role !== "gestor") return;
 
@@ -25,13 +44,14 @@ const useDashboardGestor = () => {
 
       const toValidateRes = await API.get("/items?processingState=fardado");
       setToValidateItems(toValidateRes.data);
+      await fetchReports();
     } catch (err) {
       console.error("Error al cargar ítems:", err);
       setError("No se pudieron cargar los ítems. Inténtalo más tarde.");
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [user, fetchReports]);
 
   useEffect(() => {
     const timeoutId = setTimeout(() => {
@@ -59,6 +79,31 @@ const useDashboardGestor = () => {
     }
   };
 
+  const handleDismissReport = async (reportId) => {
+    setActionLoadingId(reportId);
+    try {
+      await API.patch(`/reports/${reportId}/dismiss`, { resolutionNotes: 'Desestimada por el gestor comunal.' });
+      await fetchReports();
+    } catch (err) {
+      alert("Error al desestimar la denuncia: " + (err.response?.data?.msg || "Error"));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteReportedItem = async (reportId) => {
+    if (!window.confirm("¿Confirmas que deseas eliminar esta publicación infractora permanentemente?")) return;
+    setActionLoadingId(reportId);
+    try {
+      await API.delete(`/reports/${reportId}/item`);
+      await Promise.all([fetchReports(), fetchItems()]);
+    } catch (err) {
+      alert("Error al eliminar la publicación denunciada: " + (err.response?.data?.msg || "Error"));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   const getWhatsAppLink = (phone) => {
     if (!phone) return null;
     const clean = phone.replace(/\D/g, "");
@@ -74,11 +119,17 @@ const useDashboardGestor = () => {
     setActiveTab,
     pendingItems,
     toValidateItems,
+    reports,
+    pendingReportsCount,
+    loadingReports,
+    actionLoadingId,
     loading,
     error,
     balingItemId,
     setBalingItemId,
     confirmMarkAsBaled,
+    handleDismissReport,
+    handleDeleteReportedItem,
     getWhatsAppLink,
   };
 };

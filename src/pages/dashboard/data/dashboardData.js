@@ -11,6 +11,7 @@ export const CATEGORY_NAMES = {
 export const GESTOR_TABS = [
   { id: "pending", name: "Ítems Pendientes de Procesamiento" },
   { id: "toValidate", name: "Fardos Pendientes de Validación" },
+  { id: "reports", name: "Denuncias y Moderación" },
 ];
 
 export const ADMIN_REPORTS = [

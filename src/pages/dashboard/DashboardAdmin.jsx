@@ -9,6 +9,7 @@ import IconUsers from "../icons/IconUsers";
 
 import useDashboardAdmin from "./hooks/useDashboardAdmin";
 import AdminUsersTable from "./components/AdminUsersTable";
+import ReportModerationList from "../../components/dashboard/ReportModerationList";
 import { ADMIN_REPORTS } from "./data/dashboardData";
 
 const DashboardAdmin = () => {
@@ -20,8 +21,14 @@ const DashboardAdmin = () => {
     metrics, 
     users, 
     items, 
+    reports,
+    pendingReportsCount,
+    loadingReports,
+    actionLoadingId,
     handlePromote, 
     handleToggleActive, 
+    handleDismissReport,
+    handleDeleteReportedItem,
     exportarItems,
     handleDownloadReport
   } = useDashboardAdmin();
@@ -67,6 +74,28 @@ const DashboardAdmin = () => {
               </div>
             </SectionCard>
           </div>
+
+          {/* Moderación de Denuncias de la Comunidad */}
+          <SectionCard 
+            title="Moderación de Denuncias" 
+            icon={IconReport} 
+            className="mt-4"
+            actionLabel={
+              pendingReportsCount > 0 ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
+                  {pendingReportsCount} pendientes
+                </span>
+              ) : null
+            }
+          >
+            <ReportModerationList
+              reports={reports}
+              loading={loadingReports}
+              onDismiss={handleDismissReport}
+              onDeleteItem={handleDeleteReportedItem}
+              actionLoadingId={actionLoadingId}
+            />
+          </SectionCard>
 
           <SectionCard title="Reportes para la Comuna" icon={IconReport} className="mt-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">

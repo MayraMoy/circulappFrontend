@@ -12,6 +12,23 @@ export const useDashboardAdmin = () => {
   const [metrics, setMetrics] = useState({ totalItems: 0, validatedItems: 0, co2Saved: 0, recyclingRate: 0, totalUsers: 0, activeGestores: 0 });
   const [users, setUsers] = useState([]);
   const [items, setItems] = useState([]);
+  const [reports, setReports] = useState([]);
+  const [pendingReportsCount, setPendingReportsCount] = useState(0);
+  const [loadingReports, setLoadingReports] = useState(false);
+  const [actionLoadingId, setActionLoadingId] = useState(null);
+
+  const fetchReports = async () => {
+    setLoadingReports(true);
+    try {
+      const res = await API.get("/reports");
+      setReports(res.data.reports || []);
+      setPendingReportsCount(res.data.pendingCount || 0);
+    } catch (err) {
+      console.error("Error al cargar denuncias:", err);
+    } finally {
+      setLoadingReports(false);
+    }
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,6 +45,7 @@ export const useDashboardAdmin = () => {
         setMetrics(metricsRes.data);
         setUsers(usersRes.data);
         setItems(itemsRes.data);
+        await fetchReports();
       } catch (err) {
         console.error("Error al cargar datos del administrador:", err);
         showError("Error al cargar el panel de administración.");
@@ -60,6 +78,31 @@ export const useDashboardAdmin = () => {
       await refreshUsers();
     } catch {
       showError("Error al actualizar estado del usuario.");
+    }
+  };
+
+  const handleDismissReport = async (reportId) => {
+    setActionLoadingId(reportId);
+    try {
+      await API.patch(`/reports/${reportId}/dismiss`, { resolutionNotes: 'Desestimada por el administrador tras revisión.' });
+      await fetchReports();
+    } catch (err) {
+      showError(err.response?.data?.msg || "Error al desestimar la denuncia.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const handleDeleteReportedItem = async (reportId) => {
+    if (!window.confirm("¿Confirmas que deseas eliminar esta publicación infractora permanentemente?")) return;
+    setActionLoadingId(reportId);
+    try {
+      await API.delete(`/reports/${reportId}/item`);
+      await Promise.all([fetchReports(), refreshUsers()]);
+    } catch (err) {
+      showError(err.response?.data?.msg || "Error al eliminar la publicación denunciada.");
+    } finally {
+      setActionLoadingId(null);
     }
   };
 
@@ -107,8 +150,14 @@ export const useDashboardAdmin = () => {
     metrics, 
     users, 
     items, 
+    reports,
+    pendingReportsCount,
+    loadingReports,
+    actionLoadingId,
     handlePromote, 
     handleToggleActive, 
+    handleDismissReport,
+    handleDeleteReportedItem,
     exportarItems,
     handleDownloadReport
   };

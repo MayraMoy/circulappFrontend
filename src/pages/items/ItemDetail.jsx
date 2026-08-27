@@ -6,6 +6,7 @@ import API from '../../services/Api';
 import AuthContext from '../../contexts/AuthContext';
 import RateUserModal from '../funcionalidades/RateUserModal';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
+import ReportModal from '../../components/feedback/ReportModal';
 import {
   ArrowLeftIcon,
   MapPinIcon,
@@ -47,6 +48,7 @@ const ItemDetail = () => {
   const [error, setError] = useState('');
   const [selectedImage, setSelectedImage] = useState(null);
   const [showRateModal, setShowRateModal] = useState(false);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   // Estados para procesar/fardar
   const [processing, setProcessing] = useState(false);
@@ -175,9 +177,11 @@ const ItemDetail = () => {
     );
   }
 
-  const isOwner = user && item.ownerId?._id === user.id;
-  const isGestorOrAdmin = user && (user.role === 'gestor' || user.role === 'admin' || user.role === 'dev' || user.isDev);
-  const isAdminOrDev = user && (user.role === 'admin' || user.role === 'dev' || user.isDev);
+  const currentUserId = user?.id || user?._id;
+  const itemOwnerId = item?.ownerId?._id || item?.ownerId;
+  const isOwner = Boolean(currentUserId && itemOwnerId && String(currentUserId) === String(itemOwnerId));
+  const isGestorOrAdmin = Boolean(user && (user.role === 'gestor' || user.role === 'admin' || user.role === 'dev' || user.isDev));
+  const isAdminOrDev = Boolean(user && (user.role === 'admin' || user.role === 'dev' || user.isDev));
   const state = processingStates[item.processingState] || { label: item.processingState, color: 'bg-gray-100 text-gray-600' };
 
   return (
@@ -194,30 +198,47 @@ const ItemDetail = () => {
             Volver
           </button>
 
-          {/* Botones de Moderación (Dueño, Admin o Gestor Comunal) */}
-          {(isGestorOrAdmin || isOwner) && (
-            <div className="flex items-center gap-2">
-              {(isAdminOrDev || isOwner) && (
-                <button
-                  type="button"
-                  onClick={handleOpenEdit}
-                  className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
-                >
-                  <PencilSquareIcon className="w-4 h-4" />
-                  Editar
-                </button>
-              )}
-
+          <div className="flex items-center gap-2">
+            {/* Botón Denunciar (Cualquier usuario autenticado que no sea el autor) */}
+            {user && !isOwner && (
               <button
                 type="button"
-                onClick={() => setConfirmDelete(true)}
-                className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                onClick={() => setShowReportModal(true)}
+                className="inline-flex items-center gap-1.5 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-semibold px-3 py-1.5 rounded-lg border border-rose-200 transition cursor-pointer"
+                title="Denunciar publicación por contenido indebido o erróneo"
               >
-                <TrashIcon className="w-4 h-4" />
-                {user?.role === 'gestor' && !isOwner ? 'Moderar / Eliminar' : 'Eliminar'}
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+                Denunciar
               </button>
-            </div>
-          )}
+            )}
+
+            {/* Botones de Edición / Eliminación (Solo Autor o Admin) */}
+            {(isGestorOrAdmin || isOwner) && (
+              <>
+                {(isAdminOrDev || isOwner) && (
+                  <button
+                    type="button"
+                    onClick={handleOpenEdit}
+                    className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
+                  >
+                    <PencilSquareIcon className="w-4 h-4" />
+                    Editar
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelete(true)}
+                  className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
+                >
+                  <TrashIcon className="w-4 h-4" />
+                  {user?.role === 'gestor' && !isOwner ? 'Moderar / Eliminar' : 'Eliminar'}
+                </button>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Title row */}
@@ -412,6 +433,14 @@ const ItemDetail = () => {
             onClose={() => setShowRateModal(false)}
           />
         )}
+
+        {/* MODAL DE DENUNCIA DE PUBLICACIÓN */}
+        <ReportModal
+          isOpen={showReportModal}
+          onClose={() => setShowReportModal(false)}
+          itemId={item._id}
+          itemTitle={item.title}
+        />
 
         {/* MODAL CONFIRMACIÓN DE FARDADO */}
         <ConfirmModal
