@@ -180,8 +180,8 @@ const ItemDetail = () => {
   const currentUserId = user?.id || user?._id;
   const itemOwnerId = item?.ownerId?._id || item?.ownerId;
   const isOwner = Boolean(currentUserId && itemOwnerId && String(currentUserId) === String(itemOwnerId));
-  const isGestorOrAdmin = Boolean(user && (user.role === 'gestor' || user.role === 'admin' || user.role === 'dev' || user.isDev));
-  const isAdminOrDev = Boolean(user && (user.role === 'admin' || user.role === 'dev' || user.isDev));
+  const isAdmin = Boolean(user && user.role === 'admin');
+  const isGestor = Boolean(user && user.role === 'gestor');
   const state = processingStates[item.processingState] || { label: item.processingState, color: 'bg-gray-100 text-gray-600' };
 
   return (
@@ -214,29 +214,28 @@ const ItemDetail = () => {
               </button>
             )}
 
-            {/* Botones de Edición / Eliminación (Solo Autor o Admin) */}
-            {(isGestorOrAdmin || isOwner) && (
-              <>
-                {(isAdminOrDev || isOwner) && (
-                  <button
-                    type="button"
-                    onClick={handleOpenEdit}
-                    className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
-                  >
-                    <PencilSquareIcon className="w-4 h-4" />
-                    Editar
-                  </button>
-                )}
+            {/* Botón Editar: ÚNICAMENTE el autor legítimo de la publicación (o Administrador) */}
+            {(isOwner || isAdmin) && (
+              <button
+                type="button"
+                onClick={handleOpenEdit}
+                className="inline-flex items-center gap-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
+              >
+                <PencilSquareIcon className="w-4 h-4" />
+                Editar
+              </button>
+            )}
 
-                <button
-                  type="button"
-                  onClick={() => setConfirmDelete(true)}
-                  className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
-                >
-                  <TrashIcon className="w-4 h-4" />
-                  {user?.role === 'gestor' && !isOwner ? 'Moderar / Eliminar' : 'Eliminar'}
-                </button>
-              </>
+            {/* Botón Eliminar: Autor legítimo, Administrador o Gestor moderador */}
+            {(isOwner || isAdmin || isGestor) && (
+              <button
+                type="button"
+                onClick={() => setConfirmDelete(true)}
+                className="inline-flex items-center gap-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-lg transition cursor-pointer"
+              >
+                <TrashIcon className="w-4 h-4" />
+                {isGestor && !isOwner ? 'Moderar / Eliminar' : 'Eliminar'}
+              </button>
             )}
           </div>
         </div>
@@ -257,8 +256,8 @@ const ItemDetail = () => {
               {state.label}
             </span>
 
-            {/* BOTÓN DE APROBACIÓN / FARDADO PARA GESTOR O ADMIN */}
-            {isGestorOrAdmin && (
+            {/* BOTÓN DE APROBACIÓN / FARDADO EXCLUSIVO PARA GESTOR O ADMIN */}
+            {(isGestor || isAdmin) && (
               <>
                 {['sin_procesar', 'en_proceso'].includes(item.processingState) && (
                   <button
