@@ -156,6 +156,9 @@ const PublishItem = () => {
   };
 
   const removeImage = (index) => {
+    if (previewUrls[index]) {
+      try { URL.revokeObjectURL(previewUrls[index]); } catch {}
+    }
     setImages(prev => prev.filter((_, i) => i !== index));
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };

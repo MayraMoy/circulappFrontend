@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./routes/ProtectedRoute";
+import RoleRoute from "./routes/RoleRoute";
 
 import Login from "./pages/auth/Login/Login";
 import Register from "./pages/auth/Register/Register";
@@ -29,12 +30,20 @@ function App() {
             <Route path="/items/:id" element={<ItemDetail />} />
             <Route path="/educational" element={<Educational />} />
 
-            {/* Rutas protegidas */}
+            {/* Rutas protegidas generales */}
             <Route element={<ProtectedRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/publish" element={<PublishItem />} />
                 <Route path="/profile" element={<Profile />} />
+            </Route>
+
+            {/* Rutas protegidas para Gestores y Administradores */}
+            <Route element={<RoleRoute allowedRoles={['gestor', 'admin']} />}>
                 <Route path="/validate" element={<ValidateMaterial />} />
+            </Route>
+
+            {/* Rutas protegidas exclusivas para Administradores */}
+            <Route element={<RoleRoute allowedRoles={['admin']} />}>
                 <Route path="/admin/users" element={<AdminUserManagement />} />
             </Route>
 
