@@ -289,9 +289,31 @@ export default function AuthModal() {
                     </div>
                   </div>
 
-                  {/* Contraseña */}
+                  {/* Contraseña con indicador de fortaleza */}
                   <div>
-                    <label className={labelClasses}>Contraseña</label>
+                    <div className="flex justify-between items-center mb-1">
+                      <label className={labelClasses}>Contraseña</label>
+                      {password.length > 0 && (() => {
+                        const hasMinLength = password.length >= 8;
+                        const hasUpper = /[A-Z]/.test(password);
+                        const hasNumber = /[0-9]/.test(password);
+                        const hasSymbol = /[!@#$%^&*(),.?":{}|<>\-_=+\\[\]~`]/.test(password);
+                        const score = [hasMinLength, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+                        const strengthMap = [
+                          { label: 'Débil', text: 'text-red-600' },
+                          { label: 'Débil', text: 'text-red-600' },
+                          { label: 'Regular', text: 'text-orange-600' },
+                          { label: 'Buena', text: 'text-amber-600' },
+                          { label: 'Muy Fuerte 🛡️', text: 'text-emerald-600' }
+                        ];
+                        const s = strengthMap[score] || strengthMap[0];
+                        return (
+                          <span className={`text-[11px] font-bold ${s.text}`}>
+                            Seguridad: {s.label}
+                          </span>
+                        );
+                      })()}
+                    </div>
                     <div className={fieldClasses}>
                       <span className="text-gray-400"><LockIcon /></span>
                       <input
@@ -310,6 +332,48 @@ export default function AuthModal() {
                         <EyeIcon open={showPassword} />
                       </button>
                     </div>
+
+                    {/* Barra de fortaleza de contraseña */}
+                    {password.length > 0 && (() => {
+                      const hasMinLength = password.length >= 8;
+                      const hasUpper = /[A-Z]/.test(password);
+                      const hasNumber = /[0-9]/.test(password);
+                      const hasSymbol = /[!@#$%^&*(),.?":{}|<>\-_=+\\[\]~`]/.test(password);
+                      const score = [hasMinLength, hasUpper, hasNumber, hasSymbol].filter(Boolean).length;
+                      const config = [
+                        { percent: '20%', bg: 'bg-red-500' },
+                        { percent: '25%', bg: 'bg-red-500' },
+                        { percent: '50%', bg: 'bg-orange-500' },
+                        { percent: '75%', bg: 'bg-amber-500' },
+                        { percent: '100%', bg: 'bg-emerald-500' }
+                      ][score] || { percent: '20%', bg: 'bg-red-500' };
+
+                      return (
+                        <div className="mt-1.5">
+                          <div className="h-1.5 w-full bg-gray-200 rounded-full overflow-hidden">
+                            <div
+                              className={`h-full transition-all duration-300 ${config.bg}`}
+                              style={{ width: config.percent }}
+                            />
+                          </div>
+
+                          <div className="mt-1.5 grid grid-cols-2 gap-1 text-[10px] text-gray-500">
+                            <div className={`flex items-center gap-1 ${hasMinLength ? 'text-emerald-700 font-semibold' : 'text-gray-400'}`}>
+                              <span>{hasMinLength ? '✓' : '○'}</span> 8+ caracteres
+                            </div>
+                            <div className={`flex items-center gap-1 ${hasUpper ? 'text-emerald-700 font-semibold' : 'text-gray-400'}`}>
+                              <span>{hasUpper ? '✓' : '○'}</span> Una mayúscula (A-Z)
+                            </div>
+                            <div className={`flex items-center gap-1 ${hasNumber ? 'text-emerald-700 font-semibold' : 'text-gray-400'}`}>
+                              <span>{hasNumber ? '✓' : '○'}</span> Un número (0-9)
+                            </div>
+                            <div className={`flex items-center gap-1 ${hasSymbol ? 'text-emerald-700 font-semibold' : 'text-gray-400'}`}>
+                              <span>{hasSymbol ? '✓' : '○'}</span> Un símbolo (!@#$...)
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
                   </div>
 
                   {/* Confirmar Contraseña */}
