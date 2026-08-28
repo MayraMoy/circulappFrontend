@@ -19,14 +19,42 @@ export default function AuthProvider({ children }) {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    // Estado del Modal de Autenticación / Invitado
+    const [authModalOpen, setAuthModalOpen] = useState(false);
+    const [authModalTab, setAuthModalTab] = useState("login"); // 'login' | 'register'
+    const [authModalPrompt, setAuthModalPrompt] = useState("");
+
     const logout = () => {
         clearSession();
         setUser(null);
     };
 
     useEffect(() => {
-        initializeAuth(setUser, setLoading, logout);
+        initializeAuth((userData) => {
+            setUser(userData);
+            // Si no hay usuario y no ha elegido continuar como invitado, mostrar modal inicial
+            if (!userData && sessionStorage.getItem("circulapp_guest_mode") !== "true") {
+                setAuthModalOpen(true);
+            }
+        }, setLoading, logout);
     }, []);
+
+    const openAuthModal = (tab = "login", prompt = "") => {
+        setAuthModalTab(tab);
+        setAuthModalPrompt(prompt);
+        setAuthModalOpen(true);
+    };
+
+    const closeAuthModal = () => {
+        setAuthModalOpen(false);
+        setAuthModalPrompt("");
+    };
+
+    const continueAsGuest = () => {
+        sessionStorage.setItem("circulapp_guest_mode", "true");
+        setAuthModalOpen(false);
+        setAuthModalPrompt("");
+    };
 
     const login = async (email, password) => {
         const data = await loginUser(email, password);
@@ -34,6 +62,7 @@ export default function AuthProvider({ children }) {
         saveSession(data.token, data.user);
 
         setUser(data.user);
+        setAuthModalOpen(false);
 
         return data.user;
     };
@@ -44,6 +73,7 @@ export default function AuthProvider({ children }) {
         saveSession(data.token, data.user);
 
         setUser(data.user);
+        setAuthModalOpen(false);
 
         return data.user;
     };
@@ -64,7 +94,14 @@ export default function AuthProvider({ children }) {
         <AuthContext.Provider
             value={{
                 user,
+                isGuest: !user,
                 loading,
+                authModalOpen,
+                authModalTab,
+                authModalPrompt,
+                openAuthModal,
+                closeAuthModal,
+                continueAsGuest,
                 login,
                 register,
                 logout,
