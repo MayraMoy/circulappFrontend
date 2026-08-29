@@ -1,5 +1,4 @@
-// frontend/src/pages/ItemDetail.jsx
-import { useState, useEffect, useContext } from 'react';
+import { useState, useEffect, useContext, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
@@ -65,7 +64,7 @@ const ItemDetail = () => {
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
 
-  const fetchItem = async () => {
+  const fetchItem = useCallback(async () => {
     try {
       const data = await itemService.getItemById(id);
       setItem(data);
@@ -75,11 +74,11 @@ const ItemDetail = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (id) fetchItem();
-  }, [id]);
+  }, [id, fetchItem]);
 
   const handleBale = async () => {
     setProcessing(true);

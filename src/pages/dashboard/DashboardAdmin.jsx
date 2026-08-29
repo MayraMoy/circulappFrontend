@@ -33,8 +33,7 @@ const DashboardAdmin = () => {
     handleDismissReport,
     handleDeleteReportedItem,
     handleDeactivateReportedUser,
-    exportarItems,
-    handleDownloadReport
+    exportarItems
   } = useDashboardAdmin();
 
   if (!user || user.role !== "admin") return null;

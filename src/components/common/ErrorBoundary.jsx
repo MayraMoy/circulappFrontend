@@ -78,7 +78,7 @@ class ErrorBoundary extends React.Component {
               Ocurrió un error inesperado al renderizar esta sección. No te preocupes, tus datos no se han perdido.
             </p>
 
-            {process.env.NODE_ENV === 'development' && this.state.error && (
+            {import.meta.env.DEV && this.state.error && (
               <details style={{
                 textAlign: 'left',
                 backgroundColor: '#F3F4F6',

@@ -13,7 +13,7 @@ import MobileMenu from "./components/MobileMenu";
 import ProfileButton from "./components/ProfileButton";
 import ProfileDropdown from "./components/ProfileDropdown";
 
-import { NAVBAR_LINKS } from "./data/NavbarLinks";
+import { NAVBAR_LINKS } from "./data/navbarLinks";
 
 import DevRoleSwitcher from "../../dev/DevRoleSwitcher";
 

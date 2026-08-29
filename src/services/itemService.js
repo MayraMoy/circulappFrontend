@@ -64,10 +64,13 @@ export const itemService = {
   },
 
   /**
-   * Valida y certifica un fardo
+   * Valida y certifica un fardo (RF15)
    */
   async validateFardo(id, validationData) {
-    const res = await API.patch(`/items/${id}/validate`, validationData);
+    const payload = typeof validationData === 'object' && validationData.checklist
+      ? { itemId: id, ...validationData }
+      : { itemId: id, checklist: validationData };
+    const res = await API.post('/validation/validate', payload);
     itemCacheService.invalidateCache();
     return res.data;
   },

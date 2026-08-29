@@ -15,7 +15,7 @@ class ItemCacheService {
 
   getCacheKey(url, params = {}) {
     const validEntries = Object.entries(params)
-      .filter(([_, v]) => v !== undefined && v !== null && v !== '')
+      .filter(([, v]) => v !== undefined && v !== null && v !== '')
       .sort(([a], [b]) => a.localeCompare(b));
 
     if (validEntries.length === 0) return url;

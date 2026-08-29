@@ -31,7 +31,7 @@ const useDashboardGestor = () => {
     } finally {
       setLoadingReports(false);
     }
-  }, [user?.role]);
+  }, [user]);
 
   const fetchItems = useCallback(async () => {
     if (!user || user.role !== "gestor") return;
@@ -51,7 +51,7 @@ const useDashboardGestor = () => {
     } finally {
       setLoading(false);
     }
-  }, [user?.role, fetchReports]);
+  }, [user, fetchReports]);
 
   useEffect(() => {
     fetchItems();
@@ -61,7 +61,7 @@ const useDashboardGestor = () => {
     if (user && user.role !== "gestor") {
       navigate("/dashboard");
     }
-  }, [user?.role, navigate]);
+  }, [user, navigate]);
 
   const confirmMarkAsBaled = async () => {
     if (!balingItemId) return;

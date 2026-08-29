@@ -48,7 +48,7 @@ const SearchItems = () => {
       if (filters.processingState) params.processingState = filters.processingState;
 
       const data = await itemService.getItems(params, forceRefresh);
-      setItems(data);
+      setItems(Array.isArray(data) ? data : (data?.items || []));
     } catch (error) {
       console.error(error);
       setItems([]);
@@ -58,7 +58,23 @@ const SearchItems = () => {
   };
 
   useEffect(() => { 
-    search(); 
+    let isCurrent = true;
+    const fetchInitial = async () => {
+      setLoading(true);
+      try {
+        const data = await itemService.getItems();
+        if (isCurrent) {
+          setItems(Array.isArray(data) ? data : (data?.items || []));
+        }
+      } catch (_ERROR) {
+        void _ERROR;
+        if (isCurrent) setItems([]);
+      } finally {
+        if (isCurrent) setLoading(false);
+      }
+    };
+    fetchInitial();
+    return () => { isCurrent = false; };
   }, []);
 
   const handleSearch = (e) => { 

@@ -54,7 +54,7 @@ export const useDashboardAdmin = () => {
       }
     };
     fetchData();
-  }, [user?.id, user?.role, navigate, showError]);
+  }, [user, navigate, showError]);
 
   const refreshUsers = async () => {
     try {

@@ -40,7 +40,7 @@ export default function useProfile() {
       location: user.location || '',
       bio: user.bio || ''
     });
-  }, [userId, navigate]);
+  }, [user, navigate]);
 
   const fetchUserItems = useCallback(async () => {
     if (!userId) {

@@ -15,10 +15,8 @@ export default function useLogin() {
 
     useEffect(() => {
         const savedEmail = localStorage.getItem("remembered_email");
-        const savedPassword = localStorage.getItem("remembered_password");
         if (savedEmail) {
             setEmail(savedEmail);
-            if (savedPassword) setPassword(savedPassword);
             setRememberMe(true);
         }
     }, []);
@@ -33,11 +31,11 @@ export default function useLogin() {
             await login(email, password);
             if (rememberMe) {
                 localStorage.setItem("remembered_email", email);
-                localStorage.setItem("remembered_password", password);
             } else {
                 localStorage.removeItem("remembered_email");
-                localStorage.removeItem("remembered_password");
             }
+            // Limpieza preventiva por si existían contraseñas guardadas previamente
+            localStorage.removeItem("remembered_password");
             navigate("/dashboard");
         } catch (error) {
             setError(error.message);

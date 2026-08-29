@@ -1,6 +1,5 @@
-import { useState, useContext, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
-import AuthContext from '../../contexts/AuthContext';
 import itemService from '../../services/itemService';
 import { 
   CalendarDaysIcon, 
@@ -13,7 +12,6 @@ import {
 } from '@heroicons/react/24/outline';
 
 export default function Agenda() {
-  const { user } = useContext(AuthContext);
   const [filter, setFilter] = useState('all'); // 'all', 'pending', 'in_progress', 'completed'
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
