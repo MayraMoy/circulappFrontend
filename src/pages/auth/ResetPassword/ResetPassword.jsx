@@ -5,6 +5,8 @@ import API from '../../../services/Api';
 import LockIcon from '../icons/LockIcon';
 import EyeIcon from '../icons/EyeIcon';
 
+import PasswordStrengthMeter from '../../../components/common/PasswordStrengthMeter';
+
 export default function ResetPassword() {
   const { token } = useParams();
   const navigate = useNavigate();
@@ -20,8 +22,12 @@ export default function ResetPassword() {
     e.preventDefault();
     setError(null);
 
-    if (password.length < 6) {
-      return setError('La contraseña debe tener al menos 6 caracteres.');
+    if (password.length < 8) {
+      return setError('La contraseña debe tener al menos 8 caracteres.');
+    }
+
+    if (!/[A-Za-z]/.test(password) || !/[0-9]/.test(password)) {
+      return setError('La contraseña debe incluir al menos una letra y un número.');
     }
 
     if (password !== confirmPassword) {
@@ -88,7 +94,7 @@ export default function ResetPassword() {
                 type={showPassword ? 'text' : 'password'}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mínimo 6 caracteres"
+                placeholder="Mínimo 8 caracteres"
                 required
                 className="min-w-0 flex-1 border-none bg-transparent text-sm text-text-primary outline-none placeholder:text-gray-400"
               />
@@ -96,11 +102,14 @@ export default function ResetPassword() {
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
+                aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
                 className="flex shrink-0 cursor-pointer border-none bg-transparent p-0 text-text-secondary transition-colors hover:text-primary"
               >
                 <EyeIcon open={showPassword} />
               </button>
             </div>
+
+            <PasswordStrengthMeter password={password} />
           </div>
 
           {/* Confirmar Contraseña */}
