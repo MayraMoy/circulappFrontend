@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
-import itemCacheService from '../../services/itemCacheService';
+import itemService from '../../services/itemService';
 
 const categories = [
   { id: 'plastico',    name: 'Plástico',       icon: 'recycle' },
@@ -203,8 +203,7 @@ const PublishItem = () => {
     images.forEach(file => fd.append('images', file));
 
     try {
-      await API.post('/items', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
-      itemCacheService.invalidateCache();
+      await itemService.createItem(fd);
       navigate('/dashboard');
     } catch (err) {
       setError('Error al publicar: ' + (err.response?.data?.msg || 'Inténtalo más tarde.'));

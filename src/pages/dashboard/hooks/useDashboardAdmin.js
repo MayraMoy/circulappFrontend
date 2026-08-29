@@ -4,6 +4,8 @@ import AuthContext from "../../../contexts/AuthContext";
 import API from "../../../services/Api";
 import { useErrorHandler } from "../../../hooks/useErrorHandler";
 
+import itemService from "../../../services/itemService";
+
 export const useDashboardAdmin = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
@@ -52,7 +54,7 @@ export const useDashboardAdmin = () => {
       }
     };
     fetchData();
-  }, [user, navigate, showError]);
+  }, [user?.id, user?.role, navigate, showError]);
 
   const refreshUsers = async () => {
     try {
@@ -98,6 +100,7 @@ export const useDashboardAdmin = () => {
     setActionLoadingId(reportId);
     try {
       await API.delete(`/reports/${reportId}/item`);
+      itemService.invalidateCache();
       await Promise.all([fetchReports(), refreshUsers()]);
     } catch (err) {
       showError(err.response?.data?.msg || "Error al eliminar la publicación denunciada.");
@@ -111,6 +114,7 @@ export const useDashboardAdmin = () => {
     setActionLoadingId(reportId);
     try {
       await API.patch(`/reports/${reportId}/deactivate-user`);
+      itemService.invalidateCache();
       await Promise.all([fetchReports(), refreshUsers()]);
     } catch (err) {
       showError(err.response?.data?.msg || "Error al desactivar al usuario denunciado.");
@@ -121,8 +125,8 @@ export const useDashboardAdmin = () => {
 
   const exportarItems = async () => {
     try {
-      const response = await API.get("/items/exportar", { responseType: "blob" });
-      const url = window.URL.createObjectURL(new Blob([response.data]));
+      const data = await itemService.exportMaterials();
+      const url = window.URL.createObjectURL(new Blob([data]));
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", "materiales.xlsx");

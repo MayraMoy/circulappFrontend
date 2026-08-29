@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../contexts/AuthContext";
-import API from "../../../services/Api";
+import itemService from "../../../services/itemService";
 import { useErrorHandler } from "../../../hooks/useErrorHandler";
 
 export const useDashboardUsuario = () => {
@@ -20,15 +20,12 @@ export const useDashboardUsuario = () => {
 
     const fetchDashboardData = async () => {
       await handleAsync(async () => {
-        const [myRes, nearbyRes] = await Promise.all([
-          API.get(`/items?ownerId=${userId}`),
-          API.get("/items?limit=6")
+        const [myData, nearbyData] = await Promise.all([
+          itemService.getItems({ ownerId: userId }),
+          itemService.getItems({ limit: 6 })
         ]);
 
         if (!isMounted) return;
-
-        const myData = Array.isArray(myRes.data) ? myRes.data : myRes.data.items || [];
-        const nearbyData = Array.isArray(nearbyRes.data) ? nearbyRes.data : nearbyRes.data.items || [];
 
         setMyItems(myData);
         setNearbyItems(nearbyData.filter((item) => (item.ownerId?._id || item.ownerId) !== userId));

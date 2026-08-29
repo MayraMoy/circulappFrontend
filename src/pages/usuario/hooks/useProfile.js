@@ -2,6 +2,7 @@ import { useContext, useState, useEffect, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import AuthContext from '../../../contexts/AuthContext';
 import API from '../../../services/Api';
+import itemService from '../../../services/itemService';
 
 export default function useProfile() {
   const { user, logout, updateUser } = useContext(AuthContext);
@@ -27,47 +28,44 @@ export default function useProfile() {
   const [savingProfile, setSavingProfile] = useState(false);
   const [profileMsg, setProfileMsg] = useState({ type: '', text: '' });
 
+  const userId = user?.id || user?._id;
+
   useEffect(() => {
     if (!user) return navigate('/login');
 
-    const timeoutId = setTimeout(() => {
-      setProfileData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
-        location: user.location || '',
-        bio: user.bio || ''
-      });
-    }, 0);
-
-    return () => clearTimeout(timeoutId);
-  }, [user, navigate]);
+    setProfileData({
+      name: user.name || '',
+      email: user.email || '',
+      phone: user.phone || '',
+      location: user.location || '',
+      bio: user.bio || ''
+    });
+  }, [userId, navigate]);
 
   const fetchUserItems = useCallback(async () => {
-    if (!user?.id) return setLoading(false);
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     try {
-      const res = await API.get(`/items?ownerId=${user.id}`);
-      setMyItems(res.data);
+      const data = await itemService.getItems({ ownerId: userId });
+      setMyItems(data);
     } catch (err) {
       console.error('Error al cargar publicaciones:', err);
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  }, [userId]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchUserItems();
-    }, 0);
-
-    return () => clearTimeout(timeoutId);
+    fetchUserItems();
   }, [fetchUserItems]);
 
   const confirmDeleteItem = async () => {
     if (!deletingItemId) return;
     try {
-      await API.delete(`/items/${deletingItemId}`);
+      await itemService.deleteItem(deletingItemId);
       setMyItems(prev => prev.filter(i => i._id !== deletingItemId));
     } catch (err) {
       alert(err.response?.data?.msg || 'Error al eliminar la publicación');

@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import AuthContext from '../../contexts/AuthContext';
-import itemCacheService from '../../services/itemCacheService';
+import itemService from '../../services/itemService';
 import { 
   CalendarDaysIcon, 
   MapPinIcon, 
@@ -23,9 +23,9 @@ export default function Agenda() {
     const fetchAgendaItems = async () => {
       setLoading(true);
       try {
-        const data = await itemCacheService.getItems();
+        const data = await itemService.getItems();
         if (isMounted) {
-          setItems(Array.isArray(data) ? data : data.items || []);
+          setItems(data);
         }
       } catch (err) {
         console.error('Error al cargar la agenda:', err);

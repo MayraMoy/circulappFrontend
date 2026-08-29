@@ -2,6 +2,7 @@ import { useContext, useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../contexts/AuthContext";
 import API from "../../../services/Api";
+import itemService from "../../../services/itemService";
 
 const useDashboardGestor = () => {
   const { user } = useContext(AuthContext);
@@ -30,7 +31,7 @@ const useDashboardGestor = () => {
     } finally {
       setLoadingReports(false);
     }
-  }, [user]);
+  }, [user?.role]);
 
   const fetchItems = useCallback(async () => {
     if (!user || user.role !== "gestor") return;
@@ -38,18 +39,11 @@ const useDashboardGestor = () => {
     setLoading(true);
     setError("");
     try {
-      const [pendingRes, inProgressRes, toValidateRes] = await Promise.all([
-        API.get("/items?processingState=sin_procesar"),
-        API.get("/items?processingState=en_proceso"),
-        API.get("/items?processingState=fardado")
-      ]);
+      // Consulta unificada de todos los estados gestionables en una sola petición (P-036)
+      const allGestorItems = await itemService.getItems({ processingState: 'sin_procesar,en_proceso,fardado' });
 
-      const pendingData = Array.isArray(pendingRes.data) ? pendingRes.data : pendingRes.data.items || [];
-      const inProgressData = Array.isArray(inProgressRes.data) ? inProgressRes.data : inProgressRes.data.items || [];
-      const toValidateData = Array.isArray(toValidateRes.data) ? toValidateRes.data : toValidateRes.data.items || [];
-
-      setPendingItems([...pendingData, ...inProgressData]);
-      setToValidateItems(toValidateData);
+      setPendingItems(allGestorItems.filter(i => i.processingState === 'sin_procesar' || i.processingState === 'en_proceso'));
+      setToValidateItems(allGestorItems.filter(i => i.processingState === 'fardado'));
       await fetchReports();
     } catch (err) {
       console.error("Error al cargar ítems:", err);
@@ -67,12 +61,12 @@ const useDashboardGestor = () => {
     if (user && user.role !== "gestor") {
       navigate("/dashboard");
     }
-  }, [user, navigate]);
+  }, [user?.role, navigate]);
 
   const confirmMarkAsBaled = async () => {
     if (!balingItemId) return;
     try {
-      await API.patch(`/items/${balingItemId}/bale`);
+      await itemService.markAsBaled(balingItemId);
       fetchItems();
     } catch (err) {
       alert("Error al marcar como fardado: " + (err.response?.data?.msg || "Inténtalo más tarde."));

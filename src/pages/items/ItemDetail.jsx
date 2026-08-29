@@ -3,7 +3,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
-import itemCacheService from '../../services/itemCacheService';
+import itemService from '../../services/itemService';
 import AuthContext from '../../contexts/AuthContext';
 import RateUserModal from '../funcionalidades/RateUserModal';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
@@ -67,10 +67,10 @@ const ItemDetail = () => {
 
   const fetchItem = async () => {
     try {
-      const res = await API.get(`/items/${id}`);
-      setItem(res.data);
+      const data = await itemService.getItemById(id);
+      setItem(data);
     } catch (err) {
-      setError('No se pudo cargar el material.');
+      setError(err?.response?.data?.msg || 'No se pudo cargar el material.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -84,7 +84,7 @@ const ItemDetail = () => {
   const handleBale = async () => {
     setProcessing(true);
     try {
-      await API.patch(`/items/${item._id}/bale`);
+      await itemService.markAsBaled(item._id);
       await fetchItem();
     } catch (err) {
       alert('Error al fardar material: ' + (err.response?.data?.msg || 'Error desconocido'));
@@ -97,8 +97,7 @@ const ItemDetail = () => {
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      await API.delete(`/items/${item._id}`);
-      itemCacheService.invalidateCache();
+      await itemService.deleteItem(item._id);
       navigate('/dashboard');
     } catch (err) {
       alert('Error al eliminar: ' + (err.response?.data?.msg || 'Error desconocido'));
@@ -140,11 +139,8 @@ const ItemDetail = () => {
         editData.newFiles.forEach(file => formData.append('images', file));
       }
 
-      const res = await API.put(`/items/${item._id}`, formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-      itemCacheService.invalidateCache();
-      setItem(res.data);
+      const data = await itemService.updateItem(item._id, formData);
+      setItem(data);
       setIsEditing(false);
     } catch (err) {
       alert(err.response?.data?.msg || 'Error al guardar cambios.');

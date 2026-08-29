@@ -8,6 +8,8 @@ import {
   TagIcon,
 } from '@heroicons/react/24/outline';
 
+import itemService from '../../../services/itemService';
+
 export const CHECKLIST_ITEMS = [
   { id: 'limpieza', label: 'Material limpio y seco', Icon: SparklesIcon },
   { id: 'homogeneidad', label: '100% del mismo tipo de material', Icon: Square3Stack3DIcon },
@@ -27,14 +29,15 @@ const useValidateMaterial = () => {
   const [error, setError] = useState('');
   const [showSuccessModal, setShowSuccessModal] = useState(false);
 
-  const isUrlItemId = Boolean(new URLSearchParams(location.search).get('itemId'));
+  const queryItemId = new URLSearchParams(location.search).get('itemId');
+  const isUrlItemId = Boolean(queryItemId);
 
   const fetchFardos = useCallback(async () => {
     try {
-      const res = await API.get('/items?processingState=fardado');
-      setAvailableFardos(res.data);
-      if (res.data.length > 0) {
-        setItemId(res.data[0]._id);
+      const data = await itemService.getItems({ processingState: 'fardado' });
+      setAvailableFardos(data);
+      if (data.length > 0) {
+        setItemId(data[0]._id);
       }
     } catch (err) {
       console.error('Error al cargar fardos:', err);
@@ -42,18 +45,12 @@ const useValidateMaterial = () => {
   }, []);
 
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const id = params.get('itemId');
-    const timeoutId = setTimeout(() => {
-      if (id) {
-        setItemId(id);
-      } else {
-        fetchFardos();
-      }
-    }, 0);
-
-    return () => clearTimeout(timeoutId);
-  }, [location.search, fetchFardos]);
+    if (queryItemId) {
+      setItemId(queryItemId);
+    } else {
+      fetchFardos();
+    }
+  }, [queryItemId, fetchFardos]);
 
   const toggleCheck = (id) => {
     setChecklist(prev =>
@@ -77,6 +74,7 @@ const useValidateMaterial = () => {
 
     try {
       await API.post('/validation/validate', { itemId, checklist, observations });
+      itemService.invalidateCache();
       setShowSuccessModal(true);
     } catch (err) {
       setError(err.response?.data?.msg || 'Error al validar el fardo. Inténtalo más tarde.');

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
-import itemCacheService from '../../services/itemCacheService';
+import itemService from '../../services/itemService';
 
 const categoryConfig = [
   { id: '', name: 'Todas', icon: 'search', accent: '#888780' },
@@ -47,8 +47,8 @@ const SearchItems = () => {
       if (filters.category) params.category = filters.category;
       if (filters.processingState) params.processingState = filters.processingState;
 
-      const data = await itemCacheService.getItems(params, forceRefresh);
-      setItems(Array.isArray(data) ? data : data.items || []);
+      const data = await itemService.getItems(params, forceRefresh);
+      setItems(data);
     } catch (error) {
       console.error(error);
       setItems([]);
