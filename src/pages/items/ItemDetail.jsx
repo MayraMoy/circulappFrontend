@@ -20,7 +20,7 @@ import {
   TrashIcon
 } from '@heroicons/react/24/outline';
 
-const cleanPhone = (phone) => phone.replace(/\D/g, '');
+const cleanPhone = (phone) => (phone ? String(phone).replace(/\D/g, '') : '');
 
 const categoryNames = {
   plastico:    'Plástico',
@@ -372,12 +372,12 @@ const ItemDetail = () => {
               <div className="flex items-start gap-2">
                 <MapPinIcon className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-gray-700">
-                  {item.address || (item.location ? `${item.location.lat?.toFixed(4)}, ${item.location.lng?.toFixed(4)}` : 'Sin dirección')}
+                  {item.address || (item.location?.coordinates ? `${item.location.coordinates[1]?.toFixed(4)}, ${item.location.coordinates[0]?.toFixed(4)}` : (item.location?.lat ? `${item.location.lat?.toFixed(4)}, ${item.location.lng?.toFixed(4)}` : 'Sin dirección'))}
                 </span>
               </div>
-              {item.location?.lat && (
+              {(item.location?.coordinates || item.location?.lat) && (
                 <a
-                  href={`https://www.google.com/maps?q=${item.location.lat},${item.location.lng}`}
+                  href={`https://www.google.com/maps?q=${item.location?.coordinates ? item.location.coordinates[1] : item.location.lat},${item.location?.coordinates ? item.location.coordinates[0] : item.location.lng}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-800 font-medium transition-colors"

@@ -12,6 +12,7 @@ import DesktopMenu from "./components/DesktopMenu";
 import MobileMenu from "./components/MobileMenu";
 import ProfileButton from "./components/ProfileButton";
 import ProfileDropdown from "./components/ProfileDropdown";
+import NotificationBell from "./components/NotificationBell";
 
 import { NAVBAR_LINKS } from "./data/navbarLinks";
 
@@ -78,7 +79,8 @@ const Navbar = () => {
 
         {/* Lado derecho del header */}
         {user ? (
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationBell />
             <DevRoleSwitcher />
 
             <div className="relative">
