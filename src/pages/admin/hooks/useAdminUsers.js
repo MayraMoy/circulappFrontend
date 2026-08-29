@@ -170,8 +170,9 @@ const useAdminUsers = () => {
 
       setUserItems(prev => prev.map(it => it._id === editingItem._id ? res.data : it));
       setEditingItem(null);
+      showToast('success', 'Publicación actualizada correctamente.');
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al actualizar publicación');
+      showToast('danger', err.response?.data?.msg || 'Error al actualizar publicación');
     } finally {
       setSavingItem(false);
     }
@@ -183,8 +184,9 @@ const useAdminUsers = () => {
       await API.delete(`/items/${deletingItemId}`);
       setUserItems(prev => prev.filter(it => it._id !== deletingItemId));
       setDeletingItemId(null);
+      showToast('success', 'Publicación eliminada correctamente.');
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al eliminar publicación');
+      showToast('danger', err.response?.data?.msg || 'Error al eliminar publicación');
     }
   };
 

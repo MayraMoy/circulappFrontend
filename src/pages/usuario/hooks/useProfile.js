@@ -125,8 +125,9 @@ export default function useProfile() {
       });
       setMyItems(prev => prev.map(item => item._id === editingItem._id ? res.data : item));
       setEditingItem(null);
+      setProfileMsg({ type: 'success', text: 'Publicación modificada con éxito.' });
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al actualizar la publicación');
+      setProfileMsg({ type: 'danger', text: err.response?.data?.msg || 'Error al actualizar la publicación' });
     } finally {
       setSavingItem(false);
     }

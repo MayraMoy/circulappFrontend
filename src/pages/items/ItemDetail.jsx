@@ -7,6 +7,7 @@ import AuthContext from '../../contexts/AuthContext';
 import RateUserModal from '../funcionalidades/RateUserModal';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
 import ReportModal from '../../components/feedback/ReportModal';
+import ErrorToast from '../../components/feedback/ErrorToast';
 import {
   ArrowLeftIcon,
   MapPinIcon,
@@ -63,6 +64,7 @@ const ItemDetail = () => {
   // Estado para eliminar ítem
   const [confirmDelete, setConfirmDelete] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [actionError, setActionError] = useState('');
 
   const fetchItem = useCallback(async () => {
     try {
@@ -82,11 +84,12 @@ const ItemDetail = () => {
 
   const handleBale = async () => {
     setProcessing(true);
+    setActionError('');
     try {
       await itemService.markAsBaled(item._id);
       await fetchItem();
     } catch (err) {
-      alert('Error al fardar material: ' + (err.response?.data?.msg || 'Error desconocido'));
+      setActionError(err.response?.data?.msg || 'Error al fardar material');
     } finally {
       setProcessing(false);
       setConfirmBaleModal(false);
@@ -95,11 +98,12 @@ const ItemDetail = () => {
 
   const handleDelete = async () => {
     setDeleting(true);
+    setActionError('');
     try {
       await itemService.deleteItem(item._id);
       navigate('/dashboard');
     } catch (err) {
-      alert('Error al eliminar: ' + (err.response?.data?.msg || 'Error desconocido'));
+      setActionError(err.response?.data?.msg || 'Error al eliminar la publicación');
     } finally {
       setDeleting(false);
       setConfirmDelete(false);
@@ -121,6 +125,7 @@ const ItemDetail = () => {
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     setSavingEdit(true);
+    setActionError('');
     try {
       const formData = new FormData();
       formData.append('title', editData.title);
@@ -142,7 +147,7 @@ const ItemDetail = () => {
       setItem(data);
       setIsEditing(false);
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al guardar cambios.');
+      setActionError(err.response?.data?.msg || 'Error al guardar cambios.');
     } finally {
       setSavingEdit(false);
     }
@@ -628,6 +633,8 @@ const ItemDetail = () => {
           </div>
         )}
 
+        {/* Toast no intrusivo de error */}
+        <ErrorToast error={actionError} onClose={() => setActionError('')} />
       </div>
     </Layout>
   );
