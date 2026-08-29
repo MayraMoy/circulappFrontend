@@ -29,6 +29,7 @@ const DashboardGestor = () => {
     confirmMarkAsBaled,
     handleDismissReport,
     handleDeleteReportedItem,
+    handleDeactivateReportedUser,
     getWhatsAppLink,
   } = useDashboardGestor();
 
@@ -126,6 +127,7 @@ const DashboardGestor = () => {
                 loading={loadingReports}
                 onDismiss={handleDismissReport}
                 onDeleteItem={handleDeleteReportedItem}
+                onDeactivateUser={handleDeactivateReportedUser}
                 actionLoadingId={actionLoadingId}
               />
             </SectionCard>

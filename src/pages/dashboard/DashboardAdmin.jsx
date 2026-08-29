@@ -93,6 +93,7 @@ const DashboardAdmin = () => {
               loading={loadingReports}
               onDismiss={handleDismissReport}
               onDeleteItem={handleDeleteReportedItem}
+              onDeactivateUser={handleDeactivateReportedUser}
               actionLoadingId={actionLoadingId}
             />
           </SectionCard>

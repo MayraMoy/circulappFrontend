@@ -104,6 +104,19 @@ const useDashboardGestor = () => {
     }
   };
 
+  const handleDeactivateReportedUser = async (reportId, userName) => {
+    if (!window.confirm(`¿Confirmas que deseas desactivar/suspender la cuenta de ${userName || 'este usuario'}?`)) return;
+    setActionLoadingId(reportId);
+    try {
+      await API.patch(`/reports/${reportId}/deactivate-user`);
+      await Promise.all([fetchReports(), fetchItems()]);
+    } catch (err) {
+      alert("Error al desactivar al usuario denunciado: " + (err.response?.data?.msg || "Error"));
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   const getWhatsAppLink = (phone) => {
     if (!phone) return null;
     const clean = phone.replace(/\D/g, "");
@@ -130,6 +143,7 @@ const useDashboardGestor = () => {
     confirmMarkAsBaled,
     handleDismissReport,
     handleDeleteReportedItem,
+    handleDeactivateReportedUser,
     getWhatsAppLink,
   };
 };

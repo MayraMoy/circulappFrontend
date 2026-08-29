@@ -49,6 +49,7 @@ const ItemDetail = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [showRateModal, setShowRateModal] = useState(false);
   const [showReportModal, setShowReportModal] = useState(false);
+  const [showReportUserModal, setShowReportUserModal] = useState(false);
 
   // Estados para procesar/fardar
   const [processing, setProcessing] = useState(false);
@@ -336,7 +337,28 @@ const ItemDetail = () => {
               </div>
             </div>
             <div className="px-5 py-4">
-              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Ofertante</p>
+              <div className="flex items-center justify-between mb-1.5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 m-0">Ofertante</p>
+                {!isOwner && item.ownerId && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (!user) {
+                        openAuthModal('login', 'Debes iniciar sesión para reportar a un usuario');
+                      } else {
+                        setShowReportUserModal(true);
+                      }
+                    }}
+                    className="text-[11px] text-rose-600 hover:text-rose-700 font-semibold inline-flex items-center gap-1 hover:underline cursor-pointer bg-transparent border-none p-0"
+                    title="Denunciar a este usuario por conducta inapropiada o sospecha de fraude"
+                  >
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    Reportar usuario
+                  </button>
+                )}
+              </div>
               <div className="flex items-center gap-2">
                 <UserCircleIcon className="w-4 h-4 text-gray-400" />
                 <span className="text-sm text-gray-800 font-medium">
@@ -460,8 +482,18 @@ const ItemDetail = () => {
         <ReportModal
           isOpen={showReportModal}
           onClose={() => setShowReportModal(false)}
+          targetType="item"
           itemId={item._id}
           itemTitle={item.title}
+        />
+
+        {/* MODAL DE DENUNCIA DE USUARIO */}
+        <ReportModal
+          isOpen={showReportUserModal}
+          onClose={() => setShowReportUserModal(false)}
+          targetType="user"
+          reportedUserId={item.ownerId?._id || item.ownerId}
+          reportedUserName={item.ownerId?.name || 'Usuario'}
         />
 
         {/* MODAL CONFIRMACIÓN DE FARDADO */}

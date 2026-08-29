@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import API from '../../services/Api';
 
-const REPORT_REASONS = [
+const ITEM_REPORT_REASONS = [
   { id: 'contenido_inapropiado', label: 'Contenido inapropiado u ofensivo', desc: 'Lenguaje ofensivo, imágenes no aptas o discriminación.' },
   { id: 'categoria_incorrecta', label: 'Categoría incorrecta', desc: 'El material fue clasificado en un tipo de residuo erróneo.' },
   { id: 'informacion_falsa', label: 'Información falsa o engañosa', desc: 'Ubicación, fotos o descripción engañosas.' },
@@ -11,8 +11,28 @@ const REPORT_REASONS = [
   { id: 'otro', label: 'Otro motivo', desc: 'Cualquier otra irregularidad no contemplada arriba.' }
 ];
 
-export default function ReportModal({ isOpen, onClose, itemId, itemTitle }) {
-  const [reason, setReason] = useState('contenido_inapropiado');
+const USER_REPORT_REASONS = [
+  { id: 'usuario_sospechoso', label: 'Usuario sospechoso o actividad dudosa', desc: 'Perfil con comportamientos irregulares o sospecha de bot.' },
+  { id: 'comportamiento_abusivo', label: 'Comportamiento abusivo o acoso', desc: 'Amenazas, ofensas, tratos agresivos o discriminación.' },
+  { id: 'estafa_o_fraude', label: 'Intento de estafa o fraude', desc: 'Publicaciones engañosas para solicitar pagos indebidos.' },
+  { id: 'suplantacion_identidad', label: 'Suplantación de identidad', desc: 'Se hace pasar por otra persona, comercio o entidad comunal.' },
+  { id: 'contacto_falso_o_invalido', label: 'Teléfono o contacto falso reiterado', desc: 'Contacto falso o inaccesible de forma constante.' },
+  { id: 'otro', label: 'Otro motivo', desc: 'Cualquier otra conducta contraria a las normas de convivencia.' }
+];
+
+export default function ReportModal({ 
+  isOpen, 
+  onClose, 
+  targetType = 'item', 
+  itemId, 
+  itemTitle, 
+  reportedUserId, 
+  reportedUserName 
+}) {
+  const isUserReport = targetType === 'user';
+  const reasonsList = isUserReport ? USER_REPORT_REASONS : ITEM_REPORT_REASONS;
+
+  const [reason, setReason] = useState(reasonsList[0].id);
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
   const [feedback, setFeedback] = useState(null);
@@ -25,22 +45,30 @@ export default function ReportModal({ isOpen, onClose, itemId, itemTitle }) {
     setFeedback(null);
 
     try {
-      const res = await API.post('/reports', {
-        itemId,
+      const payload = {
+        targetType,
         reason,
         description: description.trim()
-      });
+      };
+
+      if (isUserReport) {
+        payload.reportedUserId = reportedUserId;
+      } else {
+        payload.itemId = itemId;
+      }
+
+      const res = await API.post('/reports', payload);
 
       setFeedback({
         type: 'success',
-        msg: res.data.msg || 'Denuncia enviada correctamente. Gracias por colaborar.'
+        msg: res.data.msg || (isUserReport ? 'Denuncia de usuario enviada exitosamente.' : 'Denuncia enviada correctamente.')
       });
 
       setTimeout(() => {
         onClose();
         setFeedback(null);
         setDescription('');
-        setReason('contenido_inapropiado');
+        setReason(reasonsList[0].id);
       }, 2000);
     } catch (err) {
       setFeedback({
@@ -65,9 +93,11 @@ export default function ReportModal({ isOpen, onClose, itemId, itemTitle }) {
               </svg>
             </div>
             <div>
-              <h3 className="text-base font-bold m-0 leading-tight">Denunciar Publicación</h3>
+              <h3 className="text-base font-bold m-0 leading-tight">
+                {isUserReport ? 'Denunciar Usuario' : 'Denunciar Publicación'}
+              </h3>
               <p className="text-[11px] text-rose-100 m-0 truncate max-w-[280px]">
-                {itemTitle || 'Material publicado'}
+                {isUserReport ? (reportedUserName || 'Usuario') : (itemTitle || 'Material publicado')}
               </p>
             </div>
           </div>
@@ -107,14 +137,14 @@ export default function ReportModal({ isOpen, onClose, itemId, itemTitle }) {
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs font-semibold text-gray-800 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all cursor-pointer"
                   required
                 >
-                  {REPORT_REASONS.map((r) => (
+                  {reasonsList.map((r) => (
                     <option key={r.id} value={r.id}>
                       {r.label}
                     </option>
                   ))}
                 </select>
                 <p className="text-[11px] text-gray-500 mt-1 italic">
-                  {REPORT_REASONS.find((r) => r.id === reason)?.desc}
+                  {reasonsList.find((r) => r.id === reason)?.desc}
                 </p>
               </div>
 
@@ -125,7 +155,11 @@ export default function ReportModal({ isOpen, onClose, itemId, itemTitle }) {
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Describe por qué esta publicación incumple las normas o qué error presenta..."
+                  placeholder={
+                    isUserReport 
+                      ? 'Describe por qué este usuario incumple las normas de la comunidad...'
+                      : 'Describe por qué esta publicación incumple las normas o qué error presenta...'
+                  }
                   rows={3}
                   maxLength={1000}
                   className="w-full px-3.5 py-2.5 rounded-xl border border-gray-300 text-xs text-gray-800 bg-gray-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all resize-none"
@@ -156,7 +190,7 @@ export default function ReportModal({ isOpen, onClose, itemId, itemTitle }) {
                   disabled={loading}
                   className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 active:scale-95 transition-all shadow-sm disabled:opacity-60 cursor-pointer inline-flex items-center gap-1.5"
                 >
-                  {loading ? 'Enviando...' : 'Confirmar Denuncia'}
+                  {loading ? 'Enviando...' : (isUserReport ? 'Reportar Usuario' : 'Confirmar Denuncia')}
                 </button>
               </div>
             </form>

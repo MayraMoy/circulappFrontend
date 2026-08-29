@@ -106,6 +106,19 @@ export const useDashboardAdmin = () => {
     }
   };
 
+  const handleDeactivateReportedUser = async (reportId, userName) => {
+    if (!window.confirm(`¿Confirmas que deseas desactivar/suspender la cuenta de ${userName || 'este usuario'}?`)) return;
+    setActionLoadingId(reportId);
+    try {
+      await API.patch(`/reports/${reportId}/deactivate-user`);
+      await Promise.all([fetchReports(), refreshUsers()]);
+    } catch (err) {
+      showError(err.response?.data?.msg || "Error al desactivar al usuario denunciado.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
   const exportarItems = async () => {
     try {
       const response = await API.get("/items/exportar", { responseType: "blob" });
@@ -158,6 +171,7 @@ export const useDashboardAdmin = () => {
     handleToggleActive, 
     handleDismissReport,
     handleDeleteReportedItem,
+    handleDeactivateReportedUser,
     exportarItems,
     handleDownloadReport
   };

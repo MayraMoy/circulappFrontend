@@ -14,6 +14,8 @@ import ValidateMaterial from "./pages/funcionalidades/ValidateMaterial";
 import ItemDetail from "./pages/items/ItemDetail";
 import Educational from "./pages/educacion/Educational";
 import AdminUserManagement from "./pages/admin/AdminUserManagement";
+import Agenda from "./pages/agenda/Agenda";
+import Historial from "./pages/historial/Historial";
 import NotFound from "./pages/notFound/NotFound";
 
 function App() {
@@ -35,6 +37,8 @@ function App() {
                 <Route path="/dashboard" element={<Dashboard />} />
                 <Route path="/publish" element={<PublishItem />} />
                 <Route path="/profile" element={<Profile />} />
+                <Route path="/agenda" element={<Agenda />} />
+                <Route path="/historial" element={<Historial />} />
             </Route>
 
             {/* Rutas protegidas para Gestores y Administradores */}
