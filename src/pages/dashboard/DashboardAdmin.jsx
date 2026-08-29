@@ -29,6 +29,7 @@ const DashboardAdmin = () => {
     handleToggleActive, 
     handleDismissReport,
     handleDeleteReportedItem,
+    handleDeactivateReportedUser,
     exportarItems,
     handleDownloadReport
   } = useDashboardAdmin();
