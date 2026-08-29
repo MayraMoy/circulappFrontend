@@ -14,11 +14,13 @@ class ItemCacheService {
   }
 
   getCacheKey(url, params = {}) {
-    const sortedParams = Object.keys(params)
-      .sort()
-      .map(k => `${k}=${params[k]}`)
-      .join('&');
-    return `${url}?${sortedParams}`;
+    const validEntries = Object.entries(params)
+      .filter(([_, v]) => v !== undefined && v !== null && v !== '')
+      .sort(([a], [b]) => a.localeCompare(b));
+
+    if (validEntries.length === 0) return url;
+    const qs = validEntries.map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    return `${url}?${qs}`;
   }
 
   async getItems(params = {}, forceRefresh = false) {

@@ -6,10 +6,26 @@ const API = axios.create({
   baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
 });
 
-// Interceptor para incluir token en peticiones
+// Interceptor para incluir token y sanitizar URLs contra trailing '?' (P-039)
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) config.headers.Authorization = `Bearer ${token}`;
+
+  // P-039: Evitar generación de URLs como /api/items? cuando no se envían parámetros
+  if (config.url && config.url.endsWith('?')) {
+    config.url = config.url.slice(0, -1);
+  }
+
+  if (config.params && typeof config.params === 'object') {
+    const cleanedParams = {};
+    for (const [key, value] of Object.entries(config.params)) {
+      if (value !== undefined && value !== null && value !== '') {
+        cleanedParams[key] = value;
+      }
+    }
+    config.params = Object.keys(cleanedParams).length > 0 ? cleanedParams : undefined;
+  }
+
   return config;
 });
 
