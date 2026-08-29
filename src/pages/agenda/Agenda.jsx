@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import AuthContext from '../../contexts/AuthContext';
-import API from '../../services/Api';
+import itemCacheService from '../../services/itemCacheService';
 import { 
   CalendarDaysIcon, 
   MapPinIcon, 
@@ -19,19 +19,22 @@ export default function Agenda() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchAgendaItems = async () => {
       setLoading(true);
       try {
-        const res = await API.get('/items');
-        // Usar los ítems disponibles como base para la agenda
-        setItems(res.data.items || res.data || []);
+        const data = await itemCacheService.getItems();
+        if (isMounted) {
+          setItems(Array.isArray(data) ? data : data.items || []);
+        }
       } catch (err) {
         console.error('Error al cargar la agenda:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchAgendaItems();
+    return () => { isMounted = false; };
   }, []);
 
   const scheduledList = items.map((item, idx) => {

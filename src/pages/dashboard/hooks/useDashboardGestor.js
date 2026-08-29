@@ -38,12 +38,18 @@ const useDashboardGestor = () => {
     setLoading(true);
     setError("");
     try {
-      const pendingRes = await API.get("/items?processingState=sin_procesar");
-      const inProgressRes = await API.get("/items?processingState=en_proceso");
-      setPendingItems([...pendingRes.data, ...inProgressRes.data]);
+      const [pendingRes, inProgressRes, toValidateRes] = await Promise.all([
+        API.get("/items?processingState=sin_procesar"),
+        API.get("/items?processingState=en_proceso"),
+        API.get("/items?processingState=fardado")
+      ]);
 
-      const toValidateRes = await API.get("/items?processingState=fardado");
-      setToValidateItems(toValidateRes.data);
+      const pendingData = Array.isArray(pendingRes.data) ? pendingRes.data : pendingRes.data.items || [];
+      const inProgressData = Array.isArray(inProgressRes.data) ? inProgressRes.data : inProgressRes.data.items || [];
+      const toValidateData = Array.isArray(toValidateRes.data) ? toValidateRes.data : toValidateRes.data.items || [];
+
+      setPendingItems([...pendingData, ...inProgressData]);
+      setToValidateItems(toValidateData);
       await fetchReports();
     } catch (err) {
       console.error("Error al cargar ítems:", err);
@@ -51,14 +57,10 @@ const useDashboardGestor = () => {
     } finally {
       setLoading(false);
     }
-  }, [user, fetchReports]);
+  }, [user?.role, fetchReports]);
 
   useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      fetchItems();
-    }, 0);
-
-    return () => clearTimeout(timeoutId);
+    fetchItems();
   }, [fetchItems]);
 
   useEffect(() => {

@@ -1,7 +1,7 @@
 import { useState, useContext, useEffect } from 'react';
 import Layout from '../../components/layout/Layout';
 import AuthContext from '../../contexts/AuthContext';
-import API from '../../services/Api';
+import itemCacheService from '../../services/itemCacheService';
 import { 
   ArchiveBoxIcon, 
   CheckBadgeIcon, 
@@ -18,18 +18,22 @@ export default function Historial() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
     const fetchHistory = async () => {
       setLoading(true);
       try {
-        const res = await API.get('/items');
-        setItems(res.data.items || res.data || []);
+        const data = await itemCacheService.getItems();
+        if (isMounted) {
+          setItems(Array.isArray(data) ? data : data.items || []);
+        }
       } catch (err) {
         console.error('Error al cargar historial:', err);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
     fetchHistory();
+    return () => { isMounted = false; };
   }, []);
 
   const filteredItems = items.filter(item => {

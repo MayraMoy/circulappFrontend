@@ -3,6 +3,7 @@ import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
+import itemCacheService from '../../services/itemCacheService';
 import AuthContext from '../../contexts/AuthContext';
 import RateUserModal from '../funcionalidades/RateUserModal';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
@@ -97,6 +98,7 @@ const ItemDetail = () => {
     setDeleting(true);
     try {
       await API.delete(`/items/${item._id}`);
+      itemCacheService.invalidateCache();
       navigate('/dashboard');
     } catch (err) {
       alert('Error al eliminar: ' + (err.response?.data?.msg || 'Error desconocido'));
@@ -141,6 +143,7 @@ const ItemDetail = () => {
       const res = await API.put(`/items/${item._id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+      itemCacheService.invalidateCache();
       setItem(res.data);
       setIsEditing(false);
     } catch (err) {
