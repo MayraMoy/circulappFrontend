@@ -1,10 +1,8 @@
-<div align="center">
-
-<img src="https://img.shields.io/badge/Estado-En%20desarrollo-orange?style=flat-square" alt="Estado">
-<img src="https://img.shields.io/badge/Frontend-React%2019%20%-%20Vite-blue?style=flat-square&logo=react" alt="Frontend">
-<img src="https://img.shields.io/badge/Estilos-Tailwind%20CSS%20v4-38bdf8?style=flat-square&logo=tailwindcss" alt="Estilos">
-
-</div>
+<p align="center">
+  <img src="https://img.shields.io/badge/Estado-En%20desarrollo-orange?style=flat-square" alt="Estado">
+  <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-blue?style=flat-square&logo=react&logoColor=white" alt="Frontend">
+  <img src="https://img.shields.io/badge/Estilos-Tailwind%20CSS%20v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Estilos">
+</p>
 
 # CirculApp — Frontend
 
@@ -40,6 +38,20 @@
 - **Sistema de Calificaciones e Historial:** Reputación comunitaria y registro de transacciones exitosas.
 
 ---
+
+## Equipo de desarrollo
+
+- Mayra Moyano
+
+- Ricardo Cejas
+
+- Ana Luz Nieto
+
+- Nahuel Aguero
+
+© 2026. Todos los derechos reservados.
+
+
 
 ## Estructura del Proyecto
 
