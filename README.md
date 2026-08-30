@@ -1,83 +1,370 @@
-<p align="center">
-  <img src="https://img.shields.io/badge/Estado-En%20desarrollo-orange?style=flat-square" alt="Estado">
-  <img src="https://img.shields.io/badge/Frontend-React%2019%20%2B%20Vite-blue?style=flat-square&logo=react&logoColor=white" alt="Frontend">
-  <img src="https://img.shields.io/badge/Estilos-Tailwind%20CSS%20v4-38bdf8?style=flat-square&logo=tailwindcss&logoColor=white" alt="Estilos">
-</p>
+# CirculApp - Frontend
 
-# CirculApp — Frontend
+[![React](https://img.shields.io/badge/React-19.2.4-61DAFB?logo=react\&logoColor=black)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-8.0.4-646CFF?logo=vite\&logoColor=white)](https://vite.dev/)
+[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4.2.2-06B6D4?logo=tailwindcss\&logoColor=white)](https://tailwindcss.com/)
+[![React Router](https://img.shields.io/badge/React_Router-7.14.1-CA4245?logo=reactrouter\&logoColor=white)](https://reactrouter.com/)
+[![Axios](https://img.shields.io/badge/Axios-1.15.0-5A29E4?logo=axios\&logoColor=white)](https://axios-http.com/)
+[![ESLint](https://img.shields.io/badge/ESLint-9.39.4-4B32C3?logo=eslint\&logoColor=white)](https://eslint.org/)
+[![License](https://img.shields.io/badge/License-Academic-blue)](#)
 
-> **Plataforma Web Colaborativa de Reciclaje Vecinal y Economía Circular**  
-> Interfaz moderna, accesible e intuitiva para que los vecinos publiquen, intercambien o donen materiales reciclables, además de contar con herramientas de educación ambiental y un panel administrativo integral.
+Frontend de **CirculApp**, una plataforma web de economía colaborativa orientada a la gestión integral de materiales reciclables.
 
----
+La aplicación permite a los usuarios interactuar con los servicios del backend para publicar, buscar y gestionar materiales, consultar perfiles, participar en procesos de validación y utilizar los diferentes módulos de la plataforma.
 
-## Descripción del Proyecto
+> [!NOTE]
+> Este repositorio corresponde exclusivamente al frontend. El backend se encuentra en un repositorio independiente.
 
-**CirculApp Frontend** es la aplicación cliente que conecta a miembros de la comunidad con iniciativas de reciclaje e intercambio sostenible. Diseñada con un enfoque centrado en la experiencia de usuario (UX/UI), permite explorar publicaciones geolocalizadas, gestionar solicitudes en tiempo real, consultar contenido educativo sobre clasificación de residuos y acceder a paneles especializados según el rol del usuario (Vecino / Administrador).
+## Descripción
 
----
+CirculApp propone una plataforma web responsive que centraliza la gestión comunitaria de materiales y facilita la interacción entre los diferentes usuarios del sistema.
 
-## Tecnologías Principales
+El frontend proporciona la interfaz mediante la cual los usuarios acceden a las funcionalidades disponibles según su rol.
 
-- **Core & Runtime:** [React 19] + [Vite].
-- **Enrutamiento:** [React Router DOM v7].
-- **Estilos & Animaciones:** [Tailwind CSS v4], [Heroicons], [Framer Motion].
-- **Cliente HTTP:** [Axios].
-- **Testing:** [Vitest], [React Testing Library], [jsdom].
-- **Calidad de Código:** [ESLint 9].
+Dentro del alcance del proyecto se contempla una plataforma web responsiva con perfiles diferenciados y módulos de gestión, educación y validación.
 
----
+## Tecnologías
 
-## Características y Vistas
+### Core
 
-- **Autenticación y Perfiles:** Registro, inicio de sesión y gestión del perfil vecinal.
-- **Gestión de Materiales:** Publicación, búsqueda, filtrado y solicitud de artículos reciclables o reutilizables.
-- **Localización y Agenda:** Coordinación de puntos de encuentro y retiros.
-- **Módulo Educativo:** Guías y buenas prácticas de separación en origen y reciclaje.
-- **Panel de Administración:** Control de publicaciones, moderación de reportes, métricas y gestión de usuarios.
-- **Sistema de Calificaciones e Historial:** Reputación comunitaria y registro de transacciones exitosas.
+| Tecnología       | Versión | Uso                         |
+| ---------------- | ------: | --------------------------- |
+| React            |  19.2.4 | Construcción de la interfaz |
+| React DOM        |  19.2.4 | Renderizado                 |
+| Vite             |   8.0.4 | Desarrollo y build          |
+| React Router DOM |  7.14.1 | Enrutamiento                |
 
----
+### UI
 
-## Equipo de desarrollo
+| Tecnología    | Versión | Uso               |
+| ------------- | ------: | ----------------- |
+| Tailwind CSS  |   4.2.2 | Estilos           |
+| Framer Motion | 12.38.0 | Animaciones       |
+| Lucide React  |   1.8.0 | Iconos            |
+| PostCSS       |       — | Procesamiento CSS |
 
-- Mayra Moyano
+### Comunicación
 
-- Ricardo Cejas
+| Tecnología | Versión | Uso                     |
+| ---------- | ------: | ----------------------- |
+| Axios      |  1.15.0 | Comunicación con la API |
 
-- Ana Luz Nieto
+### Desarrollo
 
-- Nahuel Aguero
+| Tecnología         | Versión | Uso                |
+| ------------------ | ------: | ------------------ |
+| ESLint             |  9.39.4 | Calidad del código |
+| ESLint React Hooks |       — | Reglas para Hooks  |
+| Autoprefixer       |       — | Prefijos CSS       |
 
-© 2026. Todos los derechos reservados.
+El stack frontend está documentado en la especificación técnica de CirculApp.
 
+## Funcionalidades
 
+### Autenticación
 
-## Estructura del Proyecto
+* Inicio de sesión.
+* Registro de usuarios.
+* Gestión de sesión.
+* Acceso según rol.
+
+### Dashboard
+
+Panel principal desde el cual los usuarios pueden acceder a las funcionalidades disponibles según sus permisos.
+
+### Publicación
+
+Permite acceder a la interfaz para registrar nuevos materiales.
+
+### Búsqueda
+
+Permite consultar materiales publicados y aplicar diferentes filtros.
+
+Entre ellos:
+
+* Texto.
+* Categoría.
+* Estado de procesamiento.
+* Propietario.
+* Proximidad geográfica.
+
+### Detalle
+
+Cada material dispone de una vista específica para consultar su información y los datos relacionados con su propietario.
+
+### Módulo educativo
+
+Incluye contenido orientado al correcto procesamiento de materiales y procesos de compactación.
+
+### Validación
+
+Vista destinada a los usuarios con rol `gestor` para realizar procesos de validación.
+
+### Perfil
+
+Permite consultar y actualizar la información del usuario.
+
+### Agenda
+
+Los gestores disponen de una sección destinada a la gestión de recolecciones.
+
+### Historial
+
+Los gestores pueden consultar información histórica.
+
+### Calificaciones
+
+La plataforma incorpora un sistema de evaluaciones entre usuarios.
+
+## Roles
+
+| Rol      | Funcionalidades                                                    |
+| -------- | ------------------------------------------------------------------ |
+| `user`   | Publicar y buscar materiales y utilizar funcionalidades generales. |
+| `gestor` | Validar materiales, marcar fardos, gestionar agenda e historial.   |
+| `admin`  | Gestionar funcionalidades administrativas y reportes.              |
+
+> [!IMPORTANT]
+> Las vistas y operaciones disponibles dependen del rol del usuario autenticado.
+
+Los roles se encuentran definidos en la documentación funcional del proyecto.
+
+## Rutas
+
+| Ruta           | Descripción             | Acceso      |
+| -------------- | ----------------------- | ----------- |
+| `/login`       | Inicio de sesión        | Público     |
+| `/register`    | Registro                | Público     |
+| `/dashboard`   | Panel principal         | Autenticado |
+| `/publish`     | Publicar material       | Autenticado |
+| `/search`      | Buscar materiales       | Autenticado |
+| `/educational` | Módulo educativo        | Autenticado |
+| `/validate`    | Validación              | Gestor      |
+| `/profile`     | Perfil                  | Autenticado |
+| `/items/:id`   | Detalle de material     | Autenticado |
+| `/agenda`      | Agenda de recolecciones | Gestor      |
+| `/historial`   | Historial               | Gestor      |
+| `/rate`        | Evaluaciones            | Autenticado |
+
+Estas rutas corresponden a las vistas documentadas actualmente para CirculApp.
+
+## Comunicación con la API
+
+El frontend utiliza **Axios** para comunicarse con el backend.
 
 ```text
-circulappFrontend-main/
-├── public/                 # Recursos estáticos públicos
-├── src/
-│   ├── assets/             # Imágenes, logos e íconos locales
-│   ├── components/         # Componentes reutilizables (Navbar, Cards, Modales, etc.)
-│   ├── contexts/           # Context API (AuthContext, ThemeContext, etc.)
-│   ├── hooks/              # Custom Hooks
-│   ├── pages/              # Vistas principales
-│   │   ├── admin/          # Panel de administración
-│   │   ├── agenda/         # Coordinación de entregas
-│   │   ├── auth/           # Login y Registro
-│   │   ├── dashboard/      # Panel principal del usuario
-│   │   ├── educacion/      # Sección informativa y educativa
-│   │   ├── historial/      # Historial de intercambios
-│   │   └── items/          # Catálogo y detalle de publicaciones
-│   ├── routes/             # Definición de rutas públicas y protegidas
-│   ├── services/           # Conexión con endpoints del Backend (Axios)
-│   ├── styles/             # Estilos globales y utilidades
-│   ├── test/               # Pruebas unitarias y de integración
-│   ├── App.jsx             # Componente raíz
-│   └── main.jsx            # Punto de entrada de React
-├── .env.example            # Plantilla de variables de entorno
-├── tailwind.config.js      # Configuración de Tailwind CSS
-├── vite.config.js          # Configuración del bundler Vite
-└── package.json
+┌──────────────────────┐
+│        Usuario       │
+└──────────┬───────────┘
+           │
+           ▼
+┌──────────────────────┐
+│      React + Vite    │
+└──────────┬───────────┘
+           │
+         Axios
+           │
+           ▼
+┌──────────────────────┐
+│  Node.js + Express   │
+│       REST API       │
+└──────────┬───────────┘
+           │
+           ▼
+      ┌──────────┐
+      │ MongoDB  │
+      └──────────┘
+```
+
+## Requisitos previos
+
+Para ejecutar el frontend se necesita:
+
+* Node.js.
+* npm.
+* Backend de CirculApp disponible.
+
+## Instalación
+
+### 1. Clonar el repositorio
+
+```bash
+git clone https://github.com/MayraMoy/circulappFrontend.git
+```
+
+### 2. Ingresar al proyecto
+
+```bash
+cd circulappFrontend
+```
+
+### 3. Instalar dependencias
+
+```bash
+npm install
+```
+
+## Variables de entorno
+
+Si el proyecto utiliza una variable para definir la URL de la API, puede configurarse mediante un archivo `.env`.
+
+Por ejemplo:
+
+```env
+VITE_API_URL=http://localhost:5000
+```
+
+> [!WARNING]
+> Verificá que el nombre de la variable coincida exactamente con el utilizado actualmente en el código antes de agregarla al proyecto.
+
+## Ejecución en desarrollo
+
+```bash
+npm run dev
+```
+
+La aplicación estará disponible en la dirección local indicada por Vite.
+
+Habitualmente:
+
+```text
+http://localhost:5173
+```
+
+## Build de producción
+
+Para generar la versión de producción:
+
+```bash
+npm run build
+```
+
+Para visualizar localmente el resultado:
+
+```bash
+npm run preview
+```
+
+## Estructura conceptual
+
+```text
+src/
+├── components/
+│   └── componentes reutilizables
+│
+├── pages/
+│   ├── Login
+│   ├── Register
+│   ├── Dashboard
+│   ├── Publish
+│   ├── Search
+│   ├── Educational
+│   ├── Validate
+│   ├── Profile
+│   └── ...
+│
+├── contexts/
+│   └── estado global
+│
+├── hooks/
+│   └── hooks personalizados
+│
+├── services/
+│   └── comunicación con API
+│
+└── ...
+```
+
+> [!NOTE]
+> Esta estructura representa una organización conceptual. Los nombres de carpetas deben mantenerse alineados con la estructura real del repositorio.
+
+## Flujo de autenticación
+
+```text
+Usuario
+   │
+   ▼
+Login
+   │
+   ▼
+Frontend
+   │
+   │ Credenciales
+   ▼
+Backend
+   │
+   │ JWT
+   ▼
+Frontend
+   │
+   ▼
+Sesión autenticada
+   │
+   ▼
+Acceso según rol
+```
+
+El backend utiliza JWT con una expiración de 7 días.
+
+## Diseño responsive
+
+CirculApp está planteado como una aplicación web responsive y accesible desde navegadores modernos.
+
+El uso de Tailwind CSS permite construir interfaces adaptables a diferentes tamaños de pantalla.
+
+El Plan de Gestión del Proyecto establece explícitamente como parte del alcance una plataforma web responsiva.
+
+
+## Módulos
+
+```text
+CirculApp
+│
+├── Autenticación
+│   ├── Login
+│   └── Registro
+│
+├── Materiales
+│   ├── Publicación
+│   ├── Búsqueda
+│   └── Detalle
+│
+├── Usuarios
+│   └── Perfil
+│
+├── Procesamiento
+│   ├── Validación
+│   ├── Agenda
+│   └── Historial
+│
+├── Educación
+│   └── Módulo educativo
+│
+└── Comunidad
+    └── Calificaciones
+```
+
+## Backend relacionado
+
+El frontend consume la API desarrollada en:
+
+[![Backend](https://img.shields.io/badge/Backend-CirculApp-000000?logo=github)](https://github.com/MayraMoy/backendCirculApp)
+
+Repositorio:
+
+https://github.com/MayraMoy/backendCirculApp
+
+## Repositorio
+
+[![GitHub](https://img.shields.io/badge/GitHub-CirculApp_Frontend-181717?logo=github)](https://github.com/MayraMoy/circulappFrontend)
+
+Repositorio:
+
+https://github.com/MayraMoy/circulappFrontend
+
+## Proyecto
+
+**CirculApp — Plataforma de Economía Colaborativa para Gestión Integral de Materiales**
+
+Proyecto académico desarrollado en equipo.
+
