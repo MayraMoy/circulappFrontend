@@ -1,216 +1,138 @@
-import { useContext, useEffect, useState } from 'react';
-import AuthContext from '../../contexts/AuthContext';
-import Layout from '../../components/Layout/Layout';
-import API from '../../services/Api'; 
-import { useNavigate } from 'react-router-dom';
+import Layout from '../../components/layout/Layout';
+import ConfirmModal from '../../components/feedback/ConfirmModal';
 
-const isValidPhone = (phone) => {
-  const clean = phone.replace(/\D/g, '');
-  return /^54[1-9]\d{9,11}$/.test(clean);
-};
+import useProfile from './hooks/useProfile';
+import ProfileHeroBanner from './components/ProfileHeroBanner';
+import ProfileTabs from './components/ProfileTabs';
+import ProfileInfoTab from './components/ProfileInfoTab';
+import ProfileProductsTab from './components/ProfileProductsTab';
+import ProfileSettingsTab from './components/ProfileSettingsTab';
+import EditItemModal from './components/EditItemModal';
 
 const Profile = () => {
-  const { user, logout, updateUser } = useContext(AuthContext);
-  const navigate = useNavigate();
-
-  const [activeTab, setActiveTab] = useState('profile');
-  const [myItems, setMyItems] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [editMode, setEditMode] = useState(false);
-
-  const [profileData, setProfileData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    location: '',
-    bio: ''
-  });
-
-  useEffect(() => {
-    if (!user) return navigate('/login');
-
-    setProfileData({
-      name: user.name || '',
-      email: user.email || '',
-      phone: user.phone || '',
-      location: user.location || '',
-      bio: user.bio || ''
-    });
-  }, [user, navigate]);
-
-  useEffect(() => {
-    const fetchUserItems = async () => {
-      if (!user?.id) return setLoading(false);
-
-      try {
-        const res = await API.get(`/items?ownerId=${user.id}`);
-        setMyItems(res.data);
-      } catch (err) {
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUserItems();
-  }, [user]);
-
-  const handleDelete = async (id) => {
-    if (!confirm('¿Eliminar publicación?')) return;
-
-    try {
-      await API.delete(`/items/${id}`);
-      setMyItems(prev => prev.filter(i => i._id !== id));
-    } catch {
-      alert('Error al eliminar');
-    }
-  };
-
-  const handleSave = async (e) => {
-    e.preventDefault();
-
-    if (profileData.phone && !isValidPhone(profileData.phone)) {
-      return alert('Teléfono inválido');
-    }
-
-    try {
-      const payload = {
-        ...profileData,
-        phone: profileData.phone.replace(/\D/g, '')
-      };
-
-      const res = await API.put('/users/profile', payload);
-      updateUser(res.data);
-      setEditMode(false);
-    } catch {
-      alert('Error al guardar');
-    }
-  };
+  const {
+    user,
+    logout,
+    navigate,
+    activeTab,
+    setSearchParams,
+    myItems,
+    loading,
+    editProfileMode,
+    setEditProfileMode,
+    editingItem,
+    setEditingItem,
+    editItemData,
+    setEditItemData,
+    savingItem,
+    deletingItemId,
+    setDeletingItemId,
+    showLogoutConfirm,
+    setShowLogoutConfirm,
+    profileData,
+    setProfileData,
+    savingProfile,
+    profileMsg,
+    confirmDeleteItem,
+    handleSaveProfile,
+    handleSaveItemEdit,
+    getWhatsAppLink
+  } = useProfile();
 
   if (!user) return null;
 
   return (
     <Layout>
-      <div className="max-w-5xl mx-auto">
+      <div className="min-h-screen bg-gray-50 pt-20 pb-10 px-4 sm:px-6">
+        <div className="max-w-[980px] mx-auto">
+          
+          <ProfileHeroBanner user={user} />
 
-        {/* Header */}
-        <div
-          className="p-6 rounded-xl mb-6"
-          style={{
-            background: "linear-gradient(135deg, var(--primary), var(--primary-light))",
-            color: "#fff"
-          }}
-        >
-          <h1 className="text-2xl font-semibold">{user.name}</h1>
-          <p className="opacity-90">{user.email}</p>
-        </div>
+          <ProfileTabs 
+            activeTab={activeTab} 
+            setSearchParams={setSearchParams} 
+            itemsCount={myItems.length} 
+          />
 
-        {/* Tabs */}
-        <div className="flex mb-6 border-b">
-          {['profile', 'products', 'settings'].map(tab => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className="px-4 py-2 text-sm"
-              style={{
-                color: activeTab === tab ? "var(--primary)" : "var(--text-secondary)",
-                borderBottom: activeTab === tab ? "2px solid var(--primary)" : "none"
-              }}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
+          {/* Notificaciones */}
+          {profileMsg.text && (
+            <div className={`p-4 rounded-xl mb-4 text-xs font-semibold border ${
+              profileMsg.type === 'success'
+                ? 'bg-emerald-50 text-emerald-600 border-emerald-200'
+                : 'bg-rose-50 text-rose-600 border-rose-200'
+            }`}>
+              {profileMsg.text}
+            </div>
+          )}
 
-        {/* CONTENT */}
-        <div
-          className="p-6 rounded-xl"
-          style={{
-            background: "var(--background-paper)",
-            border: "0.5px solid color-mix(in srgb, var(--primary) 15%, transparent)"
-          }}
-        >
-
-          {/* PROFILE */}
+          {/* Pestañas */}
           {activeTab === 'profile' && (
-            <>
-              {!editMode ? (
-                <div className="space-y-3">
-                  <p><b>Nombre:</b> {user.name}</p>
-                  <p><b>Email:</b> {user.email}</p>
-                  <p><b>Teléfono:</b> {user.phone || '—'}</p>
-
-                  <button
-                    onClick={() => setEditMode(true)}
-                    style={{ color: "var(--primary)" }}
-                  >
-                    Editar
-                  </button>
-                </div>
-              ) : (
-                <form onSubmit={handleSave} className="space-y-4">
-
-                  <input
-                    value={profileData.name}
-                    onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
-                    className="w-full p-2 border rounded"
-                  />
-
-                  <input
-                    value={profileData.phone}
-                    onChange={(e) => setProfileData({ ...profileData, phone: e.target.value })}
-                    className="w-full p-2 border rounded"
-                    placeholder="+54..."
-                  />
-
-                  <button
-                    type="submit"
-                    className="px-4 py-2 rounded text-white"
-                    style={{ background: "var(--primary)" }}
-                  >
-                    Guardar
-                  </button>
-
-                </form>
-              )}
-            </>
+            <ProfileInfoTab 
+              user={user}
+              editProfileMode={editProfileMode}
+              setEditProfileMode={setEditProfileMode}
+              profileData={profileData}
+              setProfileData={setProfileData}
+              handleSaveProfile={handleSaveProfile}
+              savingProfile={savingProfile}
+              getWhatsAppLink={getWhatsAppLink}
+            />
           )}
 
-          {/* PRODUCTS */}
           {activeTab === 'products' && (
-            <>
-              {loading ? (
-                <p>Cargando...</p>
-              ) : myItems.length === 0 ? (
-                <p>No tenés publicaciones</p>
-              ) : (
-                myItems.map(item => (
-                  <div key={item._id} className="border p-3 rounded mb-2">
-                    <div className="flex justify-between">
-                      <span>{item.title}</span>
-                      <button onClick={() => handleDelete(item._id)}>🗑️</button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </>
+            <ProfileProductsTab 
+              items={myItems}
+              loading={loading}
+              navigate={navigate}
+              setEditingItem={setEditingItem}
+              setEditItemData={setEditItemData}
+              setDeletingItemId={setDeletingItemId}
+            />
           )}
 
-          {/* SETTINGS */}
           {activeTab === 'settings' && (
-            <button
-              onClick={() => {
-                logout();
-                navigate('/');
-              }}
-              style={{ color: "var(--error)" }}
-            >
-              Cerrar sesión
-            </button>
+            <ProfileSettingsTab 
+              role={user.role} 
+              onLogoutClick={() => setShowLogoutConfirm(true)} 
+            />
           )}
 
         </div>
       </div>
+
+      <EditItemModal
+        editingItem={editingItem}
+        setEditingItem={setEditingItem}
+        editItemData={editItemData}
+        setEditItemData={setEditItemData}
+        handleSaveItemEdit={handleSaveItemEdit}
+        savingItem={savingItem}
+      />
+
+      <ConfirmModal
+        isOpen={Boolean(deletingItemId)}
+        title="Eliminar Publicación"
+        message="¿Estás seguro de que deseas eliminar este material? Esta acción no se puede deshacer."
+        confirmText="Eliminar"
+        cancelText="Cancelar"
+        type="danger"
+        onConfirm={confirmDeleteItem}
+        onCancel={() => setDeletingItemId(null)}
+      />
+
+      <ConfirmModal
+        isOpen={showLogoutConfirm}
+        title="Cerrar Sesión"
+        message="¿Deseas cerrar tu sesión actual?"
+        confirmText="Cerrar Sesión"
+        cancelText="Cancelar"
+        type="primary"
+        onConfirm={() => {
+          logout();
+          navigate('/');
+        }}
+        onCancel={() => setShowLogoutConfirm(false)}
+      />
     </Layout>
   );
 };

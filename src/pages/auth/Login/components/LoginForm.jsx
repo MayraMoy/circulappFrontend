@@ -4,11 +4,13 @@ import LoginSubmit from "./LoginSubmit";
 export default function LoginForm({
     email,
     password,
+    rememberMe,
     showPassword,
     isLoading,
 
     setEmail,
     setPassword,
+    setRememberMe,
     setShowPassword,
 
     handleSubmit,
@@ -21,9 +23,11 @@ export default function LoginForm({
             <LoginFields
                 email={email}
                 password={password}
+                rememberMe={rememberMe}
                 showPassword={showPassword}
                 setEmail={setEmail}
                 setPassword={setPassword}
+                setRememberMe={setRememberMe}
                 setShowPassword={setShowPassword}
             />
 

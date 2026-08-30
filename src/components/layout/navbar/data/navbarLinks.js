@@ -30,6 +30,6 @@ export const NAVBAR_LINKS = [
     name: "Validar",
     path: "/validate",
     icon: IconValidate,
-    roles: ["gestor"],
+    roles: ["gestor", "coordinador", "admin"],
   },
 ];

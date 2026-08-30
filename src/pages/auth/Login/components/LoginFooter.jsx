@@ -1,20 +1,46 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export default function LoginFooter() {
+    const navigate = useNavigate();
+
+    const handleGuest = () => {
+        sessionStorage.setItem("circulapp_guest_mode", "true");
+        navigate("/search");
+    };
+
     return (
-        <p className="mt-6 text-center text-xs text-gray-500">
-            ¿No tenés cuenta?{" "}
-            <Link
-                to="/register"
+        <div className="flex flex-col items-center gap-4 mt-6">
+            <p className="text-center text-xs text-gray-500 m-0">
+                ¿No tenés cuenta?{" "}
+                <Link
+                    to="/register"
+                    className="
+                        font-semibold
+                        text-primary
+                        transition-colors
+                        hover:text-primary-dark
+                    "
+                >
+                    Registrate
+                </Link>
+            </p>
+
+            <button
+                type="button"
+                onClick={handleGuest}
                 className="
-                    font-semibold
-                    text-primary
-                    transition-colors
-                    hover:text-primary-dark
+                    inline-flex items-center gap-1.5
+                    text-xs font-semibold
+                    text-gray-600 hover:text-emerald-800
+                    bg-gray-100/90 hover:bg-emerald-50
+                    px-4 py-2 rounded-full
+                    border border-gray-200 hover:border-emerald-300
+                    transition-all duration-150 cursor-pointer
                 "
             >
-                Registrate
-            </Link>
-        </p>
+                <span>Continuar como invitado</span>
+                <span>→</span>
+            </button>
+        </div>
     );
 }

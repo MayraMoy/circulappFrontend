@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
+import itemService from '../../services/itemService';
 
 const categories = [
   { id: 'plastico',    name: 'Plástico',       icon: 'recycle' },
@@ -22,7 +23,7 @@ const categories = [
 ];
 
 const PublishItem = () => {
-  const { user } = useContext(AuthContext);
+  const { user, updateUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
 
@@ -36,12 +37,41 @@ const PublishItem = () => {
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
+  // Estados para modal amigable de teléfono requerido
+  const [showPhoneModal, setShowPhoneModal] = useState(false);
+  const [phoneInput, setPhoneInput] = useState('');
+  const [savingPhone, setSavingPhone] = useState(false);
+  const [phoneModalError, setPhoneModalError] = useState('');
+
   useEffect(() => {
     if (user && !user.phone) {
-      alert('Debes completar tu número de teléfono en el perfil para publicar.');
-      navigate('/profile');
+      setShowPhoneModal(true);
     }
-  }, [user, navigate]);
+  }, [user]);
+
+  const handleSavePhone = async (e) => {
+    e.preventDefault();
+    if (!phoneInput.trim()) {
+      return setPhoneModalError('Por favor ingresa tu número de contacto.');
+    }
+    setSavingPhone(true);
+    setPhoneModalError('');
+    try {
+      const res = await API.put('/users/profile', {
+        name: user.name,
+        email: user.email,
+        phone: phoneInput.trim(),
+        location: user.location || '',
+        bio: user.bio || ''
+      });
+      updateUser(res.data);
+      setShowPhoneModal(false);
+    } catch (err) {
+      setPhoneModalError(err.response?.data?.msg || 'Error al guardar el teléfono. Intenta nuevamente.');
+    } finally {
+      setSavingPhone(false);
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,48 +79,95 @@ const PublishItem = () => {
     if (error) setError('');
   };
 
+  // Limpieza de ObjectURLs al desmontar o cambiar fotos
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach(url => {
+        try { URL.revokeObjectURL(url); } catch (_ERROR) { void _ERROR; }
+      });
+    };
+  }, [previewUrls]);
+
   const geocodeAddress = useCallback(async (address) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-      const data = await res.json();
-      if (data.length > 0) {
-        const { lat, lon, display_name } = data[0];
-        return { lat: parseFloat(lat), lng: parseFloat(lon), formattedAddress: display_name };
+      const res = await API.get('/location/geocode', { params: { address } });
+      if (res.data && res.data.lat && res.data.lng) {
+        return {
+          lat: parseFloat(res.data.lat),
+          lng: parseFloat(res.data.lng),
+          formattedAddress: res.data.formattedAddress || address
+        };
       }
       return null;
-    } catch { return null; }
+    } catch (_ERROR) {
+      void _ERROR;
+      // Fallback secundario seguro
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const data = await res.json();
+        if (data.length > 0) {
+          const { lat, lon, display_name } = data[0];
+          return { lat: parseFloat(lat), lng: parseFloat(lon), formattedAddress: display_name };
+        }
+      } catch (_E) { void _E; }
+      return null;
+    }
   }, []);
 
   const reverseGeocode = useCallback(async (lat, lng) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=es`);
-      const data = await res.json();
-      if (data.display_name) return { lat: parseFloat(lat), lng: parseFloat(lng), formattedAddress: data.display_name };
+      const res = await API.get('/location/reverse-geocode', { params: { lat, lng } });
+      if (res.data && res.data.formattedAddress) {
+        return {
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          formattedAddress: res.data.formattedAddress
+        };
+      }
       return null;
-    } catch { return null; }
+    } catch (_ERROR) {
+      void _ERROR;
+      // Fallback secundario seguro
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=es`);
+        const data = await res.json();
+        if (data.display_name) return { lat: parseFloat(lat), lng: parseFloat(lng), formattedAddress: data.display_name };
+      } catch (_E) { void _E; }
+      return null;
+    }
   }, []);
 
-  const handleAddressChange = async (e) => {
+  const handleAddressChange = (e) => {
     const address = e.target.value;
-    setFormData(prev => ({ ...prev, address }));
-    if (address.trim().length > 5) {
-      setIsGeocoding(true); setError('');
-      const result = await geocodeAddress(address);
-      if (result) {
-        setFormData(prev => ({ ...prev, lat: result.lat, lng: result.lng, address: result.formattedAddress }));
-      } else {
-        setError('No se encontró la dirección.');
-        setFormData(prev => ({ ...prev, lat: null, lng: null }));
-      }
-      setIsGeocoding(false);
-    } else {
-      setFormData(prev => ({ ...prev, lat: null, lng: null }));
+    // Si cambia el texto de la dirección, desvinculamos coordenadas anteriores para evitar desfasaje
+    setFormData(prev => ({ ...prev, address, lat: null, lng: null }));
+    if (error && error.includes('dirección')) setError('');
+  };
+
+  const handleSearchAddress = async () => {
+    if (!formData.address || formData.address.trim().length < 3) {
+      return setError('Por favor ingresa una dirección para buscar en el mapa.');
     }
+    setIsGeocoding(true);
+    setError('');
+    const result = await geocodeAddress(formData.address);
+    if (result) {
+      setFormData(prev => ({ 
+        ...prev, 
+        lat: result.lat, 
+        lng: result.lng, 
+        address: result.formattedAddress 
+      }));
+    } else {
+      setError('No se pudieron obtener coordenadas válidas para esta dirección. Intenta agregar ciudad o provincia.');
+    }
+    setIsGeocoding(false);
   };
 
   const getLocation = async () => {
     if (!navigator.geolocation) { setError('Tu navegador no soporta geolocalización.'); return; }
     setError('');
+    setIsGeocoding(true);
     try {
       const position = await new Promise((resolve, reject) =>
         navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 })
@@ -103,7 +180,9 @@ const PublishItem = () => {
         setFormData(prev => ({ ...prev, lat: latitude, lng: longitude, address: `Ubicación GPS: ${latitude.toFixed(4)}, ${longitude.toFixed(4)}` }));
       }
     } catch (err) {
-      setError(err.code === 1 ? 'Permiso de ubicación denegado.' : 'No se pudo obtener tu ubicación.');
+      setError(err.code === 1 ? 'Permiso de ubicación GPS denegado.' : 'No se pudo obtener tu ubicación GPS.');
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -115,6 +194,9 @@ const PublishItem = () => {
   };
 
   const removeImage = (index) => {
+    if (previewUrls[index]) {
+      try { URL.revokeObjectURL(previewUrls[index]); } catch (_ERROR) { void _ERROR; }
+    }
     setImages(prev => prev.filter((_, i) => i !== index));
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
@@ -122,20 +204,43 @@ const PublishItem = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!formData.title.trim()) return setError('El título es obligatorio.');
-    if (!formData.lat || !formData.lng) return setError('Debes ingresar una dirección válida.');
     if (!user.phone) { alert('Debes completar tu número de teléfono en el perfil para publicar.'); navigate('/profile'); return; }
+
+    let finalLat = formData.lat;
+    let finalLng = formData.lng;
+    let finalAddress = formData.address;
+
+    // Si el usuario escribió una dirección pero no apretó buscar, intentar geocodificarla automáticamente
+    if ((!finalLat || !finalLng) && formData.address?.trim()) {
+      setIsGeocoding(true);
+      const geocoded = await geocodeAddress(formData.address);
+      setIsGeocoding(false);
+      if (geocoded) {
+        finalLat = geocoded.lat;
+        finalLng = geocoded.lng;
+        finalAddress = geocoded.formattedAddress;
+        setFormData(prev => ({ ...prev, lat: finalLat, lng: finalLng, address: finalAddress }));
+      } else {
+        return setError('No se pudo validar la ubicación técnica de la dirección ingresada. Por favor utiliza el botón "Buscar Mapa" o "GPS".');
+      }
+    }
+
+    if (!finalLat || !finalLng) {
+      return setError('Debes validar la ubicación técnica mediante el botón "Buscar Mapa" o "GPS".');
+    }
 
     setSubmitting(true);
     const fd = new FormData();
     fd.append('title', formData.title);
     fd.append('description', formData.description);
     fd.append('category', formData.category);
-    fd.append('lat', formData.lat);
-    fd.append('lng', formData.lng);
+    fd.append('address', finalAddress);
+    fd.append('lat', finalLat);
+    fd.append('lng', finalLng);
     images.forEach(file => fd.append('images', file));
 
     try {
-      await API.post('/items', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await itemService.createItem(fd);
       navigate('/dashboard');
     } catch (err) {
       setError('Error al publicar: ' + (err.response?.data?.msg || 'Inténtalo más tarde.'));
@@ -143,8 +248,6 @@ const PublishItem = () => {
       setSubmitting(false);
     }
   };
-
-  const selectedCat = categories.find(c => c.id === formData.category);
 
   return (
     <Layout>
@@ -409,12 +512,17 @@ const PublishItem = () => {
                   type="text"
                   className="pi-input"
                   placeholder="Ej: Av. Rivadavia 1234, Buenos Aires"
-                  value={formData.address}
+                  value={formData.address || ''}
                   onChange={handleAddressChange}
+                  onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleSearchAddress(); } }}
                 />
+                <button type="button" className="pi-gps-btn" onClick={handleSearchAddress}>
+                  <i className="ti ti-search" style={{ fontSize: 16 }} aria-hidden="true" />
+                  Buscar Mapa
+                </button>
                 <button type="button" className="pi-gps-btn" onClick={getLocation}>
                   <i className="ti ti-current-location" style={{ fontSize: 16 }} aria-hidden="true" />
-                  Mi ubicación
+                  GPS
                 </button>
               </div>
 
@@ -502,6 +610,75 @@ const PublishItem = () => {
           </button>
         </form>
       </div>
+
+      {/* Modal Amigable para Completar Teléfono */}
+      {showPhoneModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm animate-fade-in">
+          <div className="relative w-full max-w-md rounded-3xl bg-white p-6 sm:p-8 shadow-2xl animate-scale-up border border-gray-100 text-center">
+            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-700 mx-auto">
+              <i className="ti ti-phone-call text-2xl" />
+            </div>
+
+            <h3 className="text-xl font-bold text-gray-900 mb-2">
+              Número de contacto requerido
+            </h3>
+            
+            <p className="text-sm text-gray-600 mb-6 leading-relaxed">
+              Para que los recicladores y cooperativas puedan coordinar el retiro de tus materiales, ingresa tu teléfono o WhatsApp de contacto:
+            </p>
+
+            {phoneModalError && (
+              <div className="mb-4 rounded-xl bg-red-50 p-3 text-xs text-red-600 border border-red-200 text-left">
+                {phoneModalError}
+              </div>
+            )}
+
+            <form onSubmit={handleSavePhone} className="flex flex-col gap-4 text-left">
+              <div>
+                <label className="mb-1.5 block text-[11px] font-medium uppercase tracking-[0.06em] text-gray-500">
+                  Teléfono / WhatsApp
+                </label>
+                <div className="flex items-center gap-2.5 rounded-xl border border-gray-300 bg-gray-50 px-3.5 py-2.5 transition-all focus-within:border-emerald-700 focus-within:bg-white focus-within:ring-4 focus-within:ring-emerald-700/10">
+                  <i className="ti ti-phone text-gray-400 text-base" />
+                  <input
+                    type="tel"
+                    value={phoneInput}
+                    onChange={(e) => setPhoneInput(e.target.value)}
+                    placeholder="Ej: +54 9 351 1234567"
+                    required
+                    autoFocus
+                    className="min-w-0 flex-1 border-none bg-transparent text-sm text-gray-900 outline-none placeholder:text-gray-400"
+                  />
+                </div>
+              </div>
+
+              <div className="flex flex-col-reverse sm:flex-row gap-2 mt-3">
+                <button
+                  type="button"
+                  onClick={() => navigate('/dashboard')}
+                  className="w-full sm:w-1/2 rounded-xl border border-gray-200 py-2.5 px-4 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
+                >
+                  Ir al Dashboard
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingPhone}
+                  className="w-full sm:w-1/2 rounded-xl bg-primary py-2.5 px-4 text-sm font-semibold text-white hover:bg-primary-dark shadow-md transition-all flex items-center justify-center gap-2 disabled:opacity-60 cursor-pointer"
+                >
+                  {savingPhone ? (
+                    <>
+                      <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Guardando...
+                    </>
+                  ) : (
+                    'Guardar y Continuar'
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </Layout>
   );
 };
