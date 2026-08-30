@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../contexts/AuthContext';
 import Layout from '../../components/layout/Layout';
 import API from '../../services/Api';
+import itemService from '../../services/itemService';
 
 const categories = [
   { id: 'plastico',    name: 'Plástico',       icon: 'recycle' },
@@ -78,25 +79,62 @@ const PublishItem = () => {
     if (error) setError('');
   };
 
+  // Limpieza de ObjectURLs al desmontar o cambiar fotos
+  useEffect(() => {
+    return () => {
+      previewUrls.forEach(url => {
+        try { URL.revokeObjectURL(url); } catch (_ERROR) { void _ERROR; }
+      });
+    };
+  }, [previewUrls]);
+
   const geocodeAddress = useCallback(async (address) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
-      const data = await res.json();
-      if (data.length > 0) {
-        const { lat, lon, display_name } = data[0];
-        return { lat: parseFloat(lat), lng: parseFloat(lon), formattedAddress: display_name };
+      const res = await API.get('/location/geocode', { params: { address } });
+      if (res.data && res.data.lat && res.data.lng) {
+        return {
+          lat: parseFloat(res.data.lat),
+          lng: parseFloat(res.data.lng),
+          formattedAddress: res.data.formattedAddress || address
+        };
       }
       return null;
-    } catch { return null; }
+    } catch (_ERROR) {
+      void _ERROR;
+      // Fallback secundario seguro
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`);
+        const data = await res.json();
+        if (data.length > 0) {
+          const { lat, lon, display_name } = data[0];
+          return { lat: parseFloat(lat), lng: parseFloat(lon), formattedAddress: display_name };
+        }
+      } catch (_E) { void _E; }
+      return null;
+    }
   }, []);
 
   const reverseGeocode = useCallback(async (lat, lng) => {
     try {
-      const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=es`);
-      const data = await res.json();
-      if (data.display_name) return { lat: parseFloat(lat), lng: parseFloat(lng), formattedAddress: data.display_name };
+      const res = await API.get('/location/reverse-geocode', { params: { lat, lng } });
+      if (res.data && res.data.formattedAddress) {
+        return {
+          lat: parseFloat(lat),
+          lng: parseFloat(lng),
+          formattedAddress: res.data.formattedAddress
+        };
+      }
       return null;
-    } catch { return null; }
+    } catch (_ERROR) {
+      void _ERROR;
+      // Fallback secundario seguro
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&accept-language=es`);
+        const data = await res.json();
+        if (data.display_name) return { lat: parseFloat(lat), lng: parseFloat(lng), formattedAddress: data.display_name };
+      } catch (_E) { void _E; }
+      return null;
+    }
   }, []);
 
   const handleAddressChange = (e) => {
@@ -156,6 +194,9 @@ const PublishItem = () => {
   };
 
   const removeImage = (index) => {
+    if (previewUrls[index]) {
+      try { URL.revokeObjectURL(previewUrls[index]); } catch (_ERROR) { void _ERROR; }
+    }
     setImages(prev => prev.filter((_, i) => i !== index));
     setPreviewUrls(prev => prev.filter((_, i) => i !== index));
   };
@@ -199,7 +240,7 @@ const PublishItem = () => {
     images.forEach(file => fd.append('images', file));
 
     try {
-      await API.post('/items', fd, { headers: { 'Content-Type': 'multipart/form-data' } });
+      await itemService.createItem(fd);
       navigate('/dashboard');
     } catch (err) {
       setError('Error al publicar: ' + (err.response?.data?.msg || 'Inténtalo más tarde.'));
@@ -207,8 +248,6 @@ const PublishItem = () => {
       setSubmitting(false);
     }
   };
-
-  const selectedCat = categories.find(c => c.id === formData.category);
 
   return (
     <Layout>

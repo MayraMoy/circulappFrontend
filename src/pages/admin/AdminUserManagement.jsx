@@ -166,7 +166,7 @@ const AdminUserManagement = () => {
                           <div className="flex items-center justify-end gap-1.5">
                             <button
                               type="button"
-                              className="px-2.5 py-1 rounded-lg border border-[#16a085]/30 text-[#0f4c38] hover:bg-[#16a085]/10 font-semibold"
+                              className="px-2.5 py-1 rounded-lg border border-[#16a085]/30 text-[#0f4c38] hover:bg-[#16a085]/10 font-semibold inline-flex items-center gap-1"
                               onClick={() => {
                                 setEditingUser(u);
                                 setEditUserData({
@@ -178,15 +178,21 @@ const AdminUserManagement = () => {
                                 });
                               }}
                             >
-                              <i className="bi bi-pencil me-1"></i>Editar
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              Editar
                             </button>
 
                             <button
                               type="button"
-                              className="px-2.5 py-1 rounded-lg border border-[#16a085]/30 text-[#16a085] hover:bg-[#16a085]/10 font-semibold"
+                              className="px-2.5 py-1 rounded-lg border border-[#16a085]/30 text-[#16a085] hover:bg-[#16a085]/10 font-semibold inline-flex items-center gap-1"
                               onClick={() => handleViewUserItems(u)}
                             >
-                              <i className="bi bi-box-seam me-1"></i>Publicaciones
+                              <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                              </svg>
+                              Publicaciones
                             </button>
 
                             <button

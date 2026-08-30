@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '../../components/layout/Layout';
-import API from '../../services/Api';
+import itemService from '../../services/itemService';
 
 const categoryConfig = [
   { id: '', name: 'Todas', icon: 'search', accent: '#888780' },
@@ -39,15 +39,16 @@ const SearchItems = () => {
     setFilters(prev => ({ ...prev, [name]: value }));
   };
 
-  const search = async () => {
+  const search = async (forceRefresh = false) => {
     setLoading(true);
     try {
-      const params = new URLSearchParams();
-      if (filters.query) params.append('query', filters.query);
-      if (filters.category) params.append('category', filters.category);
-      if (filters.processingState) params.append('processingState', filters.processingState);
-      const res = await API.get(`/items?${params.toString()}`);
-      setItems(res.data);
+      const params = {};
+      if (filters.query) params.query = filters.query;
+      if (filters.category) params.category = filters.category;
+      if (filters.processingState) params.processingState = filters.processingState;
+
+      const data = await itemService.getItems(params, forceRefresh);
+      setItems(Array.isArray(data) ? data : (data?.items || []));
     } catch (error) {
       console.error(error);
       setItems([]);
@@ -56,9 +57,30 @@ const SearchItems = () => {
     }
   };
 
-  useEffect(() => { search(); }, []);
+  useEffect(() => { 
+    let isCurrent = true;
+    const fetchInitial = async () => {
+      setLoading(true);
+      try {
+        const data = await itemService.getItems();
+        if (isCurrent) {
+          setItems(Array.isArray(data) ? data : (data?.items || []));
+        }
+      } catch (_ERROR) {
+        void _ERROR;
+        if (isCurrent) setItems([]);
+      } finally {
+        if (isCurrent) setLoading(false);
+      }
+    };
+    fetchInitial();
+    return () => { isCurrent = false; };
+  }, []);
 
-  const handleSearch = (e) => { e.preventDefault(); search(); };
+  const handleSearch = (e) => { 
+    e.preventDefault(); 
+    search(true); 
+  };
 
   const getStateStyle = (stateId) => {
     const s = stateConfig.find(s => s.id === stateId);

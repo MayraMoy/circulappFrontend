@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import Layout from '../../components/Layout/Layout';
+import Layout from '../../components/layout/Layout';
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -51,11 +51,9 @@ const NotFound = () => {
             justifyContent: 'center',
             margin: '0 auto 24px'
           }}>
-            <i
-              className="ti ti-recycle-off"
-              style={{ fontSize: '40px', color: '#0F6E56' }}
-              aria-hidden="true"
-            />
+            <svg style={{ width: '40px', height: '40px', color: '#0F6E56' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.8} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
           </div>
 
           <h1 style={{
@@ -103,7 +101,9 @@ const NotFound = () => {
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = '#085041'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = '#0F6E56'}
             >
-              <i className="ti ti-search" style={{ fontSize: '16px' }} aria-hidden="true" />
+              <svg style={{ width: '16px', height: '16px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
               Explorar catálogo
             </button>
 
@@ -126,7 +126,9 @@ const NotFound = () => {
               onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'var(--color-background-secondary, #F3F4F6)'}
               onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'transparent'}
             >
-              <i className="ti ti-arrow-left" style={{ fontSize: '16px' }} aria-hidden="true" />
+              <svg style={{ width: '16px', height: '16px' }} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
               Volver atrás
             </button>
           </div>

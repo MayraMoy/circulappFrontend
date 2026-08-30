@@ -1,3 +1,4 @@
+import { useState } from "react";
 import Layout from "../../components/layout/Layout";
 import ErrorToast from "../../components/feedback/ErrorToast";
 import HeroBanner from "../../components/dashboard/HeroBanner";
@@ -9,12 +10,33 @@ import IconUsers from "../icons/IconUsers";
 
 import useDashboardAdmin from "./hooks/useDashboardAdmin";
 import AdminUsersTable from "./components/AdminUsersTable";
+import ReportModerationList from "../../components/dashboard/ReportModerationList";
+import AdminReportModal from "../../components/dashboard/AdminReportModal";
 import { ADMIN_REPORTS } from "./data/dashboardData";
 
 const DashboardAdmin = () => {
-  const { user, navigate, error, clearError, metrics, users, items, handlePromote, handleToggleActive, exportarItems } = useDashboardAdmin();
+  const [selectedReportModal, setSelectedReportModal] = useState(null);
+  const { 
+    user, 
+    navigate, 
+    error, 
+    clearError, 
+    metrics, 
+    users, 
+    items, 
+    reports,
+    pendingReportsCount,
+    loadingReports,
+    actionLoadingId,
+    handlePromote, 
+    handleToggleActive, 
+    handleDismissReport,
+    handleDeleteReportedItem,
+    handleDeactivateReportedUser,
+    exportarItems
+  } = useDashboardAdmin();
 
-  if (!user || user.role !== "admin") return null;
+  if (!user || (user.role !== "admin" && user.role !== "dev" && !user.isDev)) return null;
 
   return (
     <Layout>
@@ -56,11 +78,41 @@ const DashboardAdmin = () => {
             </SectionCard>
           </div>
 
+          {/* Moderación de Denuncias de la Comunidad */}
+          <SectionCard 
+            title="Moderación de Denuncias" 
+            icon={IconReport} 
+            className="mt-4"
+            actionLabel={
+              pendingReportsCount > 0 ? (
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
+                  {pendingReportsCount} pendientes
+                </span>
+              ) : null
+            }
+          >
+            <ReportModerationList
+              reports={reports}
+              loading={loadingReports}
+              onDismiss={handleDismissReport}
+              onDeleteItem={handleDeleteReportedItem}
+              onDeactivateUser={handleDeactivateReportedUser}
+              actionLoadingId={actionLoadingId}
+            />
+          </SectionCard>
+
           <SectionCard title="Reportes para la Comuna" icon={IconReport} className="mt-4">
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
               {ADMIN_REPORTS.map((report) => (
-                <div key={report.title} onClick={() => window.open(report.endpoint, "_blank")} className="bg-white border border-gray-100 rounded-xl p-4 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all">
-                  <div className="text-sm font-semibold text-gray-800">{report.title}</div>
+                <div 
+                  key={report.title} 
+                  onClick={() => setSelectedReportModal(report)} 
+                  className="bg-white border border-gray-100 rounded-xl p-4 cursor-pointer hover:-translate-y-0.5 hover:shadow-md transition-all group"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-bold text-gray-800 group-hover:text-[#0F6E56] transition-colors">{report.title}</div>
+                    <span className="text-xs text-gray-400 group-hover:text-[#0F6E56] font-semibold">Ver ↗</span>
+                  </div>
                   <div className="text-xs text-gray-500 mt-1">{report.sub}</div>
                 </div>
               ))}
@@ -68,6 +120,13 @@ const DashboardAdmin = () => {
           </SectionCard>
         </div>
       </div>
+
+      {/* Modal de Previsualización y Exportación a Excel de Reportes */}
+      <AdminReportModal
+        isOpen={Boolean(selectedReportModal)}
+        onClose={() => setSelectedReportModal(null)}
+        reportInfo={selectedReportModal}
+      />
     </Layout>
   );
 };

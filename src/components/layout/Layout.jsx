@@ -2,6 +2,8 @@
 // El layout se utiliza en todas las páginas de la aplicación para mantener una estructura consistente.
 
 import Navbar from "./navbar/Navbar";
+import Footer from "./Footer";
+import AuthModal from "../auth/AuthModal";
 
 const Layout = ({ children }) => {
   return (
@@ -11,6 +13,11 @@ const Layout = ({ children }) => {
       <main className="flex-grow">
         {children}
       </main>
+
+      <Footer />
+
+      {/* Modal global de bienvenida / autenticación */}
+      <AuthModal />
     </div>
   );
 };

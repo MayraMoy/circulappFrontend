@@ -4,6 +4,7 @@ import StatCard from "../../components/dashboard/StatCard";
 import SectionCard from "../../components/dashboard/SectionCard";
 import ConfirmModal from "../../components/feedback/ConfirmModal";
 import StateBadge from "../../components/badges/StateBadge";
+import ReportModerationList from "../../components/dashboard/ReportModerationList";
 import { IconPackage, IconChevron, IconLeaf, IconBox } from "../../components/Icons";
 
 import useDashboardGestor from "./hooks/useDashboardGestor";
@@ -17,11 +18,18 @@ const DashboardGestor = () => {
     setActiveTab,
     pendingItems,
     toValidateItems,
+    reports,
+    pendingReportsCount,
+    loadingReports,
+    actionLoadingId,
     loading,
     error,
     balingItemId,
     setBalingItemId,
     confirmMarkAsBaled,
+    handleDismissReport,
+    handleDeleteReportedItem,
+    handleDeactivateReportedUser,
     getWhatsAppLink,
   } = useDashboardGestor();
 
@@ -81,13 +89,18 @@ const DashboardGestor = () => {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`px-4 py-2 rounded-xl font-semibold text-xs border transition-colors cursor-pointer ${
+                  className={`px-4 py-2 rounded-xl font-semibold text-xs border transition-colors cursor-pointer inline-flex items-center gap-2 ${
                     activeTab === tab.id
                       ? "border-emerald-600/30 text-emerald-600 bg-emerald-50"
                       : "border-gray-200 text-gray-500 hover:bg-gray-100 bg-transparent"
                   }`}
                 >
                   {tab.name}
+                  {tab.id === "reports" && pendingReportsCount > 0 && (
+                    <span className="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-rose-500 text-white">
+                      {pendingReportsCount}
+                    </span>
+                  )}
                 </button>
               ))}
             </div>
@@ -96,7 +109,27 @@ const DashboardGestor = () => {
           {/* Sección Principal de Listado */}
           {loading ? (
             <SectionCard>
-              <p className="text-sm text-gray-500 m-0 text-center py-4">Cargando materiales...</p>
+              <p className="text-sm text-gray-500 m-0 text-center py-4">Cargando datos...</p>
+            </SectionCard>
+          ) : activeTab === "reports" ? (
+            <SectionCard 
+              title={`Moderación de Denuncias (${reports.length})`}
+              actionLabel={
+                pendingReportsCount > 0 ? (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-rose-100 text-rose-700">
+                    {pendingReportsCount} pendientes
+                  </span>
+                ) : null
+              }
+            >
+              <ReportModerationList
+                reports={reports}
+                loading={loadingReports}
+                onDismiss={handleDismissReport}
+                onDeleteItem={handleDeleteReportedItem}
+                onDeactivateUser={handleDeactivateReportedUser}
+                actionLoadingId={actionLoadingId}
+              />
             </SectionCard>
           ) : (
             <SectionCard

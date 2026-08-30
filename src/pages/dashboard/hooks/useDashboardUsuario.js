@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AuthContext from "../../../contexts/AuthContext";
-import API from "../../../services/Api";
+import itemService from "../../../services/itemService";
 import { useErrorHandler } from "../../../hooks/useErrorHandler";
 
 export const useDashboardUsuario = () => {
@@ -13,24 +13,35 @@ export const useDashboardUsuario = () => {
   const [nearbyItems, setNearbyItems] = useState([]);
   const [stats, setStats] = useState({ totalPublished: 0, totalValidated: 0, impactScore: 0 });
 
+  const userId = user?.id || user?._id;
+
   useEffect(() => {
+    let isMounted = true;
+
     const fetchDashboardData = async () => {
       await handleAsync(async () => {
-        const myRes = await API.get(`/items?ownerId=${user.id}`);
-        setMyItems(myRes.data);
+        const [myData, nearbyData] = await Promise.all([
+          itemService.getItems({ ownerId: userId }),
+          itemService.getItems({ limit: 6 })
+        ]);
 
-        const nearbyRes = await API.get("/items?limit=6");
-        setNearbyItems(nearbyRes.data.filter((item) => item.ownerId?._id !== user.id));
+        if (!isMounted) return;
+
+        setMyItems(myData);
+        setNearbyItems(nearbyData.filter((item) => (item.ownerId?._id || item.ownerId) !== userId));
 
         setStats({
-          totalPublished: myRes.data.length,
-          totalValidated: myRes.data.filter((i) => i.processingState === "validado").length,
-          impactScore: myRes.data.length * 10,
+          totalPublished: myData.length,
+          totalValidated: myData.filter((i) => i.processingState === "validado").length,
+          impactScore: myData.length * 10,
         });
       });
     };
-    if (user) fetchDashboardData();
-  }, [user, handleAsync]);
+
+    if (userId) fetchDashboardData();
+
+    return () => { isMounted = false; };
+  }, [userId, handleAsync]);
 
   return { user, navigate, error, isLoading, clearError, myItems, nearbyItems, stats };
 };

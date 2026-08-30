@@ -2,6 +2,7 @@ import { useState, useEffect, useContext, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AuthContext from '../../../contexts/AuthContext';
 import API from '../../../services/Api';
+import itemService from '../../../services/itemService';
 
 export const CATEGORY_NAMES = {
   plastico: 'Plástico',
@@ -120,10 +121,11 @@ const useAdminUsers = () => {
     setViewingUserItems(u);
     setLoadingUserItems(true);
     try {
-      const res = await API.get(`/items?ownerId=${u._id}`);
-      setUserItems(res.data);
+      const items = await itemService.getItems({ ownerId: u._id });
+      setUserItems(items);
     } catch (err) {
       console.error('Error al obtener ítems del usuario:', err);
+      setUserItems([]);
     } finally {
       setLoadingUserItems(false);
     }
@@ -168,8 +170,9 @@ const useAdminUsers = () => {
 
       setUserItems(prev => prev.map(it => it._id === editingItem._id ? res.data : it));
       setEditingItem(null);
+      showToast('success', 'Publicación actualizada correctamente.');
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al actualizar publicación');
+      showToast('danger', err.response?.data?.msg || 'Error al actualizar publicación');
     } finally {
       setSavingItem(false);
     }
@@ -181,8 +184,9 @@ const useAdminUsers = () => {
       await API.delete(`/items/${deletingItemId}`);
       setUserItems(prev => prev.filter(it => it._id !== deletingItemId));
       setDeletingItemId(null);
+      showToast('success', 'Publicación eliminada correctamente.');
     } catch (err) {
-      alert(err.response?.data?.msg || 'Error al eliminar publicación');
+      showToast('danger', err.response?.data?.msg || 'Error al eliminar publicación');
     }
   };
 
