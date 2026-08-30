@@ -231,7 +231,7 @@ export default function Agenda() {
                   <div className="pt-3 border-t border-gray-100 flex items-center justify-between gap-2">
                     {item.ownerId?.phone ? (
                       <a
-                        href={`https://wa.me/${item.ownerId.phone.replace(/[^0-9]/g, '')}`}
+                        href={`https://wa.me/${String(item.ownerId.phone).replace(/[^0-9]/g, '')}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1.5 rounded-xl transition-colors"
@@ -244,7 +244,7 @@ export default function Agenda() {
                     )}
 
                     <span className="text-[11px] font-semibold text-gray-500">
-                      ID: #{item._id.slice(-6).toUpperCase()}
+                      ID: #{item._id ? String(item._id).slice(-6).toUpperCase() : '------'}
                     </span>
                   </div>
                 </div>

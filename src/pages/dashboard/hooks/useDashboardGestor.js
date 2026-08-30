@@ -20,7 +20,7 @@ const useDashboardGestor = () => {
   const [actionLoadingId, setActionLoadingId] = useState(null);
 
   const fetchReports = useCallback(async () => {
-    if (!user || (user.role !== "gestor" && user.role !== "admin")) return;
+    if (!user || (user.role !== "gestor" && user.role !== "admin" && user.role !== "dev" && !user.isDev)) return;
     setLoadingReports(true);
     try {
       const res = await API.get("/reports");
@@ -34,7 +34,7 @@ const useDashboardGestor = () => {
   }, [user]);
 
   const fetchItems = useCallback(async () => {
-    if (!user || user.role !== "gestor") return;
+    if (!user || (user.role !== "gestor" && user.role !== "admin" && user.role !== "dev" && !user.isDev)) return;
 
     setLoading(true);
     setError("");
@@ -58,7 +58,7 @@ const useDashboardGestor = () => {
   }, [fetchItems]);
 
   useEffect(() => {
-    if (user && user.role !== "gestor") {
+    if (user && user.role !== "gestor" && user.role !== "admin" && user.role !== "dev" && !user.isDev) {
       navigate("/dashboard");
     }
   }, [user, navigate]);
@@ -69,7 +69,7 @@ const useDashboardGestor = () => {
       await itemService.markAsBaled(balingItemId);
       fetchItems();
     } catch (err) {
-      alert("Error al marcar como fardado: " + (err.response?.data?.msg || "Inténtalo más tarde."));
+      setError("Error al marcar como fardado: " + (err.response?.data?.msg || "Inténtalo más tarde."));
     } finally {
       setBalingItemId(null);
     }
@@ -81,7 +81,7 @@ const useDashboardGestor = () => {
       await API.patch(`/reports/${reportId}/dismiss`, { resolutionNotes: 'Desestimada por el gestor comunal.' });
       await fetchReports();
     } catch (err) {
-      alert("Error al desestimar la denuncia: " + (err.response?.data?.msg || "Error"));
+      setError("Error al desestimar la denuncia: " + (err.response?.data?.msg || "Error"));
     } finally {
       setActionLoadingId(null);
     }
@@ -94,7 +94,7 @@ const useDashboardGestor = () => {
       await API.delete(`/reports/${reportId}/item`);
       await Promise.all([fetchReports(), fetchItems()]);
     } catch (err) {
-      alert("Error al eliminar la publicación denunciada: " + (err.response?.data?.msg || "Error"));
+      setError("Error al eliminar la publicación denunciada: " + (err.response?.data?.msg || "Error"));
     } finally {
       setActionLoadingId(null);
     }
@@ -107,7 +107,7 @@ const useDashboardGestor = () => {
       await API.patch(`/reports/${reportId}/deactivate-user`);
       await Promise.all([fetchReports(), fetchItems()]);
     } catch (err) {
-      alert("Error al desactivar al usuario denunciado: " + (err.response?.data?.msg || "Error"));
+      setError("Error al desactivar al usuario denunciado: " + (err.response?.data?.msg || "Error"));
     } finally {
       setActionLoadingId(null);
     }
@@ -115,7 +115,7 @@ const useDashboardGestor = () => {
 
   const getWhatsAppLink = (phone) => {
     if (!phone) return null;
-    const clean = phone.replace(/\D/g, "");
+    const clean = String(phone).replace(/\D/g, "");
     if (!clean) return null;
     const formatted = clean.startsWith("54") ? clean : `54${clean}`;
     return `https://wa.me/${formatted}`;

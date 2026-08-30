@@ -34,7 +34,7 @@ export const useDashboardAdmin = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!user || user.role !== "admin") {
+      if (!user || (user.role !== "admin" && user.role !== "dev" && !user.isDev)) {
         navigate("/dashboard");
         return;
       }

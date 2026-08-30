@@ -36,7 +36,7 @@ const DashboardAdmin = () => {
     exportarItems
   } = useDashboardAdmin();
 
-  if (!user || user.role !== "admin") return null;
+  if (!user || (user.role !== "admin" && user.role !== "dev" && !user.isDev)) return null;
 
   return (
     <Layout>

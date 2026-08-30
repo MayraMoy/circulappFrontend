@@ -223,7 +223,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/historico" className="hover:text-[#0F6E56] transition-colors">
+                  <Link to="/historial" className="hover:text-[#0F6E56] transition-colors">
                     Archivo Histórico
                   </Link>
                 </li>
@@ -237,7 +237,7 @@ export default function Footer() {
               </h3>
               <ul className="space-y-2.5 text-gray-600">
                 <li>
-                  <Link to="/educacion" className="hover:text-[#0F6E56] transition-colors">
+                  <Link to="/educational" className="hover:text-[#0F6E56] transition-colors">
                     Guía de Separación en Origen
                   </Link>
                 </li>
@@ -257,7 +257,7 @@ export default function Footer() {
                   </Link>
                 </li>
                 <li>
-                  <Link to="/educacion" className="hover:text-[#0F6E56] transition-colors">
+                  <Link to="/educational" className="hover:text-[#0F6E56] transition-colors">
                     Buenas Prácticas Ambientales
                   </Link>
                 </li>
