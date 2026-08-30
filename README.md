@@ -7,6 +7,7 @@
 [![Axios](https://img.shields.io/badge/Axios-1.15.0-5A29E4?logo=axios\&logoColor=white)](https://axios-http.com/)
 [![ESLint](https://img.shields.io/badge/ESLint-9.39.4-4B32C3?logo=eslint\&logoColor=white)](https://eslint.org/)
 [![License](https://img.shields.io/badge/License-Academic-blue)](#)
+[![Wiki](https://img.shields.io/badge/Documentation-Wiki-blue?logo=github)](https://github.com/MayraMoy/circulappFrontend/wiki)
 
 Frontend de **CirculApp**, una plataforma web de economía colaborativa orientada a la gestión integral de materiales reciclables.
 
