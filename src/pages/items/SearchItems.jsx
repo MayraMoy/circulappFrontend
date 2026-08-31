@@ -251,7 +251,7 @@ const SearchItems = () => {
           display: flex; align-items: center; justify-content: center;
           margin: 0 auto 16px;
         }
-        .si-empty h3 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 6px; }
+        .si-empty h2 { font-size: 16px; font-weight: 500; color: var(--color-text-primary); margin: 0 0 6px; }
         .si-empty p { font-size: 14px; color: var(--color-text-secondary); margin: 0 0 20px; }
         .si-reset-btn {
           display: inline-flex; align-items: center; gap: 6px;
@@ -284,20 +284,28 @@ const SearchItems = () => {
         <form onSubmit={handleSearch} className="si-form-card">
           <div className="si-fields">
             <div className="si-field">
-              <label>Palabra clave</label>
+              <label htmlFor="search-query">Palabra clave</label>
               <input
+                id="search-query"
                 type="text"
                 name="query"
                 placeholder="botellas, cartón..."
+                aria-label="Buscar por palabra clave"
                 value={filters.query}
                 onChange={handleFilterChange}
               />
             </div>
 
             <div className="si-field">
-              <label>Categoría</label>
+              <label htmlFor="search-category">Categoría</label>
               <div className="si-select-wrapper">
-                <select name="category" value={filters.category} onChange={handleFilterChange}>
+                <select
+                  id="search-category"
+                  name="category"
+                  aria-label="Filtrar por categoría"
+                  value={filters.category}
+                  onChange={handleFilterChange}
+                >
                   {categoryConfig.map(cat => (
                     <option key={cat.id} value={cat.id}>{cat.name}</option>
                   ))}
@@ -306,9 +314,15 @@ const SearchItems = () => {
             </div>
 
             <div className="si-field">
-              <label>Estado</label>
+              <label htmlFor="search-state">Estado</label>
               <div className="si-select-wrapper">
-                <select name="processingState" value={filters.processingState} onChange={handleFilterChange}>
+                <select
+                  id="search-state"
+                  name="processingState"
+                  aria-label="Filtrar por estado de procesamiento"
+                  value={filters.processingState}
+                  onChange={handleFilterChange}
+                >
                   {stateConfig.map(s => (
                     <option key={s.id} value={s.id}>{s.name}</option>
                   ))}
@@ -345,7 +359,7 @@ const SearchItems = () => {
               <div className="si-empty-icon">
                 <i className="ti ti-search-off" style={{ fontSize: 28, color: 'var(--color-text-tertiary)' }} aria-hidden="true" />
               </div>
-              <h3>No se encontraron materiales</h3>
+              <h2>No se encontraron materiales</h2>
               <p>Ajustá los filtros o probá con otros términos</p>
               <button
                 className="si-reset-btn"
@@ -384,7 +398,7 @@ const SearchItems = () => {
                     </div>
 
                     <div className="si-card-body">
-                      <h4 className="si-card-title">{item.title}</h4>
+                      <h2 className="si-card-title">{item.title}</h2>
 
                       <div className="si-tags">
                         <span className="si-cat-tag">
