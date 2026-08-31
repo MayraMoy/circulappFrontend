@@ -187,10 +187,34 @@ const PublishItem = () => {
   };
 
   const handleImageChange = (e) => {
-    const files = Array.from(e.target.files).slice(0, 5);
-    if (files.length + images.length > 5) { alert('Máximo 5 imágenes permitidas.'); return; }
-    setImages(prev => [...prev, ...files]);
-    setPreviewUrls(prev => [...prev, ...files.map(f => URL.createObjectURL(f))]);
+    if (!e.target.files) return;
+    const selectedFiles = Array.from(e.target.files);
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg'];
+    const maxSizeBytes = 5 * 1024 * 1024; // 5MB
+
+    if (selectedFiles.length + images.length > 5) {
+      setError('Máximo 5 imágenes permitidas en total.');
+      return;
+    }
+
+    const validFiles = [];
+    for (const file of selectedFiles) {
+      if (!allowedTypes.includes(file.type)) {
+        setError(`El archivo "${file.name}" no es una imagen válida. Solo se admiten JPG, PNG y WEBP.`);
+        return;
+      }
+      if (file.size > maxSizeBytes) {
+        setError(`La imagen "${file.name}" supera el tamaño máximo permitido de 5 MB.`);
+        return;
+      }
+      validFiles.push(file);
+    }
+
+    if (validFiles.length > 0) {
+      setError('');
+      setImages(prev => [...prev, ...validFiles]);
+      setPreviewUrls(prev => [...prev, ...validFiles.map(f => URL.createObjectURL(f))]);
+    }
   };
 
   const removeImage = (index) => {
@@ -316,7 +340,10 @@ const PublishItem = () => {
           transition: border-color 0.15s, box-shadow 0.15s;
           font-family: inherit;
         }
-        .pi-input::placeholder, .pi-textarea::placeholder { color: var(--color-text-tertiary); }
+        .pi-input::placeholder, .pi-textarea::placeholder {
+          color: #9CA3AF;
+          opacity: 0.85;
+        }
         .pi-input:focus, .pi-select:focus, .pi-textarea:focus {
           border-color: #1D9E75;
           box-shadow: 0 0 0 3px rgba(29,158,117,0.12);
@@ -352,8 +379,8 @@ const PublishItem = () => {
           border-color: #1D9E75; background: #E1F5EE; color: #0F6E56;
         }
 
-        .pi-address-row { display: flex; gap: 8px; }
-        .pi-address-row .pi-input { flex: 1; }
+        .pi-address-row { display: flex; gap: 8px; flex-wrap: wrap; }
+        .pi-address-row .pi-input { flex: 1 1 180px; min-width: 0; }
         .pi-gps-btn {
           flex-shrink: 0; display: inline-flex; align-items: center; gap: 6px;
           padding: 10px 14px; font-size: 13px; font-weight: 500;
@@ -366,8 +393,9 @@ const PublishItem = () => {
 
         .pi-location-chip {
           display: inline-flex; align-items: center; gap: 6px;
-          margin-top: 7px; padding: 5px 10px; border-radius: 20px;
+          margin-top: 7px; padding: 6px 12px; border-radius: 20px;
           background: #E1F5EE; color: #0F6E56; font-size: 12px; font-weight: 500;
+          max-width: 100%; word-break: break-word; line-height: 1.4;
         }
 
         .pi-geocoding {
@@ -534,9 +562,9 @@ const PublishItem = () => {
               )}
 
               {formData.lat && !isGeocoding && (
-                <div className="pi-location-chip">
-                  <i className="ti ti-map-pin" style={{ fontSize: 13 }} aria-hidden="true" />
-                  {formData.lat.toFixed(4)}, {formData.lng.toFixed(4)}
+                <div className="pi-location-chip" title={`Coordenadas GPS: ${formData.lat.toFixed(4)}, ${formData.lng.toFixed(4)}`}>
+                  <i className="ti ti-map-pin" style={{ fontSize: 13, flexShrink: 0 }} aria-hidden="true" />
+                  <span>{formData.address ? formData.address : `${formData.lat.toFixed(4)}, ${formData.lng.toFixed(4)}`}</span>
                 </div>
               )}
             </div>

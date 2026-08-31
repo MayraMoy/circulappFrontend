@@ -190,10 +190,10 @@ const ItemDetail = () => {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 py-6 sm:py-8 overflow-hidden">
 
         {/* Back + Action Toolbar */}
-        <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <button
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
@@ -202,7 +202,7 @@ const ItemDetail = () => {
             Volver
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Botón Denunciar (Para usuarios autenticados o invitados con intercepción) */}
             {!isOwner && (
               <button
@@ -251,17 +251,17 @@ const ItemDetail = () => {
         </div>
 
         {/* Title row */}
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 leading-snug mb-1">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4 mb-6">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug mb-1 break-words">
               {item.title}
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 break-words">
               {item.description || 'Sin descripción.'}
             </p>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 flex-shrink-0">
             <span className={`text-xs font-semibold px-3 py-1 rounded-full ${state.color}`}>
               {state.label}
             </span>

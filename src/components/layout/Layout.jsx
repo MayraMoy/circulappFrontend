@@ -1,11 +1,22 @@
-// Aca se define el layout de la aplicación, que incluye la barra de navegación y un contenedor para el contenido principal. 
-// El layout se utiliza en todas las páginas de la aplicación para mantener una estructura consistente.
-
+import { useState, useEffect } from "react";
 import Navbar from "./navbar/Navbar";
 import Footer from "./Footer";
 import AuthModal from "../auth/AuthModal";
+import ErrorToast from "../feedback/ErrorToast";
 
 const Layout = ({ children }) => {
+  const [globalError, setGlobalError] = useState("");
+
+  useEffect(() => {
+    const handleGlobalError = (e) => {
+      setGlobalError(e.detail?.message || "Ocurrió un error inesperado.");
+      setTimeout(() => setGlobalError(""), 6000);
+    };
+
+    window.addEventListener("app-global-error", handleGlobalError);
+    return () => window.removeEventListener("app-global-error", handleGlobalError);
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -15,6 +26,9 @@ const Layout = ({ children }) => {
       </main>
 
       <Footer />
+
+      {/* Notificación flotante de error global (P-006) */}
+      <ErrorToast error={globalError} onClose={() => setGlobalError("")} />
 
       {/* Modal global de bienvenida / autenticación */}
       <AuthModal />
