@@ -37,6 +37,13 @@ export default function AuthProvider({ children }) {
                 setAuthModalOpen(true);
             }
         }, setLoading, logout);
+
+        const handleAuthExpired = () => {
+            logout();
+        };
+
+        window.addEventListener("auth-expired", handleAuthExpired);
+        return () => window.removeEventListener("auth-expired", handleAuthExpired);
     }, []);
 
     const openAuthModal = (tab = "login", prompt = "") => {

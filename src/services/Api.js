@@ -29,23 +29,34 @@ API.interceptors.request.use((config) => {
   return config;
 });
 
-// Interceptor para capturar expiración de sesión (401) o bloqueo de cuenta (403)
+// Interceptor para capturar expiración de sesión (401), errores de red y errores 500 (P-006, P-007)
 API.interceptors.response.use(
   (response) => response,
   (error) => {
     const status = error.response?.status;
     const msg = error.response?.data?.msg || '';
 
-    // Si el token expiró o la cuenta fue desactivada
+    // P-006: Captura de caídas de red o errores 500
+    if (!error.response || error.code === 'ERR_NETWORK') {
+      window.dispatchEvent(new CustomEvent('app-global-error', {
+        detail: { message: 'Sin conexión con el servidor. Revisa tu conexión a internet.' }
+      }));
+    } else if (status >= 500) {
+      window.dispatchEvent(new CustomEvent('app-global-error', {
+        detail: { message: 'El servidor encontró un error inesperado (500). Inténtalo más tarde.' }
+      }));
+    }
+
+    // P-007: Si el token expiró (401) o la cuenta fue desactivada (403)
     if (status === 401 || (status === 403 && msg.toLowerCase().includes('desactivada'))) {
       const currentPath = window.location.pathname;
       const publicPaths = ['/login', '/register', '/forgot-password', '/reset-password', '/search', '/items', '/educational', '/'];
       const isPublicRoute = publicPaths.some(p => currentPath === p || (p !== '/' && currentPath.startsWith(p)));
 
-      // Si había un token guardado y no está en una ruta pública
       const hadToken = !!localStorage.getItem('token');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      window.dispatchEvent(new CustomEvent('auth-expired'));
 
       if (hadToken && !isPublicRoute) {
         window.location.href = '/login?session_expired=true';

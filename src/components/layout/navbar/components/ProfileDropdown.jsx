@@ -1,4 +1,4 @@
-﻿// Este componente representa el menú desplegable de perfil en la barra de navegación. Muestra el nombre y correo electrónico del usuario, 
+// Este componente representa el menú desplegable de perfil en la barra de navegación. Muestra el nombre y correo electrónico del usuario, 
 // y proporciona botones para navegar al perfil del usuario, al material educativo y para cerrar sesión. Cada botón tiene un icono 
 // correspondiente y aplica estilos de transición al pasar el cursor sobre ellos.
 
@@ -8,7 +8,7 @@ import IconLogout from "../icons/IconLogout";
 
 function ProfileDropdown({ user, navigate, handleLogout, closeMenu }) {
   return (
-    <div className="absolute right-0 top-full z-50 mt-2 w-72 overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-medium">
+    <div className="absolute right-0 top-full z-50 mt-2 w-64 sm:w-72 max-w-[calc(100vw-1.5rem)] overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-medium">
       <div className="border-b border-gray-100 bg-primary/5 px-4 py-3">
         <div className="truncate text-sm font-bold text-text-primary">{user.name}</div>
         <div className="truncate text-xs text-text-secondary">{user.email}</div>

@@ -8,6 +8,9 @@ import RateUserModal from '../funcionalidades/RateUserModal';
 import ConfirmModal from '../../components/feedback/ConfirmModal';
 import ReportModal from '../../components/feedback/ReportModal';
 import ErrorToast from '../../components/feedback/ErrorToast';
+import MapView from '../../components/common/map/MapView';
+import { getDirectionsUrl } from '../../services/locationService';
+import { getOptimizedImageUrl } from '../../utils/imageOptimizer';
 import {
   ArrowLeftIcon,
   MapPinIcon,
@@ -190,10 +193,10 @@ const ItemDetail = () => {
 
   return (
     <Layout>
-      <div className="max-w-3xl mx-auto px-4 py-8">
+      <div className="max-w-3xl mx-auto px-3.5 sm:px-4 py-6 sm:py-8 overflow-hidden">
 
         {/* Back + Action Toolbar */}
-        <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
           <button
             onClick={() => navigate(-1)}
             className="inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-gray-800 transition-colors"
@@ -202,7 +205,7 @@ const ItemDetail = () => {
             Volver
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {/* Botón Denunciar (Para usuarios autenticados o invitados con intercepción) */}
             {!isOwner && (
               <button
@@ -251,17 +254,17 @@ const ItemDetail = () => {
         </div>
 
         {/* Title row */}
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900 leading-snug mb-1">
+        <div className="flex flex-col sm:flex-row items-start justify-between gap-3 sm:gap-4 mb-6">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug mb-1 break-words">
               {item.title}
             </h1>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 break-words">
               {item.description || 'Sin descripción.'}
             </p>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 flex-shrink-0">
             <span className={`text-xs font-semibold px-3 py-1 rounded-full ${state.color}`}>
               {state.label}
             </span>
@@ -306,8 +309,12 @@ const ItemDetail = () => {
               onClick={() => setSelectedImage(item.images[0])}
             >
               <img
-                src={item.images[0]}
-                alt="Foto principal"
+                src={getOptimizedImageUrl(item.images[0], { width: 900 })}
+                alt={item.title || "Foto principal"}
+                loading="eager"
+                fetchPriority="high"
+                width="800"
+                height="450"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -319,7 +326,14 @@ const ItemDetail = () => {
                     className="aspect-square bg-gray-100 rounded-xl overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => setSelectedImage(url)}
                   >
-                    <img src={url} alt={`Foto ${idx + 2}`} className="w-full h-full object-cover" />
+                    <img
+                      src={getOptimizedImageUrl(url, { width: 200 })}
+                      alt={`Foto ${idx + 2}`}
+                      loading="lazy"
+                      width="150"
+                      height="150"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                 ))}
               </div>
@@ -373,7 +387,7 @@ const ItemDetail = () => {
 
           <div className="px-5 py-4">
             <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Ubicación</p>
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 mb-2">
               <div className="flex items-start gap-2">
                 <MapPinIcon className="w-4 h-4 text-gray-400 mt-0.5 flex-shrink-0" />
                 <span className="text-sm text-gray-700">
@@ -387,11 +401,51 @@ const ItemDetail = () => {
                   rel="noopener noreferrer"
                   className="flex-shrink-0 inline-flex items-center gap-1 text-xs text-green-700 hover:text-green-800 font-medium transition-colors"
                 >
-                  Ver mapa
+                  Google Maps
                   <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
                 </a>
               )}
             </div>
+
+            {/* Mapa Interactivo con Pin del Material */}
+            {(() => {
+              const itemLng = item.location?.coordinates ? item.location.coordinates[0] : item.location?.lng;
+              const itemLat = item.location?.coordinates ? item.location.coordinates[1] : item.location?.lat;
+              if (!itemLat || !itemLng || isNaN(itemLat) || isNaN(itemLng)) return null;
+
+              return (
+                <div className="mt-3 overflow-hidden rounded-xl border border-gray-200 shadow-xs">
+                  <MapView
+                    center={[itemLng, itemLat]}
+                    zoom={14}
+                    markers={[{
+                      id: item._id,
+                      coordinates: [itemLng, itemLat],
+                      title: item.title,
+                      badge: categoryNames[item.category] || item.category,
+                      description: item.address || 'Ubicación para retiro del material',
+                      color: '#16A085'
+                    }]}
+                    height="260px"
+                    interactive={true}
+                    showControls={true}
+                    showStyleSelector={true}
+                  />
+                  <div className="bg-gray-50 px-3 py-2 border-t border-gray-200 flex items-center justify-between text-xs">
+                    <span className="text-gray-500 font-medium">MapLibre + OpenFreeMap</span>
+                    <a
+                      href={getDirectionsUrl(itemLat, itemLng)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-emerald-700 hover:text-emerald-800 font-semibold inline-flex items-center gap-1 transition"
+                    >
+                      Cómo llegar (OSM)
+                      <ArrowTopRightOnSquareIcon className="w-3.5 h-3.5" />
+                    </a>
+                  </div>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -401,7 +455,7 @@ const ItemDetail = () => {
             {item.ownerId?.phone && (
               user ? (
                 <a
-                  href={`https://wa.me/${cleanPhone(item.ownerId.phone)}?text=Hola%20${encodeURIComponent(item.ownerId.name)},%20vi%20tu%20publicación%20"${encodeURIComponent(item.title)}"%20en%20CirculApp%20y%20me%20interesa.`}
+                  href={`https://wa.me/${cleanPhone(item.ownerId.phone)}?text=Hola%20${encodeURIComponent(item.ownerId.name)},%20vi%20tu%20publicación%20"${encodeURIComponent(item.title)}"%20en%20ComunaRed%20y%20me%20interesa.`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex-1 flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 active:scale-[0.98] text-white text-sm font-medium px-5 py-3 rounded-xl transition-all duration-150 cursor-pointer shadow-xs"
