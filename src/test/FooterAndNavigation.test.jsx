@@ -5,7 +5,7 @@ import Footer from '../components/layout/Footer';
 
 describe('Componente Footer y Navegación Legal (Frontend)', () => {
 
-  it('Debe renderizar la cabecera local con el badge de Charbonnier', () => {
+  it('Debe renderizar la cabecera local con el badge de Punilla', () => {
     render(
       <MemoryRouter>
         <Footer />
@@ -13,7 +13,7 @@ describe('Componente Footer y Navegación Legal (Frontend)', () => {
     );
 
     expect(screen.getAllByText(/(ComunaRed|CirculApp)/i)[0]).toBeInTheDocument();
-    expect(screen.getByText('Charbonnier')).toBeInTheDocument();
+    expect(screen.getByText('Punilla')).toBeInTheDocument();
     expect(screen.getByText(/Valle de Punilla · Córdoba/i)).toBeInTheDocument();
   });
 

@@ -10,7 +10,7 @@ const legalDocuments = {
     content: (
       <div className="space-y-4 text-xs text-gray-600 leading-relaxed">
         <p>
-          Bienvenido a <strong>ComunaRed</strong>, una plataforma comunitaria de economía circular diseñada para facilitar el intercambio, recuperación y aprovechamiento de materiales reciclables y reutilizables en la <strong>Comuna de Charbonnier</strong> y el Valle de Punilla.
+          Bienvenido a <strong>ComunaRed</strong>, una plataforma comunitaria de economía circular diseñada para facilitar el intercambio, recuperación y aprovechamiento de materiales reciclables y reutilizables en el <strong>Valle de Punilla</strong>.
         </p>
         <h4 className="font-bold text-gray-800 text-sm">1. Propósito Comunitario</h4>
         <p>
@@ -33,7 +33,7 @@ const legalDocuments = {
     content: (
       <div className="space-y-4 text-xs text-gray-600 leading-relaxed">
         <p>
-          En <strong>ComunaRed</strong> valoramos profundamente la privacidad de los vecinos de Charbonnier. Esta política describe cómo tratamos la información personal recopilada a través de la plataforma.
+          En <strong>ComunaRed</strong> valoramos profundamente la privacidad de los vecinos de Punilla. Esta política describe cómo tratamos la información personal recopilada a través de la plataforma.
         </p>
         <h4 className="font-bold text-gray-800 text-sm">1. Datos Recopilados</h4>
         <p>
@@ -63,7 +63,7 @@ const legalDocuments = {
         </div>
         <h4 className="font-bold text-gray-800 text-sm">1. Seguridad en los Encuentros</h4>
         <p>
-          Recomendamos coordinar retiros de materiales durante horarios diurnos, preferentemente en lugares públicos iluminados o directamente en los Puntos Verdes oficiales de la Comuna de Charbonnier.
+          Recomendamos coordinar retiros de materiales durante horarios diurnos, preferentemente en lugares públicos iluminados o directamente en los Puntos Verdes oficiales de Punilla.
         </p>
         <h4 className="font-bold text-gray-800 text-sm">2. Estado y Manipulación de Materiales</h4>
         <p>
@@ -83,12 +83,12 @@ const legalDocuments = {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
           <div className="p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
             <span className="text-[11px] uppercase font-bold text-emerald-800 tracking-wider block mb-1">Mesa Técnica Digital</span>
-            <p className="font-semibold text-gray-900 text-xs m-0">soporte@comunared.charbonnier.gob.ar</p>
+            <p className="font-semibold text-gray-900 text-xs m-0 min-h-[1.25rem]"></p>
             <span className="text-[10px] text-gray-500">Respuesta en 24 a 48 hs hábiles</span>
           </div>
           <div className="p-3.5 bg-gray-50 border border-gray-200 rounded-xl">
-            <span className="text-[11px] uppercase font-bold text-emerald-800 tracking-wider block mb-1">Punto Verde Charbonnier</span>
-            <p className="font-semibold text-gray-900 text-xs m-0">Ruta Nacional 38, Charbonnier, Córdoba</p>
+            <span className="text-[11px] uppercase font-bold text-emerald-800 tracking-wider block mb-1">Punto Verde Punilla</span>
+            <p className="font-semibold text-gray-900 text-xs m-0">Ruta Nacional 38, Punilla, Córdoba</p>
             <span className="text-[10px] text-gray-500">Lunes a Viernes de 08:00 a 14:00 hs</span>
           </div>
         </div>
@@ -96,12 +96,12 @@ const legalDocuments = {
     )
   },
   nosotros: {
-    title: 'Sobre el Proyecto ComunaRed & Charbonnier',
+    title: 'Sobre el Proyecto ComunaRed & Punilla',
     badge: 'Comunidad & Territorio',
     content: (
       <div className="space-y-4 text-xs text-gray-600 leading-relaxed">
         <p>
-          <strong>ComunaRed</strong> nace como una respuesta comunitaria a los desafíos de gestión de residuos en el norte del <strong>Valle de Punilla</strong>, uniendo tecnología accesible con la vocación ambiental de los vecinos y trabajadores del reciclaje de Charbonnier.
+          <strong>ComunaRed</strong> nace como una respuesta comunitaria a los desafíos de gestión de residuos en el norte del <strong>Valle de Punilla</strong>, uniendo tecnología accesible con la vocación ambiental de los vecinos y trabajadores del reciclaje de Punilla.
         </p>
         <h4 className="font-bold text-gray-800 text-sm">Nuestra Misión</h4>
         <p>
@@ -134,7 +134,7 @@ export default function Footer() {
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-lg text-gray-900 tracking-tight">ComunaRed</span>
                   <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] border border-[#C2EAD9]">
-                    Charbonnier
+                    Punilla
                   </span>
                 </div>
                 <p className="text-xs text-gray-600 mt-0.5 font-medium">
@@ -172,7 +172,7 @@ export default function Footer() {
                 </li>
                 <li>
                   <button onClick={openDoc('nosotros')} className="hover:text-[#0F6E56] transition-colors text-left cursor-pointer bg-transparent border-0 p-0 text-inherit">
-                    Comuna de Charbonnier
+                    Valle de Punilla
                   </button>
                 </li>
                 <li>
@@ -335,7 +335,7 @@ export default function Footer() {
           {/* Barra Inferior / Subfooter */}
           <div className="pt-8 mt-4 border-t border-[#E4EAE1] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-gray-600 font-medium">
             <p className="m-0 text-center sm:text-left">
-              © {currentYear} <strong>ComunaRed</strong> · Plataforma de Economía Circular. Desarrollado para la <strong>Comuna de Charbonnier</strong>, Córdoba.
+              © {currentYear} <strong>ComunaRed</strong> · Plataforma de Economía Circular. Desarrollado para el <strong>Valle de Punilla</strong>, Córdoba.
             </p>
 
             {/* Redes Sociales Comunitarias */}

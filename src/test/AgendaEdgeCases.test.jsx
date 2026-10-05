@@ -53,7 +53,7 @@ describe('Componente Agenda - Pruebas de Casos Extremos y Resiliencia (Frontend)
         _id: '60c72b2f9b1d8b2bad000001',
         title: 'Lote de Cartón Corrugado Limpio',
         category: 'papel',
-        address: 'Charbonnier Centro',
+        address: 'Punilla Centro',
         ownerId: {
           name: 'Carlos Vecino',
           phone: null // Caso crítico que antes provocaba TypeError

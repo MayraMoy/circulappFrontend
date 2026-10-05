@@ -99,20 +99,20 @@ describe('Componente PublishItem - Pruebas de Formulario y Validación (Frontend
       data: {
         lat: -30.7782,
         lng: -64.5522,
-        formattedAddress: 'Charbonier, Córdoba, Argentina'
+        formattedAddress: 'Punilla, Córdoba, Argentina'
       }
     });
 
     renderPublishItem();
 
     const addressInput = screen.getByPlaceholderText(/Ej: Av. Rivadavia 1234, Buenos Aires/i);
-    fireEvent.change(addressInput, { target: { value: 'Charbonier' } });
+    fireEvent.change(addressInput, { target: { value: 'Punilla' } });
 
     const buscarBtn = screen.getByRole('button', { name: /Buscar Mapa/i });
     fireEvent.click(buscarBtn);
 
     await waitFor(() => {
-      expect(screen.getByText(/Charbonier, Córdoba, Argentina/i)).toBeInTheDocument();
+      expect(screen.getByText(/Punilla, Córdoba, Argentina/i)).toBeInTheDocument();
     });
   });
 
