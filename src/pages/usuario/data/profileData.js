@@ -5,5 +5,8 @@ export const CATEGORY_NAMES = {
   metal: 'Metal',
   textil: 'Textil',
   electronico: 'Electrónico',
+  madera: 'Madera',
+  especiales: 'Especiales',
+  organicos: 'Orgánicos',
   otro: 'Otro'
 };

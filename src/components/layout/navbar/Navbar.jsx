@@ -109,7 +109,7 @@ const Navbar = () => {
             >
               <i className="ti ti-speakerphone text-sm sm:text-base text-[#0F6E56]" aria-hidden="true" />
               <span className="hidden md:inline">¡Tus Comentarios!</span>
-              <span className="inline md:hidden">Feedback</span>
+              <span className="inline md:hidden">Comentarios</span>
             </button>
           </div>
         ) : (
@@ -150,7 +150,7 @@ const Navbar = () => {
             >
               <i className="ti ti-speakerphone text-sm sm:text-base text-[#0F6E56]" aria-hidden="true" />
               <span className="hidden md:inline">¡Tus Comentarios!</span>
-              <span className="inline md:hidden">Feedback</span>
+              <span className="inline md:hidden">Comentarios</span>
             </button>
           </div>
         )}

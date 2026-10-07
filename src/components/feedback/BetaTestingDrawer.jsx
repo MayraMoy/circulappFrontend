@@ -6,7 +6,7 @@ const ADVANCES_LIST = [
     id: "map_osm_vector",
     title: "Mapa Interactivo con OpenStreetMap & MapLibre",
     status: "Activo / En prueba",
-    description: "Búsqueda precisa por ciudad y dirección con zoom detallado a nivel de vivienda y fijación por arrastre de pin.",
+    description: "Búsqueda precisa por ciudad y dirección con zoom detallado a nivel de vivienda y fijación por arrastre de marcador.",
     icon: "ti-map-2",
     badgeColor: "bg-emerald-100 text-emerald-800"
   },
@@ -65,7 +65,7 @@ const BetaTestingDrawer = ({ isOpen, onClose, onOpenGeneralFeedback }) => {
     setSubmittingTest(true);
     try {
       await feedbackService.createFeedback({
-        title: `Testing: ${selectedFeature.title}`,
+        title: `Pruebas: ${selectedFeature.title}`,
         comment: testComment.trim(),
         type: "beta_feature",
         category: "rendimiento",
@@ -110,7 +110,7 @@ const BetaTestingDrawer = ({ isOpen, onClose, onOpenGeneralFeedback }) => {
                 </span>
               </div>
               <p className="text-xs text-emerald-100 m-0 mt-0.5">
-                Testeo y feedback de nuevas funciones
+                Pruebas y comentarios de nuevas funciones
               </p>
             </div>
           </div>
@@ -156,7 +156,7 @@ const BetaTestingDrawer = ({ isOpen, onClose, onOpenGeneralFeedback }) => {
                 : "border-transparent text-gray-500 hover:text-gray-800"
             }`}
           >
-            + Testear
+            + Probar
           </button>
         </div>
 
@@ -203,7 +203,7 @@ const BetaTestingDrawer = ({ isOpen, onClose, onOpenGeneralFeedback }) => {
                     className="w-full py-1.5 px-3 rounded-xl bg-gray-50 hover:bg-[#E1F5EE] hover:text-[#0F6E56] text-gray-700 text-xs font-semibold border border-gray-200 hover:border-[#A3E0CB] transition flex items-center justify-center gap-1.5"
                   >
                     <i className="ti ti-check" />
-                    Dejar feedback de esta función
+                    Dejar comentarios de esta función
                   </button>
                 </div>
               ))}
@@ -281,7 +281,7 @@ const BetaTestingDrawer = ({ isOpen, onClose, onOpenGeneralFeedback }) => {
               {testSuccess ? (
                 <div className="py-8 text-center bg-[#E1F5EE] rounded-2xl border border-[#A3E0CB] p-4">
                   <span className="text-2xl block mb-2">🎉</span>
-                  <h4 className="text-xs font-bold text-[#0F6E56]">¡Reporte de testing enviado!</h4>
+                  <h4 className="text-xs font-bold text-[#0F6E56]">¡Reporte de pruebas enviado!</h4>
                   <p className="text-[11px] text-[#0F6E56]/80 mt-1">
                     Se ha sumado a la lista comunitaria para evitar duplicados.
                   </p>
@@ -290,7 +290,7 @@ const BetaTestingDrawer = ({ isOpen, onClose, onOpenGeneralFeedback }) => {
                 <form onSubmit={handleSendFeatureTest} className="space-y-3.5">
                   <div>
                     <label className="block text-[11px] font-semibold text-gray-600 uppercase mb-1">
-                      Función a testear
+                      Función a probar
                     </label>
                     <div className="p-2.5 rounded-xl bg-gray-100 border border-gray-200 text-xs font-bold text-gray-800">
                       {selectedFeature.title}

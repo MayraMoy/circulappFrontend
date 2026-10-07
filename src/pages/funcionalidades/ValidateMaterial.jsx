@@ -81,7 +81,7 @@ const ValidateMaterial = () => {
             <div className="pt-4 border-t border-gray-100">
               <div className="flex justify-between items-center mb-2.5">
                 <label className="text-[11px] font-bold text-gray-500 uppercase tracking-wider m-0">
-                  Checklist de Validación <span className="text-rose-500">*</span>
+                  Lista de verificación de Validación <span className="text-rose-500">*</span>
                 </label>
                 <span className="text-xs font-semibold text-[#16a085]">
                   {checklist.length} / {CHECKLIST_ITEMS.length} completados
@@ -179,7 +179,7 @@ const ValidateMaterial = () => {
         isOpen={showSuccessModal}
         title="¡Material Validado!"
         message="El fardo ha sido certificado exitosamente bajo la metodología estandarizada."
-        confirmText="Ir al Dashboard"
+        confirmText="Ir al Inicio"
         cancelText=""
         type="success"
         onConfirm={() => {

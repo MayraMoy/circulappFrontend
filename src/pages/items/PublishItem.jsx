@@ -20,6 +20,9 @@ const categories = [
   { id: 'metal',       name: 'Metal',           icon: 'tool' },
   { id: 'textil',      name: 'Textil',          icon: 'shirt' },
   { id: 'electronico', name: 'Electrónico',     icon: 'device-laptop' },
+  { id: 'madera',      name: 'Madera',          icon: 'trees' },
+  { id: 'especiales',  name: 'Especiales',      icon: 'alert-triangle' },
+  { id: 'organicos',   name: 'Orgánicos',       icon: 'leaf' },
   { id: 'otro',        name: 'Otro',            icon: 'box' }
 ];
 
@@ -30,7 +33,8 @@ const PublishItem = () => {
 
   const [formData, setFormData] = useState({
     title: '', description: '', category: 'plastico',
-    address: '', lat: null, lng: null
+    address: '', lat: null, lng: null,
+    isFree: true, price: ''
   });
   const [images, setImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
@@ -275,6 +279,10 @@ const PublishItem = () => {
       return setError('Debes validar la ubicación técnica mediante el botón "Buscar Mapa" o "GPS".');
     }
 
+    if (!formData.isFree && (!formData.price || Number(formData.price) <= 0)) {
+      return setError('Si la publicación no es gratis, debes indicar un precio mayor a 0.');
+    }
+
     setSubmitting(true);
     const fd = new FormData();
     fd.append('title', formData.title);
@@ -283,6 +291,8 @@ const PublishItem = () => {
     fd.append('address', finalAddress);
     fd.append('lat', finalLat);
     fd.append('lng', finalLng);
+    fd.append('isFree', formData.isFree);
+    fd.append('price', formData.isFree ? 0 : Number(formData.price));
     images.forEach(file => fd.append('images', file));
 
     try {
@@ -549,6 +559,57 @@ const PublishItem = () => {
             </div>
           </div>
 
+          {/* Modalidad de precio o gratuidad */}
+          <div className="pi-card">
+            <p className="pi-section-label">¿Es gratis o tiene costo?</p>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: formData.isFree ? '0' : '14px' }}>
+              <button
+                type="button"
+                className={`pi-cat-btn${formData.isFree ? ' active' : ''}`}
+                style={{ padding: '12px', fontSize: '13px', fontWeight: 600, justifyContent: 'center' }}
+                onClick={() => setFormData(prev => ({ ...prev, isFree: true, price: '' }))}
+              >
+                <i className="ti ti-gift" aria-hidden="true" />
+                Gratis (Donación)
+              </button>
+              <button
+                type="button"
+                className={`pi-cat-btn${!formData.isFree ? ' active' : ''}`}
+                style={{ padding: '12px', fontSize: '13px', fontWeight: 600, justifyContent: 'center' }}
+                onClick={() => setFormData(prev => ({ ...prev, isFree: false }))}
+              >
+                <i className="ti ti-currency-dollar" aria-hidden="true" />
+                Con costo
+              </button>
+            </div>
+
+            {!formData.isFree && (
+              <div className="pi-field" style={{ marginTop: '12px' }}>
+                <label className="pi-label">
+                  Precio (ARS) <span>*</span>
+                </label>
+                <div style={{ position: 'relative' }}>
+                  <span style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', fontWeight: 700, color: '#6B7280' }}>$</span>
+                  <input
+                    type="number"
+                    name="price"
+                    min="1"
+                    step="any"
+                    className="pi-input"
+                    style={{ paddingLeft: '28px' }}
+                    placeholder="Ej: 1500"
+                    value={formData.price}
+                    onChange={handleChange}
+                    required={!formData.isFree}
+                  />
+                </div>
+                <p style={{ margin: '6px 0 0', fontSize: '11px', color: '#6B7280' }}>
+                  Indica el valor total del material publicado.
+                </p>
+              </div>
+            )}
+          </div>
+
           {/* Sección 3 — Ubicación */}
           <div className="pi-card">
             <p className="pi-section-label">Ubicación</p>
@@ -623,7 +684,7 @@ const PublishItem = () => {
                 <p style={{ margin: '8px 0 0', fontSize: '12px', color: '#4B5563', lineHeight: 1.4, display: 'flex', alignItems: 'flex-start', gap: '6px' }}>
                   <i className="ti ti-info-circle" style={{ color: '#0F6E56', fontSize: 15, flexShrink: 0, marginTop: '1px' }} aria-hidden="true" />
                   <span>
-                    Buscá tu ciudad o barrio arriba y hacé clic sobre tu casa o arrastrá el pin para fijar la ubicación exacta.
+                    Buscá tu ciudad o barrio arriba y hacé clic sobre tu casa o arrastrá el marcador para fijar la ubicación exacta.
                   </span>
                 </p>
               </div>
@@ -746,7 +807,7 @@ const PublishItem = () => {
                   onClick={() => navigate('/dashboard')}
                   className="w-full sm:w-1/2 rounded-xl border border-gray-200 py-2.5 px-4 text-sm font-semibold text-gray-600 hover:bg-gray-50 transition-colors cursor-pointer"
                 >
-                  Ir al Dashboard
+                  Ir al Inicio
                 </button>
                 <button
                   type="submit"

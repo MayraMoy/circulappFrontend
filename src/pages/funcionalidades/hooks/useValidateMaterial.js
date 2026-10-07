@@ -65,7 +65,7 @@ const useValidateMaterial = () => {
       return;
     }
     if (checklist.length !== CHECKLIST_ITEMS.length) {
-      setError('Debes completar todos los puntos del checklist de validación.');
+      setError('Debes completar todos los puntos de la lista de verificación de validación.');
       return;
     }
 

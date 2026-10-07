@@ -10,7 +10,7 @@ import IconRecycle from "../icons/IconRecycle";
 
 export const NAVBAR_LINKS = [
   {
-    name: "Dashboard",
+    name: "Inicio",
     path: "/dashboard",
     icon: IconDashboard,
     roles: ["user", "gestor", "coordinador", "admin"],

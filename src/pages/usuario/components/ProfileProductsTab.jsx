@@ -63,9 +63,20 @@ const ProfileProductsTab = ({
                     <h3 className="text-sm font-semibold text-gray-800 m-0 truncate">
                       {item.title}
                     </h3>
-                    <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
-                      {CATEGORY_NAMES[item.category] || item.category}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className="text-[10px] bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">
+                        {CATEGORY_NAMES[item.category] || item.category}
+                      </span>
+                      {item.isFree !== false ? (
+                        <span className="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full">
+                          Gratis
+                        </span>
+                      ) : (
+                        <span className="text-[10px] font-bold bg-gray-100 text-gray-900 px-2 py-0.5 rounded-full">
+                          ${Number(item.price || 0).toLocaleString('es-AR')}
+                        </span>
+                      )}
+                    </div>
                   </div>
 
                   <p className="text-xs text-gray-500 m-0 mb-3 leading-snug line-clamp-2">
@@ -89,7 +100,9 @@ const ProfileProductsTab = ({
                         title: item.title,
                         description: item.description || '',
                         category: item.category,
-                        address: item.address || ''
+                        address: item.address || '',
+                        isFree: item.isFree !== false,
+                        price: item.price || 0
                       });
                     }}
                   >

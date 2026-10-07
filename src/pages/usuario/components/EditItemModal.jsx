@@ -37,6 +37,50 @@ const EditItemModal = ({ editingItem, setEditingItem, editItemData, setEditItemD
           </div>
 
           <div>
+            <label className="block text-xs font-semibold text-gray-500 mb-1">¿Es gratis o tiene costo?</label>
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              <button
+                type="button"
+                className={`py-2 px-3 text-xs font-bold rounded-lg border transition cursor-pointer ${
+                  editItemData.isFree !== false
+                    ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]'
+                    : 'bg-white border-gray-300 text-gray-600'
+                }`}
+                onClick={() => setEditItemData({ ...editItemData, isFree: true, price: 0 })}
+              >
+                Gratis
+              </button>
+              <button
+                type="button"
+                className={`py-2 px-3 text-xs font-bold rounded-lg border transition cursor-pointer ${
+                  editItemData.isFree === false
+                    ? 'bg-[#E1F5EE] border-[#0F6E56] text-[#0F6E56]'
+                    : 'bg-white border-gray-300 text-gray-600'
+                }`}
+                onClick={() => setEditItemData({ ...editItemData, isFree: false })}
+              >
+                Con costo
+              </button>
+            </div>
+
+            {editItemData.isFree === false && (
+              <div>
+                <label className="block text-xs font-semibold text-gray-500 mb-1">Precio (ARS)</label>
+                <input
+                  type="number"
+                  min="1"
+                  step="any"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 text-sm focus:outline-none focus:ring-2 focus:ring-[#16a085]"
+                  value={editItemData.price || ''}
+                  onChange={e => setEditItemData({ ...editItemData, price: e.target.value })}
+                  placeholder="Ej: 1500"
+                  required={editItemData.isFree === false}
+                />
+              </div>
+            )}
+          </div>
+
+          <div>
             <label className="block text-xs font-semibold text-gray-500 mb-1">Descripción</label>
             <textarea
               rows="3"

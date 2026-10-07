@@ -14,7 +14,11 @@ const categoryConfig = [
   { id: 'vidrio', name: 'Vidrio', icon: 'glass', accent: '#7F77DD' },
   { id: 'metal', name: 'Metal', icon: 'tool', accent: '#888780' },
   { id: 'textil', name: 'Textil', icon: 'shirt', accent: '#D85A30' },
-  { id: 'electronico', name: 'Electrónico', icon: 'device-laptop', accent: '#D4537E' }
+  { id: 'electronico', name: 'Electrónico', icon: 'device-laptop', accent: '#D4537E' },
+  { id: 'madera', name: 'Madera', icon: 'trees', accent: '#8D6E63' },
+  { id: 'especiales', name: 'Especiales', icon: 'alert-triangle', accent: '#E65100' },
+  { id: 'organicos', name: 'Orgánicos', icon: 'leaf', accent: '#2E7D32' },
+  { id: 'otro', name: 'Otro', icon: 'box', accent: '#757575' }
 ];
 
 const stateConfig = [
@@ -618,11 +622,20 @@ const SearchItems = () => {
                       <div className="si-card-body">
                         <h2 className="si-card-title">{item.title}</h2>
 
-                        <div className="si-tags">
+                        <div className="si-tags" style={{ display: 'flex', gap: '6px', alignItems: 'center', flexWrap: 'wrap' }}>
                           <span className="si-cat-tag">
                             <i className={`ti ti-${cat.icon}`} style={{ fontSize: 13 }} aria-hidden="true" />
                             {cat.name}
                           </span>
+                          {item.isFree !== false ? (
+                            <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: '#E1F5EE', color: '#0F6E56', border: '1px solid #A3E0CB' }}>
+                              Gratis
+                            </span>
+                          ) : (
+                            <span style={{ fontSize: '11px', fontWeight: 700, padding: '2px 8px', borderRadius: '12px', background: '#F3F4F6', color: '#111827', border: '1px solid #E5E7EB' }}>
+                              ${Number(item.price || 0).toLocaleString('es-AR')}
+                            </span>
+                          )}
                         </div>
 
                         <div>

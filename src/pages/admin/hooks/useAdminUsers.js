@@ -11,6 +11,9 @@ export const CATEGORY_NAMES = {
   metal: 'Metal',
   textil: 'Textil',
   electronico: 'Electrónico',
+  madera: 'Madera',
+  especiales: 'Especiales',
+  organicos: 'Orgánicos',
   otro: 'Otro'
 };
 
@@ -138,6 +141,8 @@ const useAdminUsers = () => {
       description: item.description || '',
       category: item.category || 'plastico',
       address: item.address || '',
+      isFree: item.isFree !== false,
+      price: item.price || 0,
       keepImages: item.images || [],
       newFiles: []
     });
@@ -153,6 +158,8 @@ const useAdminUsers = () => {
       formData.append('description', editItemData.description);
       formData.append('category', editItemData.category);
       formData.append('address', editItemData.address);
+      formData.append('isFree', editItemData.isFree !== false);
+      formData.append('price', editItemData.isFree === false ? (Number(editItemData.price) || 0) : 0);
 
       if (editItemData.keepImages && editItemData.keepImages.length > 0) {
         editItemData.keepImages.forEach(img => formData.append('keepImages', img));

@@ -109,6 +109,8 @@ export default function useProfile() {
       formData.append('description', editItemData.description);
       formData.append('category', editItemData.category);
       formData.append('address', editItemData.address);
+      formData.append('isFree', editItemData.isFree !== false);
+      formData.append('price', editItemData.isFree === false ? (Number(editItemData.price) || 0) : 0);
 
       if (editItemData.keepImages && editItemData.keepImages.length > 0) {
         editItemData.keepImages.forEach(img => formData.append('keepImages', img));

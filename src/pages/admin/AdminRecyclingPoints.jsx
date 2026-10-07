@@ -14,6 +14,9 @@ const CATEGORIES_LIST = [
   { id: 'metal', name: 'Metal', color: '#888780' },
   { id: 'textil', name: 'Textil', color: '#D85A30' },
   { id: 'electronico', name: 'Electrónico', color: '#D4537E' },
+  { id: 'madera', name: 'Madera', color: '#8D6E63' },
+  { id: 'especiales', name: 'Especiales', color: '#E65100' },
+  { id: 'organicos', name: 'Orgánicos', color: '#2E7D32' },
   { id: 'otro', name: 'Otro', color: '#16A085' }
 ];
 
@@ -224,7 +227,7 @@ const AdminRecyclingPoints = () => {
                 Puntos Limpios y Centros de Acopio
               </h1>
               <p className="text-emerald-100 text-sm mt-1 max-w-xl">
-                Personaliza al 100% los puntos de reciclaje en el mapa: ubicación por coordenadas, colores de pin, horarios de atención y tipos de material recibidos.
+                Personaliza al 100% los puntos de reciclaje en el mapa: ubicación por coordenadas, colores de marcador, horarios de atención y tipos de material recibidos.
               </p>
             </div>
 
@@ -490,10 +493,10 @@ const AdminRecyclingPoints = () => {
                 />
               </div>
 
-              {/* Personalización visual del Pin: Color */}
+              {/* Personalización visual del Marcador: Color */}
               <div>
                 <label className="block text-xs font-semibold text-gray-700 uppercase mb-1.5">
-                  Color Personalizado del Pin
+                  Color Personalizado del Marcador
                 </label>
                 <div className="flex items-center gap-2 flex-wrap">
                   {PRESET_COLORS.map(color => (

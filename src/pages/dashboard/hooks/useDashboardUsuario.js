@@ -30,10 +30,11 @@ export const useDashboardUsuario = () => {
         setMyItems(myData);
         setNearbyItems(nearbyData.filter((item) => (item.ownerId?._id || item.ownerId) !== userId));
 
+        const validatedCount = myData.filter((i) => i.processingState === "validado").length;
         setStats({
           totalPublished: myData.length,
-          totalValidated: myData.filter((i) => i.processingState === "validado").length,
-          impactScore: myData.length * 10,
+          totalValidated: validatedCount,
+          impactScore: validatedCount * 25, // Puntos otorgados únicamente cuando la publicación es aprobada/validada
         });
       });
     };

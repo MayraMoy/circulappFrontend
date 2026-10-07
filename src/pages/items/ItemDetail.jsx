@@ -33,6 +33,9 @@ const categoryNames = {
   metal:       'Metal',
   textil:      'Textil',
   electronico: 'Electrónico',
+  madera:      'Madera',
+  especiales:  'Especiales',
+  organicos:   'Orgánicos',
   otro:        'Otro',
 };
 
@@ -265,9 +268,20 @@ const ItemDetail = () => {
           </div>
 
           <div className="flex flex-row sm:flex-col items-center sm:items-end gap-2 flex-shrink-0">
-            <span className={`text-xs font-semibold px-3 py-1 rounded-full ${state.color}`}>
-              {state.label}
-            </span>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className={`text-xs font-semibold px-3 py-1 rounded-full ${state.color}`}>
+                {state.label}
+              </span>
+              {item.isFree !== false ? (
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200">
+                  Gratis
+                </span>
+              ) : (
+                <span className="text-xs font-bold px-3 py-1 rounded-full bg-gray-100 text-gray-900 border border-gray-200">
+                  ${Number(item.price || 0).toLocaleString('es-AR')}
+                </span>
+              )}
+            </div>
 
             {/* BOTÓN DE APROBACIÓN / FARDADO EXCLUSIVO PARA GESTOR O ADMIN */}
             {(isGestor || isAdmin) && (
@@ -343,7 +357,7 @@ const ItemDetail = () => {
 
         {/* Info card */}
         <div className="bg-white border border-gray-200 rounded-2xl overflow-hidden shadow-sm mb-4">
-          <div className="grid grid-cols-2 divide-x divide-gray-100 border-b border-gray-100">
+          <div className="grid grid-cols-2 sm:grid-cols-3 divide-x divide-gray-100 border-b border-gray-100">
             <div className="px-5 py-4">
               <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Categoría</p>
               <div className="flex items-center gap-2">
@@ -354,6 +368,18 @@ const ItemDetail = () => {
               </div>
             </div>
             <div className="px-5 py-4">
+              <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 mb-1.5">Modalidad / Precio</p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-semibold text-gray-800">
+                  {item.isFree !== false ? (
+                    <span className="text-emerald-700 font-bold">Gratis (Donación)</span>
+                  ) : (
+                    <span className="text-gray-900 font-bold">${Number(item.price || 0).toLocaleString('es-AR')}</span>
+                  )}
+                </span>
+              </div>
+            </div>
+            <div className="px-5 py-4 col-span-2 sm:col-span-1">
               <div className="flex items-center justify-between mb-1.5">
                 <p className="text-xs font-semibold uppercase tracking-widest text-gray-400 m-0">Ofertante</p>
                 {!isOwner && item.ownerId && (
