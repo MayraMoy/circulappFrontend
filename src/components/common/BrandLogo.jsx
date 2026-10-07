@@ -21,38 +21,38 @@ export default function BrandLogo({
   const sizeMap = {
     xs: {
       symbol: 'h-7 w-auto',
-      full: 'h-8 w-auto',
+      full: 'h-10 w-auto',
       container: 'gap-1.5',
       text: 'text-sm',
       tagline: 'text-[9px]',
     },
     sm: {
       symbol: 'h-9 w-auto',
-      full: 'h-11 w-auto',
+      full: 'h-12 w-auto',
       container: 'gap-2',
       text: 'text-base',
       tagline: 'text-[10px]',
     },
     md: {
-      symbol: 'h-11 sm:h-12 w-auto',
-      full: 'h-12 sm:h-13 md:h-14 w-auto',
+      symbol: 'h-10 sm:h-11 w-auto',
+      full: 'h-14 sm:h-16 w-auto',
       container: 'gap-2.5',
-      text: 'text-lg',
-      tagline: 'text-xs',
+      text: 'text-xl sm:text-2xl',
+      tagline: 'text-[10px] sm:text-xs',
     },
     lg: {
-      symbol: 'h-16 w-auto',
-      full: 'h-20 w-auto',
+      symbol: 'h-14 sm:h-16 w-auto',
+      full: 'h-20 sm:h-24 w-auto',
       container: 'gap-3',
-      text: 'text-2xl',
-      tagline: 'text-sm',
+      text: 'text-2xl sm:text-3xl',
+      tagline: 'text-xs sm:text-sm',
     },
     xl: {
-      symbol: 'h-22 w-auto',
-      full: 'h-28 w-auto',
+      symbol: 'h-20 sm:h-24 w-auto',
+      full: 'h-28 sm:h-32 w-auto',
       container: 'gap-3.5',
-      text: 'text-3xl',
-      tagline: 'text-base',
+      text: 'text-3xl sm:text-4xl',
+      tagline: 'text-sm sm:text-base',
     },
   };
 
@@ -111,17 +111,22 @@ export default function BrandLogo({
               alt="ComunaRed Isotipo"
               width="48"
               height="48"
-              className={`${currentSize.symbol} object-contain transition-transform duration-200 group-hover:scale-105 ${imgClassName}`}
+              className={`${currentSize.symbol} object-contain transition-transform duration-200 group-hover:scale-105 flex-shrink-0 ${imgClassName}`}
               loading="eager"
               decoding="async"
             />
-            <div className="flex flex-col text-left leading-none">
-              <span className={`font-black tracking-tight text-gray-900 ${currentSize.text}`}>
-                <span className="text-emerald-700">Comuna</span>
-                <span className="text-amber-500">Red</span>
-              </span>
+            <div className="flex flex-col text-left leading-none justify-center">
+              <div className="flex items-center gap-1.5">
+                <span className={`font-black tracking-tight text-gray-900 ${currentSize.text} leading-none`}>
+                  <span className="text-[#0F6E56]">Comuna</span>
+                  <span className="text-[#D97706]">Red</span>
+                </span>
+                <span className="hidden sm:inline-block text-[9px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded-full bg-[#E1F5EE] text-[#0F6E56] border border-[#C2EAD9]">
+                  Punilla
+                </span>
+              </div>
               {showTagline && (
-                <span className={`font-semibold tracking-wider text-emerald-800/80 uppercase mt-0.5 ${currentSize.tagline}`}>
+                <span className={`font-semibold tracking-wide text-emerald-800/80 uppercase mt-1 ${currentSize.tagline} leading-none`}>
                   Comunidad Circular
                 </span>
               )}

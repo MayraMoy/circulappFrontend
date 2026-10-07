@@ -10,10 +10,10 @@ function Logo({ onClick }) {
   return (
     <div className="flex items-center">
       <BrandLogo
-        variant="full"
+        variant="combo"
         size="md"
         onClick={onClick}
-        className="py-0.5 px-1 rounded-xl hover:bg-emerald-50/60 transition-colors"
+        className="py-1 px-2 rounded-xl hover:bg-emerald-50/70 transition-colors"
       />
     </div>
   );
