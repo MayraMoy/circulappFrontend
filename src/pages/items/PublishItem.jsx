@@ -30,6 +30,7 @@ const PublishItem = () => {
   const { user, updateUser } = useContext(AuthContext);
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const errorRef = useRef(null);
 
   const [formData, setFormData] = useState({
     title: '', description: '', category: 'plastico',
@@ -39,6 +40,12 @@ const PublishItem = () => {
   const [images, setImages] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
   const [error, setError] = useState('');
+
+  useEffect(() => {
+    if (error && errorRef.current && typeof errorRef.current.scrollIntoView === 'function') {
+      errorRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }, [error]);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -500,12 +507,7 @@ const PublishItem = () => {
           <p>Completá los datos para que otros puedan encontrar y contactarte</p>
         </div>
 
-        {error && (
-          <div className="pi-error">
-            <i className="ti ti-alert-circle" style={{ fontSize: 16 }} aria-hidden="true" />
-            {error}
-          </div>
-        )}
+
 
         <form onSubmit={handleSubmit}>
 
@@ -757,6 +759,13 @@ const PublishItem = () => {
               <><i className="ti ti-circle-check" style={{ fontSize: 18 }} aria-hidden="true" /> Publicar material</>
             )}
           </button>
+
+          {error && (
+            <div ref={errorRef} className="pi-error" style={{ marginTop: '16px', marginBottom: '8px' }}>
+              <i className="ti ti-alert-circle" style={{ fontSize: 16 }} aria-hidden="true" />
+              <span>{error}</span>
+            </div>
+          )}
         </form>
       </div>
 
